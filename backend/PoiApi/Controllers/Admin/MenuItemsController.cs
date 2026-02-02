@@ -1,70 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using PoiApi.Data;
-using PoiApi.DTOs;
-using PoiApi.DTOs.Admin;
 using PoiApi.DTOs.Admin.Requests;
 using PoiApi.DTOs.App;
-using PoiApi.Models;
 
-namespace PoiApi.Controllers.Admin
+[ApiController]
+[Route("api/admin/menus/{menuId}/items")]
+public class MenuItemsController : ControllerBase
 {
-    [ApiController]
-    [Route("api/menus/{menuId}/items")]
-    public class MenuItemsController : ControllerBase
+    private readonly IMenuItemService _service;
+
+    public MenuItemsController(IMenuItemService service)
     {
-        private readonly AppDbContext _context;
+        _service = service;
+    }
 
-        public MenuItemsController(AppDbContext context)
-        {
-            _context = context;
-        }
+    [HttpGet]
+    public async Task<IActionResult> Get(int menuId)
+        => Ok(await _service.GetByMenuAsync(menuId));
 
-        // POST: api/menus/1/items create menu item
-        [HttpPost]
-        public async Task<IActionResult> CreateMenuItem(
-            int menuId,
-            [FromBody] CreateMenuItemDto dto)
-        {
-            var menu = await _context.Menus.FindAsync(menuId);
-            if (menu == null) return NotFound("Menu not found");
-
-            var item = new MenuItem
-            {
-                MenuId = menuId,
-                Name = dto.Name,
-                Price = dto.Price
-            };
-
-            _context.MenuItems.Add(item);
-            await _context.SaveChangesAsync();
-
-            return Ok(new AppMenuItemDto
-            {
-                Id = item.Id,
-                Name = item.Name,
-                Price = item.Price
-            }
-                );
-        }
-
-        // GET: api/menus/1/items
-        [HttpGet]
-        public async Task<IActionResult> GetMenuItems(int menuId)
-        {
-            var items = await _context.MenuItems
-                .Where(i => i.MenuId == menuId)
-                .Select(i => new AppMenuItemDto
-                {
-                    Id = i.Id,
-                    Name = i.Name,
-                    Price = i.Price
-                })
-                .ToListAsync();
-
-            return Ok(items);
-
-
-        }
+    [HttpPost]
+    public async Task<IActionResult> Create(int menuId, CreateMenuItemDto dto)
+    {
+        var result = await _service.CreateAsync(menuId, dto);
+        return result == null ? NotFound("Menu not found") : Ok(result);
     }
 }

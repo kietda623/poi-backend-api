@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\admin\\OneDrive\\Máy tính\\C# Project\\PoiApi\\PoiApi\\PoiApi.csproj": {}
+    "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\PoiApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\admin\\OneDrive\\Máy tính\\C# Project\\PoiApi\\PoiApi\\PoiApi.csproj": {
+    "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\PoiApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\admin\\OneDrive\\Máy tính\\C# Project\\PoiApi\\PoiApi\\PoiApi.csproj",
+        "projectUniqueName": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\PoiApi.csproj",
         "projectName": "PoiApi",
-        "projectPath": "C:\\Users\\admin\\OneDrive\\Máy tính\\C# Project\\PoiApi\\PoiApi\\PoiApi.csproj",
+        "projectPath": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\PoiApi.csproj",
         "packagesPath": "C:\\Users\\admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\admin\\OneDrive\\Máy tính\\C# Project\\PoiApi\\PoiApi\\obj\\",
+        "outputPath": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -51,23 +51,26 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "AutoMapper": {
-              "target": "Package",
-              "version": "[16.0.0, )"
-            },
             "AutoMapper.Extensions.Microsoft.DependencyInjection": {
               "target": "Package",
               "version": "[12.0.1, )"
             },
-            "Microsoft.EntityFrameworkCore": {
+            "BCrypt.Net-Next": {
               "target": "Package",
-              "version": "[8.0.13, )"
+              "version": "[4.0.3, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[8.0.2, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[8.0.13, )"
+              "version": "[8.0.2, )"
+            },
+            "Microsoft.IdentityModel.Tokens": {
+              "target": "Package",
+              "version": "[8.15.0, )"
             },
             "Pomelo.EntityFrameworkCore.MySql": {
               "target": "Package",
@@ -76,6 +79,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.5.0, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.15.0, )"
             }
           },
           "imports": [

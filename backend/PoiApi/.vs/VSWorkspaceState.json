@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Controllers",
+    "\\Controllers\\Admin",
+    "\\DTOs",
+    "\\Models",
+    "\\Services",
+    "\\Services\\Implementations",
+    "\\Services\\Interfaces"
+  ],
+  "SelectedNode": "\\PoiApi.csproj",
+  "PreviewInSolutionExplorer": false
+}
