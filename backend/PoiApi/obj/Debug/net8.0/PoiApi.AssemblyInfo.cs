@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PoiApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3ef78831e4a85fd4319ec8c67ed1300a6547ca8b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8d602f331463675d3ecceb723d66d34fa14156be")]
 [assembly: System.Reflection.AssemblyProductAttribute("PoiApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PoiApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
