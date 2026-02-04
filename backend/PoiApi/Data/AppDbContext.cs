@@ -14,6 +14,8 @@ namespace PoiApi.Data
         public DbSet<POI> POIs => Set<POI>();
         public DbSet<POITranslation> POITranslations => Set<POITranslation>();
 
+        public DbSet<Shop> Shops { get; set; }
+
         public DbSet<Menu> Menus => Set<Menu>();
         public DbSet<MenuItem> MenuItems => Set<MenuItem>();
 
@@ -36,20 +38,27 @@ namespace PoiApi.Data
                 .HasForeignKey(pt => pt.POIId);
 
             modelBuilder.Entity<Menu>()
-                .HasOne(m => m.Poi)
+                .HasOne(m => m.Shop)
                 .WithMany(p => p.Menus)
-                .HasForeignKey(m => m.PoiId);
+                .HasForeignKey(m => m.ShopId);
 
             modelBuilder.Entity<MenuItem>()
                 .HasOne(mi => mi.Menu)
                 .WithMany(m => m.MenuItems)
                 .HasForeignKey(mi => mi.MenuId);
 
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Shop)
+                .WithOne(s => s.Owner)
+                .HasForeignKey<Shop>(s => s.OwnerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Role>().HasData(
-    new Role { Id = 1, Name = RoleConstants.Admin },
-    new Role { Id = 2, Name = RoleConstants.Owner },
-    new Role { Id = 3, Name = RoleConstants.User }
+    new Role { Id = -1, Name = RoleConstants.Admin },
+    new Role { Id = -2, Name = RoleConstants.Owner },
+    new Role { Id = -3, Name = RoleConstants.User }
 );
+
 
         }
     }

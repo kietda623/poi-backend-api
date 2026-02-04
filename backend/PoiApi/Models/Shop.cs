@@ -1,15 +1,17 @@
 ﻿namespace PoiApi.Models
 {
-    public class Menu
+    public class Shop
     {
         public int Id { get; set; }
-        public int ShopId { get; set; }
-        public Shop Shop { get; set; } = null!;
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
+        public string? Address { get; set; }
+        public int OwnerId { get; set; }
+        public User Owner { get; set; } = null!;
+        public int? PoiId { get; set; }
+        public POI? Poi { get; set; }
+        public ICollection<Menu>? Menus { get; set; }
         public bool IsActive { get; set; } = true;
-        public int DisplayOrder { get; set; } = 0;
-        public ICollection<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

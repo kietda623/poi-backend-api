@@ -13,10 +13,11 @@ public class MenuService : IMenuService
         _context = context;
     }
 
-    public async Task<List<MenuAdminDto>> GetByPoiAsync(int poiId)
+    // ADMIN / OWNER
+    public async Task<List<MenuAdminDto>> GetByShopAsync(int shopId)
     {
         return await _context.Menus
-            .Where(m => m.PoiId == poiId)
+            .Where(m => m.ShopId == shopId)
             .Select(m => new MenuAdminDto
             {
                 Id = m.Id,
@@ -25,15 +26,16 @@ public class MenuService : IMenuService
             .ToListAsync();
     }
 
-    public async Task<MenuAdminDto?> CreateAsync(int poiId, CreateMenuDto dto)
+    // ADMIN / OWNER
+    public async Task<MenuAdminDto?> CreateAsync(int shopId, CreateMenuDto dto)
     {
-        var poiExists = await _context.POIs.AnyAsync(p => p.Id == poiId);
-        if (!poiExists) return null;
+        var shop = await _context.Shops.FindAsync(shopId);
+        if (shop == null) return null;
 
         var menu = new Menu
         {
             Name = dto.Name,
-            PoiId = poiId
+            ShopId = shopId
         };
 
         _context.Menus.Add(menu);

@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PoiApi.Data;
 using PoiApi.DTOs.Admin.Requests;
-using PoiApi.DTOs.App;
 
 [ApiController]
-[Route("api/admin/pois/{poiId}/menus")]
+[Route("api/admin/shops/{shopId}/menus")]
 public class MenusController : ControllerBase
 {
     private readonly IMenuService _menuService;
@@ -14,14 +12,21 @@ public class MenusController : ControllerBase
         _menuService = menuService;
     }
 
+    // GET: api/admin/shops/{shopId}/menus
     [HttpGet]
-    public async Task<IActionResult> Get(int poiId)
-        => Ok(await _menuService.GetByPoiAsync(poiId));
-
-    [HttpPost]
-    public async Task<IActionResult> Create(int poiId, CreateMenuDto dto)
+    public async Task<IActionResult> GetByShop(int shopId)
     {
-        var result = await _menuService.CreateAsync(poiId, dto);
-        return result == null ? NotFound("POI not found") : Ok(result);
+        var menus = await _menuService.GetByShopAsync(shopId);
+        return Ok(menus);
+    }
+
+    // POST: api/admin/shops/{shopId}/menus
+    [HttpPost]
+    public async Task<IActionResult> Create(int shopId, CreateMenuDto dto)
+    {
+        var menu = await _menuService.CreateAsync(shopId, dto);
+        if (menu == null) return NotFound("Shop not found");
+
+        return Ok(menu);
     }
 }

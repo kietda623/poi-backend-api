@@ -12,8 +12,8 @@ using PoiApi.Data;
 namespace PoiApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260204132848_SeedRoles")]
-    partial class SeedRoles
+    [Migration("20260204144449_AddShopEntity")]
+    partial class AddShopEntity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -142,19 +142,51 @@ namespace PoiApi.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            Id = -1,
                             Name = "ADMIN"
                         },
                         new
                         {
-                            Id = 2,
+                            Id = -2,
                             Name = "OWNER"
                         },
                         new
                         {
-                            Id = 3,
+                            Id = -3,
                             Name = "USER"
                         });
+                });
+
+            modelBuilder.Entity("PoiApi.Models.Shop", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId")
+                        .IsUnique();
+
+                    b.ToTable("Shops");
                 });
 
             modelBuilder.Entity("PoiApi.Models.User", b =>
@@ -221,6 +253,17 @@ namespace PoiApi.Migrations
                     b.Navigation("Menu");
                 });
 
+            modelBuilder.Entity("PoiApi.Models.Shop", b =>
+                {
+                    b.HasOne("PoiApi.Models.User", "Owner")
+                        .WithOne("Shop")
+                        .HasForeignKey("PoiApi.Models.Shop", "OwnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+                });
+
             modelBuilder.Entity("PoiApi.Models.User", b =>
                 {
                     b.HasOne("PoiApi.Models.POI", "Poi")
@@ -253,6 +296,11 @@ namespace PoiApi.Migrations
             modelBuilder.Entity("PoiApi.Models.Role", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("PoiApi.Models.User", b =>
+                {
+                    b.Navigation("Shop");
                 });
 #pragma warning restore 612, 618
         }

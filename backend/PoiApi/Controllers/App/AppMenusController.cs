@@ -20,7 +20,7 @@ namespace PoiApi.Controllers.App
         public async Task<IActionResult> GetMenus(int poiId)
         {
             var menus = await _context.Menus
-                .Where(m => m.PoiId == poiId)
+                .Where(m => m.Shop.PoiId == poiId && m.IsActive)
                 .Select(m => new AppMenuDto
                 {
                     Id = m.Id,
