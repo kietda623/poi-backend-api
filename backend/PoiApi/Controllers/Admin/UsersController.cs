@@ -2,11 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PoiApi.Data;
+using PoiApi.DTOs.Admin.Requests;
+using PoiApi.Models;
 
 namespace PoiApi.Controllers.Admin
 {
     [ApiController]
-    [Route("api/users")]
+    [Route("api/admin/users")]
+    [Authorize(Roles = RoleConstants.Admin)]
     public class UsersController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -19,7 +22,7 @@ namespace PoiApi.Controllers.Admin
         // GET: api/users
         // Chỉ ADMIN mới được xem tất cả user
         [HttpGet]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = RoleConstants.Admin)]
         public IActionResult GetAllUsers()
         {
             var users = _context.Users
@@ -59,6 +62,35 @@ namespace PoiApi.Controllers.Admin
                 user.Email,
                 Role = user.Role.Name
             });
+        }
+
+        [HttpPost("create-owner")]
+        [Authorize(Roles = RoleConstants.Admin)]
+        public IActionResult CreateOwner(CreateOwnerDto dto)
+        {
+            if (_context.Users.Any(u => u.Email == dto.Email))
+                return BadRequest("Email already exists");
+
+            var ownerRole = _context.Roles
+                .FirstOrDefault(r => r.Name == RoleConstants.Owner);
+
+            if (ownerRole == null)
+                return StatusCode(500, "Owner role not found");
+
+            var owner = new User
+            {
+                Email = dto.Email,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                RoleId = ownerRole.Id
+            };
+
+            _context.Users.Add(owner);
+            _context.SaveChanges();
+
+            // (bước sau) tạo POI cho owner
+            // var poi = new POI { Name = dto.ShopName, OwnerId = owner.Id }
+
+            return Ok("Owner created successfully");
         }
     }
 }

@@ -44,7 +44,7 @@ public class AuthController : ControllerBase
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role.Name.ToLower())
+            new Claim(ClaimTypes.Role, user.Role.Name.ToUpper())
         };
 
         var key = new SymmetricSecurityKey(
@@ -71,6 +71,9 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public IActionResult Register(RegisterDto dto)
     {
+        if (dto.Role == RoleConstants.Owner)
+            return BadRequest("Cannot register as OWNER role");
+
         if (_context.Users.Any(u => u.Email == dto.Email))
             return BadRequest("Email existed");
 

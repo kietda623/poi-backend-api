@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PoiApi.Data;
 using PoiApi.Mapping;
+using PoiApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,6 +55,20 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+
+// seed roles
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    if (!context.Roles.Any(r => r.Name == "ADMIN"))
+        context.Roles.Add(new Role { Name = "ADMIN" });
+
+    if (!context.Roles.Any(r => r.Name == "OWNER"))
+        context.Roles.Add(new Role { Name = "OWNER" });
+
+    context.SaveChanges();
 }
 
 app.UseAuthentication();

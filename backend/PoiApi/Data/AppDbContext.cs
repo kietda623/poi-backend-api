@@ -44,6 +44,13 @@ namespace PoiApi.Data
                 .HasOne(mi => mi.Menu)
                 .WithMany(m => m.MenuItems)
                 .HasForeignKey(mi => mi.MenuId);
+
+            modelBuilder.Entity<Role>().HasData(
+    new Role { Id = 1, Name = RoleConstants.Admin },
+    new Role { Id = 2, Name = RoleConstants.Owner },
+    new Role { Id = 3, Name = RoleConstants.User }
+);
+
         }
     }
 }
