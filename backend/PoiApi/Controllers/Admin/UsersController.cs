@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PoiApi.Data;
 
-namespace PoiApi.Controllers
+namespace PoiApi.Controllers.Admin
 {
     [ApiController]
     [Route("api/users")]
@@ -25,7 +25,7 @@ namespace PoiApi.Controllers
             var users = _context.Users
                 .Include(u => u.Role)
                 .Select(u => new
-                {
+                {   
                     u.Id,
                     u.Email,
                     Role = u.Role.Name

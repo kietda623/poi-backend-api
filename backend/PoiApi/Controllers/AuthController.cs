@@ -74,10 +74,10 @@ public class AuthController : ControllerBase
         if (_context.Users.Any(u => u.Email == dto.Email))
             return BadRequest("Email existed");
 
-        var roleName = dto.Role.Trim().ToUpper();
+        var roleName = dto.Role.Trim().ToLower();
 
         var role = _context.Roles
-            .FirstOrDefault(r => r.Name.ToUpper() == roleName);
+            .FirstOrDefault(r => r.Name.ToLower() == roleName);
 
         if (role == null)
             return BadRequest("Role invalid");
@@ -92,8 +92,9 @@ public class AuthController : ControllerBase
         _context.Users.Add(user);
         _context.SaveChanges();
 
-        return Ok("Register Successfully");
+        return Ok("Register successfully");
     }
+
 
 
 }
