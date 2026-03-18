@@ -1,0 +1,87 @@
+@using Microsoft.AspNetCore.Components.Authorization
+
+<MudThemeProvider Theme="@_theme" />
+<MudPopoverProvider />
+<MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.Medium" CloseOnEscapeKey="true" />
+<MudSnackbarProvider />
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="typeof(Routes).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="routeData"
+                                DefaultLayout="typeof(Components.Layout.MainLayout)">
+                <NotAuthorized>
+                    @if (!context.User.Identity?.IsAuthenticated ?? true)
+                    {
+                        <RedirectToLogin />
+                    }
+                    else
+                    {
+                        <MudContainer Class="d-flex justify-center align-center" Style="height:80vh">
+                            <MudPaper Class="pa-8 text-center" Elevation="3" Style="border-radius:12px">
+                                <MudIcon Icon="@Icons.Material.Filled.Lock" Color="Color.Error"
+                                         Style="font-size:4rem" />
+                                <MudText Typo="Typo.h5" Color="Color.Error" Class="mt-3">
+                                    Không có quyền truy cập
+                                </MudText>
+                                <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mt-1">
+                                    Trang này chỉ dành cho @context.User.Claims
+                                        .FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value.
+                                </MudText>
+                                <MudButton Href="/" Variant="Variant.Filled" Color="Color.Primary"
+                                           Class="mt-4" StartIcon="@Icons.Material.Filled.Home">
+                                    Về trang chủ
+                                </MudButton>
+                            </MudPaper>
+                        </MudContainer>
+                    }
+                </NotAuthorized>
+                <Authorizing>
+                    <MudContainer Class="d-flex justify-center align-center" Style="height:100vh">
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+                    </MudContainer>
+                </Authorizing>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>404 - Không tìm thấy</PageTitle>
+            <MudContainer Class="d-flex justify-center align-center" Style="height:80vh">
+                <MudPaper Class="pa-8 text-center" Elevation="3" Style="border-radius:12px; max-width:400px">
+                    <MudText Typo="Typo.h1" Color="Color.Secondary" Style="font-size:6rem; font-weight:700">
+                        404
+                    </MudText>
+                    <MudText Typo="Typo.h6" Class="mt-2">Trang không tồn tại</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-1">
+                        Đường dẫn bạn truy cập không hợp lệ.
+                    </MudText>
+                    <MudButton Href="/" Variant="Variant.Filled" Color="Color.Primary"
+                               Class="mt-4" StartIcon="@Icons.Material.Filled.Home">
+                        Về trang chủ
+                    </MudButton>
+                </MudPaper>
+            </MudContainer>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
+
+@code {
+    private MudTheme _theme = new MudTheme()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary        = "#1565C0",
+            PrimaryDarken  = "#003c8f",
+            PrimaryLighten = "#5e92f3",
+            Secondary      = "#6A1B9A",
+            Success        = "#2E7D32",
+            Warning        = "#E65100",
+            Error          = "#B71C1C",
+            Info           = "#01579B",
+            AppbarBackground = "#1565C0",
+            DrawerBackground = "#FAFAFA",
+            Background     = "#F0F2F5",
+            Surface        = "#FFFFFF",
+        }
+    };
+}

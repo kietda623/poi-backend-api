@@ -1,0 +1,195 @@
+@page "/admin/manage-seller"
+@layout AdminLayout
+@rendermode InteractiveServer
+@inject StoreService StoreSvc
+@inject ISnackbar Snackbar
+
+<PageTitle>Quản lý Seller</PageTitle>
+
+<MudText Typo="Typo.h5" Style="font-weight:700" Class="mb-1">👥 Quản lý Người bán (Seller)</MudText>
+<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">Duyệt, quản lý tài khoản người bán</MudText>
+
+<!-- Filters -->
+<MudPaper Class="pa-4 mb-4" Elevation="1" Style="border-radius:8px">
+    <MudGrid AlignItems="AlignItems.Center">
+        <MudItem xs="12" md="4">
+            <MudTextField @bind-Value="_search" Label="Tìm theo tên, email..."
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                          Variant="Variant.Outlined" Dense="true" Immediate="true" />
+        </MudItem>
+        <MudItem xs="12" md="3">
+            <MudSelect @bind-Value="_filterStatus" Label="Trạng thái" Variant="Variant.Outlined" Dense="true">
+                <MudSelectItem Value="@("All")">Tất cả</MudSelectItem>
+                <MudSelectItem Value="@("Active")">Active</MudSelectItem>
+                <MudSelectItem Value="@("Pending")">Pending</MudSelectItem>
+                <MudSelectItem Value="@("Disabled")">Disabled</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" md="2">
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                <b>@Filtered.Count()</b> sellers
+            </MudText>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@if (_loading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-2" />
+}
+
+<MudPaper Elevation="2" Style="border-radius:8px;overflow:hidden">
+    <MudTable Items="@Filtered" Hover="true" Dense="true" Striped="true"
+              Loading="@_loading">
+        <HeaderContent>
+            <MudTh>Họ tên</MudTh>
+            <MudTh>Email</MudTh>
+            <MudTh>Điện thoại</MudTh>
+            <MudTh>Trạng thái</MudTh>
+            <MudTh>Gian hàng</MudTh>
+            <MudTh>Ngày đăng ký</MudTh>
+            <MudTh>Thao tác</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudAvatar Size="Size.Small" Color="Color.Primary">@context.FullName[0]</MudAvatar>
+                    <MudText Typo="Typo.body2">@context.FullName</MudText>
+                </MudStack>
+            </MudTd>
+            <MudTd>@context.Email</MudTd>
+            <MudTd>@context.Phone</MudTd>
+            <MudTd>
+                <MudChip T="string" Size="Size.Small" Color="@StatusColor(context.Status)">
+                    @context.Status
+                </MudChip>
+            </MudTd>
+            <MudTd>@context.StoreCount</MudTd>
+            <MudTd>@context.RegisteredAt.ToString("dd/MM/yyyy")</MudTd>
+            <MudTd>
+                <MudStack Row="true" Spacing="0">
+                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Size="Size.Small"
+                                   Color="Color.Info" OnClick="@(() => ViewDetail(context))"
+                                   Title="Xem chi tiết" />
+                    @if (context.Status == "Pending")
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small"
+                                       Color="Color.Success" Title="Duyệt"
+                                       OnClick="@(async () => await SetStatus(context, "Active"))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Cancel" Size="Size.Small"
+                                       Color="Color.Error" Title="Từ chối"
+                                       OnClick="@(async () => await SetStatus(context, "Disabled"))" />
+                    }
+                    else if (context.Status == "Active")
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.Block" Size="Size.Small"
+                                       Color="Color.Warning" Title="Vô hiệu hóa"
+                                       OnClick="@(async () => await SetStatus(context, "Disabled"))" />
+                    }
+                    else
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.LockOpen" Size="Size.Small"
+                                       Color="Color.Success" Title="Kích hoạt lại"
+                                       OnClick="@(async () => await SetStatus(context, "Active"))" />
+                    }
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{10,25,50}" />
+        </PagerContent>
+    </MudTable>
+</MudPaper>
+
+<!-- Detail Dialog -->
+<MudDialog @bind-Visible="_showDetail"
+           Options="@(new DialogOptions{MaxWidth=MaxWidth.Large,FullWidth=true})">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.SupervisorAccount" Class="mr-2" />
+            Chi tiết Seller: @_selected?.FullName
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (_selected != null)
+        {
+            <MudGrid Class="mb-3">
+                <MudItem xs="12" md="4">
+                    <MudText Typo="Typo.body2"><b>Email:</b> @_selected.Email</MudText>
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudText Typo="Typo.body2"><b>Phone:</b> @_selected.Phone</MudText>
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudText Typo="Typo.body2"><b>Trạng thái:</b>
+                        <MudChip T="string" Size="Size.Small" Color="@StatusColor(_selected.Status)">
+                            @_selected.Status
+                        </MudChip>
+                    </MudText>
+                </MudItem>
+            </MudGrid>
+            <MudText Typo="Typo.subtitle1" Style="font-weight:600" Class="mb-2">
+                🏪 Danh sách gian hàng
+            </MudText>
+            <MudTable Items="@_selected.Stores" Dense="true" Striped="true" Hover="true">
+                <HeaderContent>
+                    <MudTh>Tên</MudTh>
+                    <MudTh>Danh mục</MudTh>
+                    <MudTh>Địa chỉ</MudTh>
+                    <MudTh>Trạng thái</MudTh>
+                    <MudTh>Audio</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Name</MudTd>
+                    <MudTd>@context.Category</MudTd>
+                    <MudTd>@context.Address</MudTd>
+                    <MudTd>
+                        <MudChip T="string" Size="Size.Small" Color="@StatusColor(context.Status)">
+                            @context.Status
+                        </MudChip>
+                    </MudTd>
+                    <MudTd>
+                        @if (!string.IsNullOrEmpty(context.AudioUrl))
+                        { <MudIcon Icon="@Icons.Material.Filled.Audiotrack" Color="Color.Info" Size="Size.Small" /> }
+                        else
+                        { <MudText Typo="Typo.caption" Color="Color.Secondary">Không có</MudText> }
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _showDetail = false)" Variant="Variant.Outlined">Đóng</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private bool _loading = true, _showDetail;
+    private string _search = "", _filterStatus = "All";
+    private List<SellerModel> _sellers = new();
+    private SellerModel? _selected;
+
+    private IEnumerable<SellerModel> Filtered => _sellers.Where(s =>
+        (string.IsNullOrEmpty(_search) ||
+         s.FullName.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
+         s.Email.Contains(_search, StringComparison.OrdinalIgnoreCase)) &&
+        (_filterStatus == "All" || s.Status == _filterStatus));
+
+    private Color StatusColor(string s) => s switch
+    { "Active" => Color.Success, "Pending" => Color.Warning, _ => Color.Error };
+
+    protected override async Task OnInitializedAsync()
+    {
+        _sellers = await StoreSvc.GetSellersAsync();
+        _loading = false;
+    }
+
+    private void ViewDetail(SellerModel s) { _selected = s; _showDetail = true; }
+
+    private async Task SetStatus(SellerModel s, string status)
+    {
+        var ok = await StoreSvc.UpdateSellerStatusAsync(s.Id, status);
+        if (ok) { s.Status = status; Snackbar.Add($"Đã cập nhật trạng thái: {status}", Severity.Success); }
+        else Snackbar.Add("Lỗi cập nhật!", Severity.Error);
+    }
+}

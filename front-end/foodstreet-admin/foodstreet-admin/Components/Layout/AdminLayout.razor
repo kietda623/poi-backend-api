@@ -1,0 +1,110 @@
+@inherits LayoutComponentBase
+@inject NavigationManager Nav
+@inject AuthService AuthSvc
+@inject StoreService StoreSvc
+
+<MudLayout>
+    <MudAppBar Elevation="2" Dense="false" Style="background:#1a237e">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit"
+                       Edge="Edge.Start" OnClick="ToggleDrawer" />
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="ml-1">
+            <MudIcon Icon="@Icons.Material.Filled.AdminPanelSettings" />
+            <MudText Typo="Typo.h6" Style="font-weight:700">
+                FoodStreet <span style="font-weight:300; opacity:.8">Admin</span>
+            </MudText>
+        </MudStack>
+        <MudSpacer />
+        <MudBadge Content="@_pendingCount" Color="Color.Warning"
+                  Overlap="true" Visible="@(_pendingCount > 0)">
+            <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Inherit" />
+        </MudBadge>
+        <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+            <ActivatorContent>
+                <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" />
+            </ActivatorContent>
+            <ChildContent>
+                <MudText Class="px-4 py-2" Typo="Typo.body2" Color="Color.Secondary">
+                    admin@foodstreet.vn
+                </MudText>
+                <MudDivider />
+                <MudMenuItem Icon="@Icons.Material.Filled.Logout" IconColor="Color.Error"
+                             OnClick="Logout">Đăng xuất</MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="_open" ClipMode="DrawerClipMode.Always"
+               Elevation="2" Variant="DrawerVariant.Responsive">
+        <MudDrawerHeader Style="background:#1a237e; padding:16px">
+            <MudStack Spacing="0">
+                <MudAvatar Color="Color.Warning" Size="Size.Medium">A</MudAvatar>
+                <MudText Typo="Typo.body1" Style="font-weight:600; color:white" Class="mt-1">
+                    Quản trị viên
+                </MudText>
+                <MudText Typo="Typo.caption" Style="color:rgba(255,255,255,.65)">
+                    Admin Panel
+                </MudText>
+            </MudStack>
+        </MudDrawerHeader>
+        <MudDivider />
+        <MudNavMenu Class="pa-2">
+            <MudNavLink Href="/admin/dashboard" Match="NavLinkMatch.All"
+                        Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+
+            <MudNavGroup Title="Quản lý" Icon="@Icons.Material.Filled.ManageAccounts" Expanded="true">
+                <MudNavLink Href="/admin/manage-seller" Icon="@Icons.Material.Filled.SupervisorAccount">
+                    <MudStack Row="true" AlignItems="AlignItems.Center">
+                        <MudText>Người bán (Seller)</MudText>
+                        @if (_pendingCount > 0)
+                        {
+                            <MudChip T="string" Size="Size.Small" Color="Color.Warning"
+                                     Style="height:16px;font-size:10px;min-width:0;padding:0 6px">
+                                @_pendingCount
+                            </MudChip>
+                        }
+                    </MudStack>
+                </MudNavLink>
+                <MudNavLink Href="/admin/manage-store" Icon="@Icons.Material.Filled.Storefront">
+                    Gian hàng (Store)
+                </MudNavLink>
+                <MudNavLink Href="/admin/manage-customer" Icon="@Icons.Material.Filled.People">
+                    Khách tham quan
+                </MudNavLink>
+            </MudNavGroup>
+
+            <MudNavLink Href="/admin/stats" Icon="@Icons.Material.Filled.BarChart">
+                Thống kê & Báo cáo
+            </MudNavLink>
+            <MudNavLink Href="/admin/settings" Icon="@Icons.Material.Filled.Settings">
+                Cài đặt hệ thống
+            </MudNavLink>
+            <MudDivider Class="my-2" />
+            <MudNavLink Icon="@Icons.Material.Filled.Logout" IconColor="Color.Error"
+                        OnClick="Logout">Đăng xuất</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pa-4 pa-md-6">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _open = true;
+    private int _pendingCount = 0;
+    private void ToggleDrawer() => _open = !_open;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var stores = await StoreSvc.GetStoresAsync();
+        _pendingCount = stores.Count(s => s.Status == "Pending");
+    }
+
+    private async Task Logout()
+    {
+        await AuthSvc.LogoutAsync();
+        Nav.NavigateTo("/auth/login", forceLoad: true);
+    }
+}

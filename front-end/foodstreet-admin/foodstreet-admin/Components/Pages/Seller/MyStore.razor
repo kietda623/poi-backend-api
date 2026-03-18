@@ -1,0 +1,251 @@
+@page "/seller/mystore"
+@layout SellerLayout
+@rendermode InteractiveServer
+@inject StoreService StoreSvc
+@inject ISnackbar Snackbar
+
+<PageTitle>Gian hàng của tôi</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudStack Spacing="0">
+        <MudText Typo="Typo.h5" Style="font-weight:700">🏪 Gian hàng của tôi</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">Quản lý toàn bộ gian hàng</MudText>
+    </MudStack>
+    <MudSpacer />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.AddBusiness"
+               OnClick="OpenNew">Đăng ký gian hàng mới</MudButton>
+</MudStack>
+
+<!-- Filters -->
+<MudPaper Class="pa-4 mb-4" Elevation="1" Style="border-radius:8px">
+    <MudGrid AlignItems="AlignItems.Center">
+        <MudItem xs="12" md="4">
+            <MudTextField @bind-Value="_search" Label="Tìm kiếm..."
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                          Variant="Variant.Outlined" Dense="true" Immediate="true" />
+        </MudItem>
+        <MudItem xs="12" md="3">
+            <MudSelect @bind-Value="_filterStatus" Label="Trạng thái" Variant="Variant.Outlined" Dense="true">
+                <MudSelectItem Value="@("All")">Tất cả</MudSelectItem>
+                <MudSelectItem Value="@("Active")">Active</MudSelectItem>
+                <MudSelectItem Value="@("Pending")">Pending</MudSelectItem>
+                <MudSelectItem Value="@("Rejected")">Rejected</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" md="3">
+            <MudSelect @bind-Value="_filterCat" Label="Danh mục" Variant="Variant.Outlined" Dense="true">
+                <MudSelectItem Value="@("All")">Tất cả</MudSelectItem>
+                @foreach (var cat in new[]{"Ốc","Hải sản","Cơm","Bún/Phở","Đồ uống"})
+                {
+                    <MudSelectItem Value="@cat">@cat</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" md="2">
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                <b>@Filtered.Count()</b> gian hàng
+            </MudText>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@if (_loading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+}
+
+<!-- Cards -->
+<MudGrid>
+    @foreach (var store in Filtered)
+    {
+        <MudItem xs="12" md="6" lg="4">
+            <MudCard Elevation="3" Style="border-radius:10px;overflow:hidden">
+                <MudCardMedia Image="@(string.IsNullOrEmpty(store.ImageUrl)
+                    ? "https://placehold.co/400x160/e3f2fd/1565C0?text=No+Image"
+                    : store.ImageUrl)" Height="160" />
+                <MudCardContent>
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-2">
+                        <MudText Typo="Typo.h6" Style="font-weight:600;flex:1">@store.Name</MudText>
+                        <MudChip T="string" Size="Size.Small" Color="@StatusColor(store.Status)">
+                            @store.Status
+                        </MudChip>
+                    </MudStack>
+                    <MudStack Spacing="1">
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">
+                            <MudIcon Icon="@Icons.Material.Filled.Category" Size="Size.Small" Class="mr-1" />
+                            @store.Category
+                        </MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">
+                            <MudIcon Icon="@Icons.Material.Filled.LocationOn" Size="Size.Small" Class="mr-1" />
+                            @store.Address
+                        </MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">
+                            <MudIcon Icon="@Icons.Material.Filled.Phone" Size="Size.Small" Class="mr-1" />
+                            @store.Phone
+                        </MudText>
+                        @if (!string.IsNullOrEmpty(store.AudioUrl))
+                        {
+                            <MudChip T="string" Size="Size.Small" Color="Color.Info"
+                                     Icon="@Icons.Material.Filled.Audiotrack">
+                                Có audio thuyết minh
+                            </MudChip>
+                        }
+                    </MudStack>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Size="Size.Small" Color="Color.Primary" Variant="Variant.Text"
+                               StartIcon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenEdit(store))">
+                        Chỉnh sửa
+                    </MudButton>
+                    <MudButton Size="Size.Small" Color="Color.Info" Variant="Variant.Text"
+                               StartIcon="@Icons.Material.Filled.Analytics"
+                               Href="@($"/seller/stats/{store.Id}")">Thống kê</MudButton>
+                    <MudSpacer />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
+                                   Size="Size.Small" OnClick="@(() => DeleteStore(store))" />
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    }
+    @if (!Filtered.Any() && !_loading)
+    {
+        <MudItem xs="12">
+            <MudPaper Class="pa-8 text-center" Elevation="0" Style="border:2px dashed #e0e0e0;border-radius:12px">
+                <MudIcon Icon="@Icons.Material.Filled.StorefrontOutlined" Size="Size.Large" Color="Color.Secondary" />
+                <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mt-2">
+                    Chưa có gian hàng nào
+                </MudText>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-3"
+                           StartIcon="@Icons.Material.Filled.AddBusiness" OnClick="OpenNew">
+                    Đăng ký gian hàng đầu tiên
+                </MudButton>
+            </MudPaper>
+        </MudItem>
+    }
+</MudGrid>
+
+<!-- Dialog -->
+<MudDialog @bind-Visible="_showDialog" Options="@(new DialogOptions{MaxWidth=MaxWidth.Medium,FullWidth=true})">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.AddBusiness" Class="mr-2" />
+            @(_editing == null ? "Đăng ký gian hàng mới" : "Chỉnh sửa gian hàng")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="_form.Name" Label="Tên quán *" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="_form.Phone" Label="Số điện thoại" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_form.Address" Label="Địa chỉ *" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudSelect @bind-Value="_form.Category" Label="Danh mục *" Variant="Variant.Outlined">
+                    @foreach (var cat in new[]{"Ốc","Hải sản","Cơm","Bún/Phở","Đồ uống"})
+                    { <MudSelectItem Value="@cat">@cat</MudSelectItem> }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudGrid Spacing="2">
+                    <MudItem xs="6">
+                        <MudTextField @bind-Value="_form.Latitude" Label="Vĩ độ (GPS)" Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudTextField @bind-Value="_form.Longitude" Label="Kinh độ (GPS)" Variant="Variant.Outlined" />
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_form.Description" Label="Mô tả, đặc sản"
+                              Variant="Variant.Outlined" Lines="3" />
+            </MudItem>
+            <!-- Upload zones -->
+            <MudItem xs="12" md="6">
+                <MudText Typo="Typo.subtitle2" Class="mb-1">Ảnh đại diện</MudText>
+                <MudPaper Outlined="true" Class="pa-4 text-center" Style="border-style:dashed;cursor:pointer;border-radius:8px">
+                    <MudIcon Icon="@Icons.Material.Filled.AddPhotoAlternate" Color="Color.Primary" />
+                    <MudText Typo="Typo.caption" Class="mt-1">JPG/PNG, tối đa 5MB</MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudText Typo="Typo.subtitle2" Class="mb-1">Audio thuyết minh (mp3/m4a ≤10MB)</MudText>
+                <MudPaper Outlined="true" Class="pa-4 text-center" Style="border-style:dashed;cursor:pointer;border-radius:8px">
+                    <MudIcon Icon="@Icons.Material.Filled.AudioFile" Color="Color.Info" />
+                    <MudText Typo="Typo.caption" Class="mt-1">MP3 / M4A, tối đa 10MB</MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12">
+                <MudText Typo="Typo.subtitle2" Class="mb-1">Ảnh menu (nhiều ảnh)</MudText>
+                <MudPaper Outlined="true" Class="pa-4 text-center" Style="border-style:dashed;cursor:pointer;border-radius:8px">
+                    <MudIcon Icon="@Icons.Material.Filled.Collections" Color="Color.Secondary" />
+                    <MudText Typo="Typo.caption" Class="mt-1">Upload nhiều ảnh menu</MudText>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseDialog" Variant="Variant.Outlined">Hủy</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled"
+                   OnClick="SaveStore" Disabled="_saving">
+            @if (_saving) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
+            @(_editing == null ? "Đăng ký (chờ duyệt)" : "Lưu thay đổi")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private bool _loading = true, _showDialog, _saving;
+    private string _search = "", _filterStatus = "All", _filterCat = "All";
+    private List<StoreModel> _stores = new();
+    private StoreModel? _editing;
+    private StoreModel _form = new();
+    private const int CurrentSellerId = 1;
+
+    private IEnumerable<StoreModel> Filtered => _stores.Where(s =>
+        (string.IsNullOrEmpty(_search) || s.Name.Contains(_search, StringComparison.OrdinalIgnoreCase)) &&
+        (_filterStatus == "All" || s.Status == _filterStatus) &&
+        (_filterCat == "All" || s.Category == _filterCat));
+
+    private Color StatusColor(string s) => s switch
+    { "Active" => Color.Success, "Pending" => Color.Warning, _ => Color.Error };
+
+    protected override async Task OnInitializedAsync()
+    {
+        _stores = await StoreSvc.GetStoresAsync(CurrentSellerId);
+        _loading = false;
+    }
+
+    private void OpenNew() { _editing = null; _form = new() { SellerId = CurrentSellerId }; _showDialog = true; }
+    private void OpenEdit(StoreModel s) { _editing = s; _form = new StoreModel { Id=s.Id, Name=s.Name, Phone=s.Phone, Address=s.Address, Category=s.Category, Description=s.Description, Latitude=s.Latitude, Longitude=s.Longitude, SellerId=s.SellerId }; _showDialog = true; }
+    private void CloseDialog() { _showDialog = false; }
+
+    private async Task SaveStore()
+    {
+        if (string.IsNullOrWhiteSpace(_form.Name)) return;
+        _saving = true;
+        if (_editing == null)
+        {
+            var (ok, msg) = await StoreSvc.CreateStoreAsync(_form);
+            Snackbar.Add(msg, ok ? Severity.Success : Severity.Error);
+            if (ok) _stores = await StoreSvc.GetStoresAsync(CurrentSellerId);
+        }
+        else
+        {
+            var (ok, msg) = await StoreSvc.UpdateStoreAsync(_form);
+            Snackbar.Add(msg, ok ? Severity.Success : Severity.Error);
+            if (ok) _stores = await StoreSvc.GetStoresAsync(CurrentSellerId);
+        }
+        _saving = false; CloseDialog();
+    }
+
+    private async Task DeleteStore(StoreModel s)
+    {
+        var ok = await StoreSvc.DeleteStoreAsync(s.Id);
+        if (ok) { _stores.Remove(s); Snackbar.Add("Đã xóa gian hàng!", Severity.Success); }
+    }
+}

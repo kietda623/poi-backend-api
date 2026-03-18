@@ -1,0 +1,191 @@
+@attribute [Authorize(Roles = "Admin")]
+@page "/admin/dashboard"
+@rendermode InteractiveServer
+@using MudBlazor
+
+<PageTitle>Admin Dashboard</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">🛡️ Admin Dashboard</MudText>
+
+<!-- Summary Cards -->
+<MudGrid Class="mb-4">
+    <MudItem xs="6" md="3">
+        <MudPaper Class="pa-4" Elevation="2" Style="border-left: 4px solid #1976d2;">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Icons.Material.Filled.Store" Color="Color.Primary" Size="Size.Large" />
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.h5" Color="Color.Primary"><b>@totalStores</b></MudText>
+                    <MudText Typo="Typo.caption">Tổng gian hàng</MudText>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="6" md="3">
+        <MudPaper Class="pa-4" Elevation="2" Style="border-left: 4px solid #f57c00;">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Icons.Material.Filled.HourglassTop" Color="Color.Warning" Size="Size.Large" />
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.h5" Color="Color.Warning"><b>@pendingStores</b></MudText>
+                    <MudText Typo="Typo.caption">Chờ duyệt</MudText>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="6" md="3">
+        <MudPaper Class="pa-4" Elevation="2" Style="border-left: 4px solid #388e3c;">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Icons.Material.Filled.People" Color="Color.Success" Size="Size.Large" />
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.h5" Color="Color.Success"><b>@totalCustomers</b></MudText>
+                    <MudText Typo="Typo.caption">Khách đăng ký</MudText>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="6" md="3">
+        <MudPaper Class="pa-4" Elevation="2" Style="border-left: 4px solid #7b1fa2;">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Icons.Material.Filled.Headphones" Color="Color.Secondary" Size="Size.Large" />
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.h5" Color="Color.Secondary"><b>@totalListens.ToString("N0")</b></MudText>
+                    <MudText Typo="Typo.caption">Lượt nghe audio</MudText>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+<MudGrid>
+    <!-- Pending Approvals -->
+    <MudItem xs="12" md="6">
+        <MudPaper Class="pa-4" Elevation="2">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-3">
+                <MudText Typo="Typo.h6">⏳ Gian hàng chờ duyệt</MudText>
+                <MudBadge Content="@pendingList.Count" Color="Color.Warning" Class="ml-2">
+                    <MudIcon Icon="@Icons.Material.Filled.Notifications" />
+                </MudBadge>
+                <MudSpacer />
+                <MudButton Href="/admin/manage-seller" Size="Size.Small" Variant="Variant.Text" Color="Color.Primary">
+                    Xem tất cả
+                </MudButton>
+            </MudStack>
+            @foreach (var item in pendingList.Take(4))
+            {
+                <MudPaper Class="pa-3 mb-2" Elevation="1" Style="background:#fffde7">
+                    <MudStack Row="true" AlignItems="AlignItems.Center">
+                        <MudStack Spacing="0" Style="flex:1">
+                            <MudText Typo="Typo.body2"><b>@item.StoreName</b></MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                Seller: @item.SellerName | @item.Date
+                            </MudText>
+                        </MudStack>
+                        <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success"
+                                       Size="Size.Small" OnClick="@(() => ApproveStore(item))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Cancel" Color="Color.Error"
+                                       Size="Size.Small" OnClick="@(() => RejectStore(item))" />
+                    </MudStack>
+                </MudPaper>
+            }
+        </MudPaper>
+    </MudItem>
+
+    <!-- Revenue & Stats -->
+    <MudItem xs="12" md="6">
+        <MudPaper Class="pa-4" Elevation="2">
+            <MudText Typo="Typo.h6" Class="mb-3">💰 Doanh thu & Thống kê</MudText>
+            <MudTable Items="@revenueStats" Hover="true" Dense="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>Tháng</MudTh>
+                    <MudTh>Gian hàng mới</MudTh>
+                    <MudTh>Khách mới</MudTh>
+                    <MudTh>Lượt nghe</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Month</MudTd>
+                    <MudTd>@context.NewStores</MudTd>
+                    <MudTd>@context.NewCustomers</MudTd>
+                    <MudTd>@context.Listens</MudTd>
+                </RowTemplate>
+            </MudTable>
+            <MudStack Row="true" Class="mt-3" Spacing="2">
+                <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.PictureAsPdf"
+                           Color="Color.Error" Size="Size.Small">CSV</MudButton>
+                <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.TableChart"
+                           Color="Color.Success" Size="Size.Small">PDF</MudButton>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+
+    <!-- Quick Navigation -->
+    <MudItem xs="12">
+        <MudPaper Class="pa-4" Elevation="2">
+            <MudText Typo="Typo.h6" Class="mb-3">⚡ Quản lý nhanh</MudText>
+            <MudGrid>
+                <MudItem xs="6" md="3">
+                    <MudButton Href="/admin/manage-seller" Variant="Variant.Filled" Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.SupervisorAccount" FullWidth="true">
+                        Quản lý Seller
+                    </MudButton>
+                </MudItem>
+                <MudItem xs="6" md="3">
+                    <MudButton Href="/admin/manage-store" Variant="Variant.Filled" Color="Color.Success"
+                               StartIcon="@Icons.Material.Filled.Storefront" FullWidth="true">
+                        Quản lý Store
+                    </MudButton>
+                </MudItem>
+                <MudItem xs="6" md="3">
+                    <MudButton Href="/admin/manage-customer" Variant="Variant.Filled" Color="Color.Info"
+                               StartIcon="@Icons.Material.Filled.People" FullWidth="true">
+                        Quản lý Khách
+                    </MudButton>
+                </MudItem>
+                <MudItem xs="6" md="3">
+                    <MudButton Href="/admin/settings" Variant="Variant.Filled" Color="Color.Secondary"
+                               StartIcon="@Icons.Material.Filled.Settings" FullWidth="true">
+                        Cài đặt hệ thống
+                    </MudButton>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private int totalStores = 156;
+    private int pendingStores = 8;
+    private int totalCustomers = 2340;
+    private int totalListens = 48500;
+
+    private record PendingItem(string StoreName, string SellerName, string Date);
+    private record RevenueRow(string Month, int NewStores, int NewCustomers, int Listens);
+
+    private List<PendingItem> pendingList = new()
+    {
+        new("Quán Ốc Bà Năm", "Nguyễn Thị B", "10/05/2025"),
+        new("Hải Sản 3 Miền", "Trần Văn C", "11/05/2025"),
+        new("Cơm Nhà Làm", "Lê Thị D", "12/05/2025"),
+        new("Bánh Mì Phượng", "Phạm Văn E", "12/05/2025"),
+        new("Bún Bò Huế Cô Ba", "Võ Thị F", "13/05/2025"),
+    };
+
+    private List<RevenueRow> revenueStats = new()
+    {
+        new("Tháng 1", 12, 145, 3200),
+        new("Tháng 2", 15, 198, 4100),
+        new("Tháng 3", 18, 220, 5600),
+        new("Tháng 4", 22, 310, 7800),
+        new("Tháng 5", 19, 280, 6900),
+    };
+
+    private void ApproveStore(PendingItem item)
+    {
+        pendingList.Remove(item);
+        pendingStores = pendingList.Count;
+    }
+
+    private void RejectStore(PendingItem item)
+    {
+        pendingList.Remove(item);
+        pendingStores = pendingList.Count;
+    }
+}

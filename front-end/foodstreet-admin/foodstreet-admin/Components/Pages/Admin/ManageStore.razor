@@ -1,0 +1,179 @@
+@page "/admin/manage-store"
+@layout AdminLayout
+@rendermode InteractiveServer
+@inject StoreService StoreSvc
+@inject ISnackbar Snackbar
+
+<PageTitle>Quản lý Gian hàng</PageTitle>
+
+<MudText Typo="Typo.h5" Style="font-weight:700" Class="mb-1">🏪 Quản lý Gian hàng (Store)</MudText>
+<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">Duyệt nội dung và quản lý gian hàng</MudText>
+
+<!-- Filters -->
+<MudPaper Class="pa-4 mb-4" Elevation="1" Style="border-radius:8px">
+    <MudGrid AlignItems="AlignItems.Center">
+        <MudItem xs="12" md="4">
+            <MudTextField @bind-Value="_search" Label="Tìm theo tên gian hàng..."
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                          Variant="Variant.Outlined" Dense="true" Immediate="true" />
+        </MudItem>
+        <MudItem xs="12" md="2">
+            <MudSelect @bind-Value="_filterStatus" Label="Trạng thái" Variant="Variant.Outlined" Dense="true">
+                <MudSelectItem Value="@("All")">Tất cả</MudSelectItem>
+                <MudSelectItem Value="@("Active")">Active</MudSelectItem>
+                <MudSelectItem Value="@("Pending")">Pending</MudSelectItem>
+                <MudSelectItem Value="@("Rejected")">Rejected</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" md="2">
+            <MudSelect @bind-Value="_filterCat" Label="Danh mục" Variant="Variant.Outlined" Dense="true">
+                <MudSelectItem Value="@("All")">Tất cả</MudSelectItem>
+                @foreach (var cat in new[]{"Ốc","Hải sản","Cơm","Bún/Phở","Đồ uống"})
+                { <MudSelectItem Value="@cat">@cat</MudSelectItem> }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" md="2">
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                <b>@Filtered.Count()</b> gian hàng
+            </MudText>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@if (_loading)
+{ <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-2" /> }
+
+<MudPaper Elevation="2" Style="border-radius:8px;overflow:hidden">
+    <MudTable Items="@Filtered" Hover="true" Dense="true" Striped="true">
+        <HeaderContent>
+            <MudTh>Gian hàng</MudTh>
+            <MudTh>Seller</MudTh>
+            <MudTh>Danh mục</MudTh>
+            <MudTh>Địa chỉ</MudTh>
+            <MudTh>Trạng thái</MudTh>
+            <MudTh>Audio</MudTh>
+            <MudTh>Thao tác</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudAvatar Size="Size.Small" Color="Color.Primary">@context.Name[0]</MudAvatar>
+                    <MudText Typo="Typo.body2">@context.Name</MudText>
+                </MudStack>
+            </MudTd>
+            <MudTd>@context.SellerName</MudTd>
+            <MudTd>@context.Category</MudTd>
+            <MudTd>@context.Address</MudTd>
+            <MudTd>
+                <MudChip T="string" Size="Size.Small" Color="@StatusColor(context.Status)">
+                    @context.Status
+                </MudChip>
+            </MudTd>
+            <MudTd>
+                @if (!string.IsNullOrEmpty(context.AudioUrl))
+                {
+                    <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Info"
+                               StartIcon="@Icons.Material.Filled.PlayArrow"
+                               OnClick="@(() => Preview(context))">Preview</MudButton>
+                }
+                else
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Không có</MudText>
+                }
+            </MudTd>
+            <MudTd>
+                <MudStack Row="true" Spacing="0">
+                    @if (context.Status == "Pending")
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small"
+                                       Color="Color.Success" Title="Duyệt"
+                                       OnClick="@(async () => await Approve(context))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Cancel" Size="Size.Small"
+                                       Color="Color.Error" Title="Từ chối"
+                                       OnClick="@(async () => await Reject(context))" />
+                    }
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
+                                   Color="Color.Error" Title="Xóa"
+                                   OnClick="@(async () => await Delete(context))" />
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{10,25,50}" />
+        </PagerContent>
+    </MudTable>
+</MudPaper>
+
+<!-- Audio Preview Dialog -->
+<MudDialog @bind-Visible="_showPreview">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Headphones" Class="mr-2" />
+            Preview Audio: @_previewStore?.Name
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudPaper Class="pa-6 text-center" Elevation="0" Style="background:#f5f5f5;border-radius:8px">
+            <MudIcon Icon="@Icons.Material.Filled.AudioFile" Size="Size.Large" Color="Color.Info" />
+            <MudText Typo="Typo.body1" Class="mt-2">@_previewStore?.AudioUrl</MudText>
+            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-1">
+                Tích hợp HTML5 audio player tại đây
+            </MudText>
+            @* <audio controls src="@_previewStore?.AudioUrl" style="width:100%;margin-top:12px"></audio> *@
+        </MudPaper>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _showPreview = false)" Variant="Variant.Outlined">Đóng</MudButton>
+        @if (_previewStore?.Status == "Pending")
+        {
+            <MudButton Color="Color.Success" Variant="Variant.Filled"
+                       OnClick="@(async () => { await Approve(_previewStore!); _showPreview = false; })">
+                Duyệt sau khi xem
+            </MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private bool _loading = true, _showPreview;
+    private string _search = "", _filterStatus = "All", _filterCat = "All";
+    private List<StoreModel> _stores = new();
+    private StoreModel? _previewStore;
+
+    private IEnumerable<StoreModel> Filtered => _stores.Where(s =>
+        (string.IsNullOrEmpty(_search) || s.Name.Contains(_search, StringComparison.OrdinalIgnoreCase)) &&
+        (_filterStatus == "All" || s.Status == _filterStatus) &&
+        (_filterCat == "All" || s.Category == _filterCat));
+
+    private Color StatusColor(string s) => s switch
+    { "Active" => Color.Success, "Pending" => Color.Warning, _ => Color.Error };
+
+    protected override async Task OnInitializedAsync()
+    {
+        _stores = await StoreSvc.GetStoresAsync();
+        _loading = false;
+    }
+
+    private void Preview(StoreModel s) { _previewStore = s; _showPreview = true; }
+
+    private async Task Approve(StoreModel s)
+    {
+        await StoreSvc.ApproveStoreAsync(s.Id);
+        s.Status = "Active";
+        Snackbar.Add($"Đã duyệt: {s.Name}", Severity.Success);
+    }
+
+    private async Task Reject(StoreModel s)
+    {
+        await StoreSvc.RejectStoreAsync(s.Id);
+        s.Status = "Rejected";
+        Snackbar.Add($"Đã từ chối: {s.Name}", Severity.Warning);
+    }
+
+    private async Task Delete(StoreModel s)
+    {
+        await StoreSvc.DeleteStoreAsync(s.Id);
+        _stores.Remove(s);
+        Snackbar.Add($"Đã xóa: {s.Name}", Severity.Success);
+    }
+}

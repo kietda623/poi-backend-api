@@ -1,0 +1,72 @@
+/* FoodStreet Admin - Global CSS */
+
+html, body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #F5F5F5;
+    height: 100%;
+    margin: 0;
+}
+
+/* Smooth transitions */
+.mud-nav-link {
+    transition: background-color 0.15s ease, color 0.15s ease;
+    border-radius: 6px;
+    margin: 2px 4px;
+}
+
+.mud-nav-link.active {
+    background-color: rgba(21, 101, 192, 0.12) !important;
+    color: #1565C0 !important;
+    font-weight: 600;
+}
+
+/* Card hover */
+.mud-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.mud-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12) !important;
+}
+
+/* Table improvements */
+.mud-table-root .mud-table-head .mud-table-cell {
+    font-weight: 600;
+    background-color: #FAFAFA;
+    color: #424242;
+}
+
+/* Dialog */
+.mud-dialog {
+    border-radius: 12px !important;
+}
+
+/* Chip */
+.mud-chip {
+    font-weight: 500;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+/* MudBlazor drawer header dark */
+.mud-drawer-header {
+    min-height: 64px;
+}
+
+/* Upload area */
+.upload-zone {
+    border: 2px dashed #B0BEC5;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+.upload-zone:hover {
+    border-color: #1565C0;
+    background: rgba(21, 101, 192, 0.04);
+}

@@ -1,0 +1,57 @@
+@page "/"
+@layout MainLayout
+
+<PageTitle>FoodStreet - Hệ thống quản lý gian hàng ẩm thực</PageTitle>
+
+<div style="min-height:100vh; background:linear-gradient(135deg,#1565C0 0%,#1a237e 100%);
+            display:flex; align-items:center; justify-content:center; padding:24px">
+    <MudPaper Class="pa-8" Elevation="8"
+              Style="max-width:480px; width:100%; border-radius:20px; text-align:center">
+        <MudAvatar Style="width:80px;height:80px;background:#1565C0;margin:0 auto 16px">
+            <MudIcon Icon="@Icons.Material.Filled.Storefront" Style="font-size:3rem;color:white" />
+        </MudAvatar>
+        <MudText Typo="Typo.h4" Style="font-weight:700">FoodStreet</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mt-1 mb-6">
+            Hệ thống quản lý gian hàng ẩm thực đường phố
+        </MudText>
+
+        <MudStack Spacing="3">
+            <MudButton Href="/auth/login"
+                       Variant="Variant.Filled" Color="Color.Primary"
+                       Size="Size.Large" FullWidth="true"
+                       StartIcon="@Icons.Material.Filled.Login"
+                       Style="border-radius:10px; height:52px; font-size:1rem">
+                Đăng nhập
+            </MudButton>
+            <MudButton Href="/auth/register"
+                       Variant="Variant.Outlined" Color="Color.Primary"
+                       Size="Size.Large" FullWidth="true"
+                       StartIcon="@Icons.Material.Filled.PersonAdd"
+                       Style="border-radius:10px; height:52px; font-size:1rem">
+                Đăng ký Seller
+            </MudButton>
+        </MudStack>
+
+        <MudDivider Class="my-5" />
+
+        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-2">
+            Demo nhanh (không cần đăng nhập)
+        </MudText>
+        <MudStack Row="true" Spacing="2" Justify="Justify.Center">
+            <MudButton Href="/seller/dashboard"
+                       Variant="Variant.Outlined" Color="Color.Info" Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.Storefront">
+                Demo Seller
+            </MudButton>
+            <MudButton Href="/admin/dashboard"
+                       Variant="Variant.Outlined" Color="Color.Secondary" Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.AdminPanelSettings">
+                Demo Admin
+            </MudButton>
+        </MudStack>
+
+        <MudText Typo="Typo.caption" Color="Color.Tertiary" Class="mt-5">
+            © 2025 FoodStreet. All rights reserved.
+        </MudText>
+    </MudPaper>
+</div>

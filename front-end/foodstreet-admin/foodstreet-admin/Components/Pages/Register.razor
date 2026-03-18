@@ -1,0 +1,143 @@
+@page "/auth/register"
+@layout MainLayout
+@inject AuthService AuthSvc
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+
+<PageTitle>Đăng ký - FoodStreet</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small"
+              Class="d-flex align-center justify-center"
+              Style="min-height:100vh; background:linear-gradient(135deg,#1565C0 0%,#1a237e 100%)">
+    <MudPaper Class="pa-8" Elevation="6"
+              Style="width:100%; border-radius:16px; max-width:480px">
+        <MudStack AlignItems="AlignItems.Center" Class="mb-5">
+            <MudAvatar Style="width:64px;height:64px;background:#2E7D32">
+                <MudIcon Icon="@Icons.Material.Filled.PersonAdd" Style="font-size:2rem;color:white" />
+            </MudAvatar>
+            <MudText Typo="Typo.h5" Style="font-weight:700; margin-top:8px">Đăng ký Seller</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                Tạo tài khoản để bắt đầu bán hàng
+            </MudText>
+        </MudStack>
+
+        @if (!string.IsNullOrEmpty(_error))
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-3" Dense="true"
+                      ShowCloseIcon="true" CloseIconClicked="@(() => _error = "")">
+                @_error
+            </MudAlert>
+        }
+
+        <MudGrid>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_req.FullName"
+                              Label="Họ và tên *" Variant="Variant.Outlined"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Person"
+                              FullWidth="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_req.Email"
+                              Label="Email *" Variant="Variant.Outlined"
+                              InputType="InputType.Email"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Email"
+                              FullWidth="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_req.Phone"
+                              Label="Số điện thoại" Variant="Variant.Outlined"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Phone"
+                              FullWidth="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_req.Password"
+                              Label="Mật khẩu *" Variant="Variant.Outlined"
+                              InputType="@_pwdType"
+                              Adornment="Adornment.End"
+                              AdornmentIcon="@_pwdIcon"
+                              OnAdornmentClick="TogglePwd"
+                              HelperText="Tối thiểu 6 ký tự"
+                              FullWidth="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_req.ConfirmPassword"
+                              Label="Xác nhận mật khẩu *" Variant="Variant.Outlined"
+                              InputType="InputType.Password"
+                              Error="@(_req.Password != _req.ConfirmPassword && _req.ConfirmPassword.Length > 0)"
+                              ErrorText="Mật khẩu không khớp"
+                              FullWidth="true" />
+            </MudItem>
+        </MudGrid>
+
+        <MudCheckBox @bind-Value="_agreedTerms" Color="Color.Primary" Class="mt-2">
+            <MudText Typo="Typo.body2">
+                Tôi đồng ý với
+                <MudLink Color="Color.Primary">Điều khoản sử dụng</MudLink>
+                và <MudLink Color="Color.Primary">Chính sách bảo mật</MudLink>
+            </MudText>
+        </MudCheckBox>
+
+        <MudButton Variant="Variant.Filled" Color="Color.Success"
+                   FullWidth="true" Size="Size.Large" Class="mt-4"
+                   OnClick="DoRegister" Disabled="@(_loading || !_agreedTerms)"
+                   Style="border-radius:8px; height:48px">
+            @if (_loading)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" Color="Color.Surface" />
+                <span>Đang đăng ký...</span>
+            }
+            else
+            {
+                <MudIcon Icon="@Icons.Material.Filled.HowToReg" Class="mr-2" />
+                <span>Đăng ký tài khoản</span>
+            }
+        </MudButton>
+
+        <MudText Typo="Typo.body2" Class="text-center mt-4" Color="Color.Secondary">
+            Đã có tài khoản?
+            <MudLink Href="/auth/login" Color="Color.Primary">Đăng nhập</MudLink>
+        </MudText>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private RegisterRequest _req = new();
+    private bool _loading;
+    private string _error = "";
+    private bool _agreedTerms;
+    private InputType _pwdType = InputType.Password;
+    private string _pwdIcon = Icons.Material.Filled.VisibilityOff;
+
+    private void TogglePwd()
+    {
+        _pwdType = _pwdType == InputType.Password ? InputType.Text : InputType.Password;
+        _pwdIcon = _pwdType == InputType.Password
+            ? Icons.Material.Filled.VisibilityOff
+            : Icons.Material.Filled.Visibility;
+    }
+
+    private async Task DoRegister()
+    {
+        if (string.IsNullOrWhiteSpace(_req.FullName) ||
+            string.IsNullOrWhiteSpace(_req.Email) ||
+            string.IsNullOrWhiteSpace(_req.Password))
+        { _error = "Vui lòng điền đầy đủ thông tin bắt buộc!"; return; }
+
+        _loading = true; _error = "";
+        var (success, message) = await AuthSvc.RegisterAsync(_req);
+        _loading = false;
+
+        if (success)
+        {
+            Snackbar.Add(message, Severity.Success);
+            Nav.NavigateTo("/auth/login");
+        }
+        else
+        {
+            _error = message;
+        }
+    }
+}

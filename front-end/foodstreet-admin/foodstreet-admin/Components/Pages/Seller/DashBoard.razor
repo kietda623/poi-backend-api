@@ -1,0 +1,174 @@
+@page "/seller/dashboard"
+@layout SellerLayout
+@rendermode InteractiveServer
+@inject StoreService StoreSvc
+@inject NavigationManager Nav
+
+<PageTitle>Dashboard - Seller</PageTitle>
+
+<MudText Typo="Typo.h5" Style="font-weight:700" Class="mb-1">📊 Dashboard</MudText>
+<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-5">
+    Tổng quan hoạt động gian hàng của bạn
+</MudText>
+
+@if (_loading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-4" />
+}
+
+<!-- Stats Cards -->
+<MudGrid>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Class="pa-4" Elevation="2" Style="border-left:4px solid #1565C0;border-radius:8px">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                <MudAvatar Color="Color.Primary" Size="Size.Large">
+                    <MudIcon Icon="@Icons.Material.Filled.Headphones" />
+                </MudAvatar>
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.h5" Style="font-weight:700">@_totalListens.ToString("N0")</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Lượt nghe audio</MudText>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Class="pa-4" Elevation="2" Style="border-left:4px solid #2E7D32;border-radius:8px">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                <MudAvatar Color="Color.Success" Size="Size.Large">
+                    <MudIcon Icon="@Icons.Material.Filled.Visibility" />
+                </MudAvatar>
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.h5" Style="font-weight:700">@_totalViews.ToString("N0")</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Lượt xem gian hàng</MudText>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Class="pa-4" Elevation="2" Style="border-left:4px solid #E65100;border-radius:8px">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                <MudAvatar Color="Color.Warning" Size="Size.Large">
+                    <MudIcon Icon="@Icons.Material.Filled.StarRate" />
+                </MudAvatar>
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.h5" Style="font-weight:700">@_totalReviews</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Review từ khách</MudText>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Class="pa-4" Elevation="2" Style="border-left:4px solid #6A1B9A;border-radius:8px">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                <MudAvatar Color="Color.Secondary" Size="Size.Large">
+                    <MudIcon Icon="@Icons.Material.Filled.Store" />
+                </MudAvatar>
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.h5" Style="font-weight:700">@_activeCount</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Gian hàng hoạt động</MudText>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+<MudGrid Class="mt-4">
+    <!-- Monthly Stats -->
+    <MudItem xs="12" md="8">
+        <MudPaper Class="pa-4" Elevation="2" Style="border-radius:8px">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-3">
+                <MudText Typo="Typo.subtitle1" Style="font-weight:600">📈 Thống kê theo tháng</MudText>
+                <MudSpacer />
+                <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Error"
+                           StartIcon="@Icons.Material.Filled.PictureAsPdf" Class="mr-2">PDF</MudButton>
+                <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Success"
+                           StartIcon="@Icons.Material.Filled.TableChart">Excel</MudButton>
+            </MudStack>
+            <MudTable Items="@_stats" Hover="true" Dense="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>Tháng</MudTh>
+                    <MudTh>Lượt nghe</MudTh>
+                    <MudTh>Lượt xem</MudTh>
+                    <MudTh>Review</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Month</MudTd>
+                    <MudTd><MudChip T="string" Size="Size.Small" Color="Color.Primary">@context.TotalListens</MudChip></MudTd>
+                    <MudTd><MudChip T="string" Size="Size.Small" Color="Color.Success">@context.TotalViews</MudChip></MudTd>
+                    <MudTd><MudChip T="string" Size="Size.Small" Color="Color.Warning">@context.TotalReviews</MudChip></MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudPaper>
+    </MudItem>
+
+    <!-- Quick Actions + Stores -->
+    <MudItem xs="12" md="4">
+        <MudPaper Class="pa-4 mb-4" Elevation="2" Style="border-radius:8px">
+            <MudText Typo="Typo.subtitle1" Style="font-weight:600" Class="mb-3">⚡ Thao tác nhanh</MudText>
+            <MudStack Spacing="2">
+                <MudButton Href="/seller/mystore" Variant="Variant.Filled" Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Store" FullWidth="true">
+                    Quản lý gian hàng
+                </MudButton>
+                <MudButton Href="/seller/mystore" Variant="Variant.Outlined" Color="Color.Success"
+                           StartIcon="@Icons.Material.Filled.AddBusiness" FullWidth="true">
+                    Đăng ký gian hàng mới
+                </MudButton>
+                <MudButton Href="/seller/stats" Variant="Variant.Outlined" Color="Color.Info"
+                           StartIcon="@Icons.Material.Filled.Analytics" FullWidth="true">
+                    Xem thống kê
+                </MudButton>
+                <MudButton Href="/seller/profile" Variant="Variant.Outlined" Color="Color.Secondary"
+                           StartIcon="@Icons.Material.Filled.ManageAccounts" FullWidth="true">
+                    Cài đặt profile
+                </MudButton>
+            </MudStack>
+        </MudPaper>
+
+        <MudPaper Class="pa-4" Elevation="2" Style="border-radius:8px">
+            <MudText Typo="Typo.subtitle1" Style="font-weight:600" Class="mb-3">🏪 Gian hàng của tôi</MudText>
+            @foreach (var s in _myStores)
+            {
+                <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-2" Spacing="2">
+                    <MudAvatar Size="Size.Small" Color="Color.Primary">@s.Name[0]</MudAvatar>
+                    <MudStack Spacing="0" Style="flex:1">
+                        <MudText Typo="Typo.body2" Style="font-weight:600">@s.Name</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">@s.Category</MudText>
+                    </MudStack>
+                    <MudChip T="string" Size="Size.Small"
+                             Color="@(s.Status=="Active"?Color.Success:s.Status=="Pending"?Color.Warning:Color.Error)">
+                        @s.Status
+                    </MudChip>
+                </MudStack>
+            }
+            @if (!_myStores.Any())
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="text-center">
+                    Chưa có gian hàng nào
+                </MudText>
+            }
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private bool _loading = true;
+    private List<StatModel> _stats = new();
+    private List<StoreModel> _myStores = new();
+    private int _totalListens, _totalViews, _totalReviews, _activeCount;
+
+    // Seller hiện tại - TODO: lấy từ ClaimsPrincipal
+    private const int CurrentSellerId = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _myStores = await StoreSvc.GetStoresAsync(CurrentSellerId);
+        _stats = await StoreSvc.GetSellerStatsAsync(CurrentSellerId);
+
+        _totalListens = _myStores.Sum(s => s.TotalListens);
+        _totalViews   = _myStores.Sum(s => s.TotalViews);
+        _totalReviews = _stats.Sum(s => s.TotalReviews);
+        _activeCount  = _myStores.Count(s => s.Status == "Active");
+        _loading = false;
+    }
+}

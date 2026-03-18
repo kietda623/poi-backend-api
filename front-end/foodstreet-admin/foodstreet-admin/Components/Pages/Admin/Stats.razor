@@ -1,0 +1,189 @@
+@attribute [Authorize(Roles = "Admin")]
+@page "/admin/stats"
+@rendermode InteractiveServer
+@using MudBlazor
+
+<PageTitle>Thống kê & Báo cáo</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h4">📊 Thống kê & Báo cáo</MudText>
+    <MudSpacer />
+    <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.PictureAsPdf"
+               Color="Color.Error" Size="Size.Small" Class="mr-2">Export CSV</MudButton>
+    <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.TableChart"
+               Color="Color.Success" Size="Size.Small">Export PDF</MudButton>
+</MudStack>
+
+<!-- Filter -->
+<MudPaper Class="pa-3 mb-4" Elevation="1">
+    <MudGrid AlignItems="AlignItems.Center">
+        <MudItem xs="12" md="3">
+            <MudSelect @bind-Value="filterLanguage" Label="Lọc theo ngôn ngữ" Variant="Variant.Outlined" Dense="true">
+                <MudSelectItem Value="@("all")">Tất cả ngôn ngữ</MudSelectItem>
+                <MudSelectItem Value="@("vi")">Tiếng Việt</MudSelectItem>
+                <MudSelectItem Value="@("en")">English</MudSelectItem>
+                <MudSelectItem Value="@("zh")">中文</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" md="3">
+            <MudSelect @bind-Value="filterPeriod" Label="Kỳ báo cáo" Variant="Variant.Outlined" Dense="true">
+                <MudSelectItem Value="@("month")">Tháng này</MudSelectItem>
+                <MudSelectItem Value="@("quarter")">Quý này</MudSelectItem>
+                <MudSelectItem Value="@("year")">Năm nay</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+<!-- Summary Cards -->
+<MudGrid Class="mb-4">
+    <MudItem xs="6" md="3">
+        <MudPaper Class="pa-4 text-center" Elevation="2">
+            <MudIcon Icon="@Icons.Material.Filled.Store" Color="Color.Primary" Size="Size.Large" />
+            <MudText Typo="Typo.h4" Color="Color.Primary"><b>156</b></MudText>
+            <MudText Typo="Typo.body2">Tổng gian hàng</MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="6" md="3">
+        <MudPaper Class="pa-4 text-center" Elevation="2">
+            <MudIcon Icon="@Icons.Material.Filled.People" Color="Color.Success" Size="Size.Large" />
+            <MudText Typo="Typo.h4" Color="Color.Success"><b>2,340</b></MudText>
+            <MudText Typo="Typo.body2">Khách đăng ký</MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="6" md="3">
+        <MudPaper Class="pa-4 text-center" Elevation="2">
+            <MudIcon Icon="@Icons.Material.Filled.Headphones" Color="Color.Info" Size="Size.Large" />
+            <MudText Typo="Typo.h4" Color="Color.Info"><b>48,500</b></MudText>
+            <MudText Typo="Typo.body2">Tổng lượt nghe</MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="6" md="3">
+        <MudPaper Class="pa-4 text-center" Elevation="2">
+            <MudIcon Icon="@Icons.Material.Filled.AttachMoney" Color="Color.Warning" Size="Size.Large" />
+            <MudText Typo="Typo.h4" Color="Color.Warning"><b>15.4M</b></MudText>
+            <MudText Typo="Typo.body2">Doanh thu (VNĐ)</MudText>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+<MudGrid>
+    <!-- Top Stores by Listens -->
+    <MudItem xs="12" md="6">
+        <MudPaper Class="pa-4" Elevation="2">
+            <MudText Typo="Typo.h6" Class="mb-3">🏆 Top gian hàng (lượt nghe)</MudText>
+            <MudTable Items="@topStores" Hover="true" Dense="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>#</MudTh>
+                    <MudTh>Gian hàng</MudTh>
+                    <MudTh>Danh mục</MudTh>
+                    <MudTh>Lượt nghe</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>
+                        @{
+                            var rank = topStores.IndexOf(context) + 1;
+                            var color = rank == 1 ? "#FFD700" : rank == 2 ? "#C0C0C0" : rank == 3 ? "#CD7F32" : "";
+                        }
+                        <MudText Style="@($"color:{color}; font-weight: bold")">@rank</MudText>
+                    </MudTd>
+                    <MudTd>@context.Name</MudTd>
+                    <MudTd>@context.Category</MudTd>
+                    <MudTd>
+                        <MudProgressLinear Value="@((double)context.Listens / topStores.Max(s => s.Listens) * 100)"
+                                           Color="Color.Info" Rounded="true" Class="my-1" />
+                        <MudText Typo="Typo.caption">@context.Listens.ToString("N0")</MudText>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudPaper>
+    </MudItem>
+
+    <!-- Stats by Language -->
+    <MudItem xs="12" md="6">
+        <MudPaper Class="pa-4" Elevation="2">
+            <MudText Typo="Typo.h6" Class="mb-3">🌐 Lượt nghe theo ngôn ngữ</MudText>
+            <MudTable Items="@langStats" Hover="true" Dense="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>Ngôn ngữ</MudTh>
+                    <MudTh>Lượt nghe</MudTh>
+                    <MudTh>Tỷ lệ</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Language</MudTd>
+                    <MudTd>@context.Listens.ToString("N0")</MudTd>
+                    <MudTd>
+                        <MudProgressLinear Value="@context.Percent" Color="Color.Secondary"
+                                           Rounded="true" Class="my-1" />
+                        <MudText Typo="Typo.caption">@context.Percent%</MudText>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudPaper>
+    </MudItem>
+
+    <!-- Monthly Overview -->
+    <MudItem xs="12">
+        <MudPaper Class="pa-4" Elevation="2">
+            <MudText Typo="Typo.h6" Class="mb-3">📈 Tổng quan theo tháng</MudText>
+            <MudTable Items="@monthlyOverview" Hover="true" Dense="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>Tháng</MudTh>
+                    <MudTh>Gian hàng mới</MudTh>
+                    <MudTh>Khách mới</MudTh>
+                    <MudTh>Tổng lượt nghe</MudTh>
+                    <MudTh>Doanh thu (VNĐ)</MudTh>
+                    <MudTh>Tăng trưởng</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Month</MudTd>
+                    <MudTd>@context.NewStores</MudTd>
+                    <MudTd>@context.NewCustomers</MudTd>
+                    <MudTd>@context.TotalListens.ToString("N0")</MudTd>
+                    <MudTd>@context.Revenue.ToString("N0") đ</MudTd>
+                    <MudTd>
+                        <MudChip T="string" Size="Size.Small"
+                                 Color="@(context.Growth >= 0 ? Color.Success : Color.Error)">
+                            @(context.Growth >= 0 ? "+" : "")@context.Growth%
+                        </MudChip>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private string filterLanguage = "all";
+    private string filterPeriod = "month";
+
+    private record TopStore(string Name, string Category, int Listens);
+    private record LangStat(string Language, int Listens, double Percent);
+    private record MonthlyRow(string Month, int NewStores, int NewCustomers, int TotalListens, decimal Revenue, double Growth);
+
+    private List<TopStore> topStores = new()
+    {
+        new("Quán Ốc Bà Ba", "Ốc", 3200),
+        new("Hải Sản Tươi Sống", "Hải sản", 2800),
+        new("Bún Bò Huế Cô Ba", "Bún/Phở", 2400),
+        new("Cơm Tấm Sài Gòn", "Cơm", 1900),
+        new("Bánh Mì Phượng", "Bánh mì", 1500),
+    };
+
+    private List<LangStat> langStats = new()
+    {
+        new("Tiếng Việt", 28500, 58.8),
+        new("English", 12000, 24.7),
+        new("中文", 5000, 10.3),
+        new("日本語", 3000, 6.2),
+    };
+
+    private List<MonthlyRow> monthlyOverview = new()
+    {
+        new("Tháng 1/2025", 12, 145, 3200, 1188000, 0),
+        new("Tháng 2/2025", 15, 198, 4100, 1485000, 12.5),
+        new("Tháng 3/2025", 18, 220, 5600, 1782000, 18.2),
+        new("Tháng 4/2025", 22, 310, 7800, 2178000, 22.1),
+        new("Tháng 5/2025", 19, 280, 6900, 1881000, -11.5),
+    };
+}

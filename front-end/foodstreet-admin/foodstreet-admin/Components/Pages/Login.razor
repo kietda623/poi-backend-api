@@ -1,0 +1,139 @@
+@page "/auth/login"
+@layout MainLayout
+@inject AuthService AuthSvc
+@inject NavigationManager Nav
+
+<PageTitle>Đăng nhập - FoodStreet</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small"
+              Class="d-flex align-center justify-center"
+              Style="min-height:100vh; background:linear-gradient(135deg,#1565C0 0%,#1a237e 100%)">
+    <MudPaper Class="pa-8" Elevation="6"
+              Style="width:100%; border-radius:16px; max-width:440px">
+        <MudStack AlignItems="AlignItems.Center" Class="mb-6">
+            <MudAvatar Style="width:72px;height:72px;background:#1565C0" Variant="Variant.Filled">
+                <MudIcon Icon="@Icons.Material.Filled.Storefront" Style="font-size:2.5rem;color:white" />
+            </MudAvatar>
+            <MudText Typo="Typo.h5" Style="font-weight:700; margin-top:8px">FoodStreet</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">Đăng nhập vào tài khoản của bạn</MudText>
+        </MudStack>
+
+        @if (!string.IsNullOrEmpty(_error))
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4" Dense="true" ShowCloseIcon="true"
+                      CloseIconClicked="@(() => _error = "")">
+                @_error
+            </MudAlert>
+        }
+
+        <MudTextField @bind-Value="_req.Email"
+                      Label="Email" Variant="Variant.Outlined"
+                      InputType="InputType.Email"
+                      Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Email"
+                      Class="mb-3" FullWidth="true"
+                      OnKeyDown="@OnKeyDown" />
+
+        <MudTextField @bind-Value="_req.Password"
+                      Label="Mật khẩu" Variant="Variant.Outlined"
+                      InputType="@_pwdType"
+                      Adornment="Adornment.End"
+                      AdornmentIcon="@_pwdIcon"
+                      OnAdornmentClick="TogglePwd"
+                      Class="mb-2" FullWidth="true"
+                      OnKeyDown="@OnKeyDown" />
+
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+            <MudCheckBox @bind-Value="_req.RememberMe" Label="Ghi nhớ đăng nhập"
+                         Size="Size.Small" Color="Color.Primary" />
+            <MudSpacer />
+            <MudLink Typo="Typo.caption" Color="Color.Primary">Quên mật khẩu?</MudLink>
+        </MudStack>
+
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                   FullWidth="true" Size="Size.Large"
+                   OnClick="DoLogin" Disabled="_loading"
+                   Style="border-radius:8px; height:48px">
+            @if (_loading)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" Color="Color.Surface" />
+                <span>Đang đăng nhập...</span>
+            }
+            else
+            {
+                <MudIcon Icon="@Icons.Material.Filled.Login" Class="mr-2" />
+                <span>Đăng nhập</span>
+            }
+        </MudButton>
+
+        <MudDivider Class="my-4" />
+
+        <MudText Typo="Typo.body2" Class="text-center mb-2" Color="Color.Secondary">
+            Chưa có tài khoản?
+            <MudLink Href="/auth/register" Color="Color.Primary">Đăng ký ngay</MudLink>
+        </MudText>
+
+        <!-- Demo hint -->
+        <MudExpansionPanels Class="mt-3" Elevation="0">
+            <MudExpansionPanel Text="🧪 Tài khoản demo" Dense="true">
+                <MudStack Spacing="1">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        <b>Admin:</b> admin@foodstreet.vn / admin123
+                    </MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        <b>Seller:</b> seller@foodstreet.vn / seller123
+                    </MudText>
+                    <MudStack Row="true" Spacing="2" Class="mt-1">
+                        <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Secondary"
+                                   OnClick="@(() => QuickFill("admin"))">Fill Admin</MudButton>
+                        <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary"
+                                   OnClick="@(() => QuickFill("seller"))">Fill Seller</MudButton>
+                    </MudStack>
+                </MudStack>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [SupplyParameterFromQuery] public string? ReturnUrl { get; set; }
+
+    private LoginRequest _req = new();
+    private bool _loading;
+    private string _error = "";
+    private InputType _pwdType = InputType.Password;
+    private string _pwdIcon = Icons.Material.Filled.VisibilityOff;
+
+    private void TogglePwd()
+    {
+        if (_pwdType == InputType.Password)
+        { _pwdType = InputType.Text; _pwdIcon = Icons.Material.Filled.Visibility; }
+        else
+        { _pwdType = InputType.Password; _pwdIcon = Icons.Material.Filled.VisibilityOff; }
+    }
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await DoLogin();
+    }
+
+    private async Task DoLogin()
+    {
+        if (string.IsNullOrWhiteSpace(_req.Email) || string.IsNullOrWhiteSpace(_req.Password))
+        { _error = "Vui lòng nhập đầy đủ email và mật khẩu!"; return; }
+
+        _loading = true; _error = "";
+        var (success, message, redirect) = await AuthSvc.LoginAsync(_req);
+        _loading = false;
+
+        if (success)
+            Nav.NavigateTo(ReturnUrl ?? redirect, forceLoad: true);
+        else
+            _error = message;
+    }
+
+    private void QuickFill(string role)
+    {
+        if (role == "admin") { _req.Email = "admin@foodstreet.vn"; _req.Password = "admin123"; }
+        else { _req.Email = "seller@foodstreet.vn"; _req.Password = "seller123"; }
+    }
+}

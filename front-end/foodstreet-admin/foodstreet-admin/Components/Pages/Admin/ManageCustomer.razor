@@ -1,0 +1,203 @@
+@attribute [Authorize(Roles = "Admin")]
+@page "/admin/manage-customer"
+@rendermode InteractiveServer
+@using MudBlazor
+
+<PageTitle>Quản lý Khách tham quan</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h4">👤 Quản lý Khách tham quan (Customer)</MudText>
+    <MudSpacer />
+    <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.TableChart"
+               Color="Color.Success" Size="Size.Small" OnClick="ExportExcel">
+        Export Excel
+    </MudButton>
+</MudStack>
+
+<!-- Filter Bar -->
+<MudPaper Class="pa-3 mb-4" Elevation="1">
+    <MudGrid AlignItems="AlignItems.Center">
+        <MudItem xs="12" md="4">
+            <MudTextField @bind-Value="searchText" Label="Tìm theo email, số điện thoại..."
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                          Variant="Variant.Outlined" Dense="true" Immediate="true" />
+        </MudItem>
+        <MudItem xs="12" md="3">
+            <MudSelect @bind-Value="filterStatus" Label="Trạng thái" Variant="Variant.Outlined" Dense="true">
+                <MudSelectItem Value="@("All")">Tất cả</MudSelectItem>
+                <MudSelectItem Value="@("Active")">Active</MudSelectItem>
+                <MudSelectItem Value="@("Disabled")">Disabled</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" md="2">
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                Tổng: <b>@FilteredCustomers.Count()</b> khách
+            </MudText>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+<MudPaper Elevation="2">
+    <MudTable Items="@FilteredCustomers" Hover="true" Dense="true" Striped="true"
+              MultiSelection="true" @bind-SelectedItems="selectedCustomers">
+        <ToolBarContent>
+            @if (selectedCustomers.Count > 0)
+            {
+                <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.body2">Đã chọn: <b>@selectedCustomers.Count</b></MudText>
+                    <MudButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Warning"
+                               StartIcon="@Icons.Material.Filled.NotificationAdd"
+                               OnClick="SendBulkNotification">
+                        Gửi thông báo hàng loạt
+                    </MudButton>
+                    <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Error"
+                               StartIcon="@Icons.Material.Filled.Block"
+                               OnClick="BulkDisable">
+                        Vô hiệu hóa đã chọn
+                    </MudButton>
+                </MudStack>
+            }
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<foodstreet_admin.Models.CustomerModel, object>(x => x.FullName)">Họ tên</MudTableSortLabel></MudTh>
+            <MudTh>Email</MudTh>
+            <MudTh>Số điện thoại</MudTh>
+            <MudTh>Trạng thái</MudTh>
+            <MudTh>Tổng lượt nghe</MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<foodstreet_admin.Models.CustomerModel, object>(x => x.RegisteredAt)">Ngày đăng ký</MudTableSortLabel></MudTh>
+            <MudTh>Thao tác</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                <MudStack Row="true" AlignItems="AlignItems.Center">
+                    <MudAvatar Size="Size.Small" Color="Color.Info">@context.FullName[0]</MudAvatar>
+                    <MudText Typo="Typo.body2">@context.FullName</MudText>
+                </MudStack>
+            </MudTd>
+            <MudTd>@context.Email</MudTd>
+            <MudTd>@context.Phone</MudTd>
+            <MudTd>
+                <MudChip T="string" Size="Size.Small"
+                         Color="@(context.Status == "Active" ? Color.Success : Color.Error)">
+                    @context.Status
+                </MudChip>
+            </MudTd>
+            <MudTd>@context.TotalListens.ToString("N0")</MudTd>
+            <MudTd>@context.RegisteredAt.ToString("dd/MM/yyyy")</MudTd>
+            <MudTd>
+                <MudStack Row="true" Spacing="1">
+                    @if (context.Status == "Active")
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.Block" Size="Size.Small"
+                                       Color="Color.Warning" OnClick="@(() => DisableCustomer(context))"
+                                       Title="Vô hiệu hóa (spam)" />
+                    }
+                    else
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.LockOpen" Size="Size.Small"
+                                       Color="Color.Success" OnClick="@(() => EnableCustomer(context))"
+                                       Title="Kích hoạt lại" />
+                    }
+                    <MudIconButton Icon="@Icons.Material.Filled.Email" Size="Size.Small"
+                                   Color="Color.Info" OnClick="@(() => SendNotification(context))"
+                                   Title="Gửi thông báo" />
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{10, 25, 50}" />
+        </PagerContent>
+    </MudTable>
+</MudPaper>
+
+<!-- Notification Dialog -->
+<MudDialog @bind-Visible="showNotifyDialog">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Email" Class="mr-2" />
+            Gửi thông báo @(isBulk ? $"({selectedCustomers.Count} người)" : $"đến {notifyTarget?.FullName}")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="notifySubject" Label="Tiêu đề" Variant="Variant.Outlined" Class="mb-3" />
+        <MudTextField @bind-Value="notifyMessage" Label="Nội dung thông báo" Variant="Variant.Outlined"
+                      Lines="4" />
+        <MudSelect @bind-Value="notifyChannel" Label="Kênh gửi" Variant="Variant.Outlined" Class="mt-3">
+            <MudSelectItem Value="@("email")">Email</MudSelectItem>
+            <MudSelectItem Value="@("push")">Push Notification</MudSelectItem>
+            <MudSelectItem Value="@("both")">Email + Push</MudSelectItem>
+        </MudSelect>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => showNotifyDialog = false)" Variant="Variant.Outlined">Hủy</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="DoSendNotification">
+            Gửi thông báo
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private string searchText = "";
+    private string filterStatus = "All";
+    private HashSet<foodstreet_admin.Models.CustomerModel> selectedCustomers = new();
+    private bool showNotifyDialog = false;
+    private bool isBulk = false;
+    private foodstreet_admin.Models.CustomerModel? notifyTarget;
+    private string notifySubject = "";
+    private string notifyMessage = "";
+    private string notifyChannel = "email";
+
+    private List<foodstreet_admin.Models.CustomerModel> customers = new()
+    {
+        new() { Id=1, FullName="Nguyễn Thị A", Email="customer1@mail.com", Phone="0911111111", Status="Active", RegisteredAt=new DateTime(2025,1,10), TotalListens=450 },
+        new() { Id=2, FullName="Trần Văn B", Email="customer2@mail.com", Phone="0922222222", Status="Active", RegisteredAt=new DateTime(2025,2,15), TotalListens=230 },
+        new() { Id=3, FullName="Lê Thị C", Email="customer3@mail.com", Phone="0933333333", Status="Disabled", RegisteredAt=new DateTime(2025,1,20), TotalListens=50 },
+        new() { Id=4, FullName="Phạm Văn D", Email="customer4@mail.com", Phone="0944444444", Status="Active", RegisteredAt=new DateTime(2025,3,5), TotalListens=780 },
+        new() { Id=5, FullName="Võ Thị E", Email="customer5@mail.com", Phone="0955555555", Status="Active", RegisteredAt=new DateTime(2025,4,12), TotalListens=120 },
+        new() { Id=6, FullName="Đặng Văn F", Email="customer6@mail.com", Phone="0966666666", Status="Active", RegisteredAt=new DateTime(2025,5,1), TotalListens=95 },
+    };
+
+    private IEnumerable<foodstreet_admin.Models.CustomerModel> FilteredCustomers =>
+        customers.Where(c =>
+            (string.IsNullOrEmpty(searchText) ||
+             c.Email.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+             c.Phone.Contains(searchText) ||
+             c.FullName.Contains(searchText, StringComparison.OrdinalIgnoreCase)) &&
+            (filterStatus == "All" || c.Status == filterStatus));
+
+    private void DisableCustomer(foodstreet_admin.Models.CustomerModel c) => c.Status = "Disabled";
+    private void EnableCustomer(foodstreet_admin.Models.CustomerModel c) => c.Status = "Active";
+
+    private void SendNotification(foodstreet_admin.Models.CustomerModel c)
+    {
+        isBulk = false;
+        notifyTarget = c;
+        notifySubject = notifyMessage = "";
+        showNotifyDialog = true;
+    }
+
+    private void SendBulkNotification()
+    {
+        isBulk = true;
+        notifyTarget = null;
+        notifySubject = notifyMessage = "";
+        showNotifyDialog = true;
+    }
+
+    private void BulkDisable()
+    {
+        foreach (var c in selectedCustomers) c.Status = "Disabled";
+        selectedCustomers.Clear();
+    }
+
+    private void DoSendNotification()
+    {
+        // TODO: Call API POST /notifications
+        showNotifyDialog = false;
+    }
+
+    private void ExportExcel()
+    {
+        // TODO: Call EPPlus export
+    }
+}

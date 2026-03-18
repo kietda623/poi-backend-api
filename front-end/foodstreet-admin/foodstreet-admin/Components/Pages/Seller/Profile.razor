@@ -1,0 +1,139 @@
+@page "/seller/profile"
+@layout SellerLayout
+@rendermode InteractiveServer
+@inject AuthService AuthSvc
+@inject ISnackbar Snackbar
+
+<PageTitle>Cài đặt Profile</PageTitle>
+
+<MudText Typo="Typo.h5" Style="font-weight:700" Class="mb-1">👤 Cài đặt Profile</MudText>
+<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-5">Quản lý thông tin cá nhân</MudText>
+
+<MudGrid>
+    <MudItem xs="12" md="4">
+        <MudPaper Class="pa-5 text-center mb-4" Elevation="2" Style="border-radius:12px">
+            <MudAvatar Style="width:90px;height:90px;font-size:2.5rem;margin:0 auto 12px" Color="Color.Primary">
+                @(_name.Length > 0 ? _name[0] : 'U')
+            </MudAvatar>
+            <MudText Typo="Typo.h6" Style="font-weight:600">@_name</MudText>
+            <MudChip T="string" Color="Color.Success" Size="Size.Small" Class="mt-1">Seller</MudChip>
+            <MudDivider Class="my-3" />
+            <MudStack Spacing="1" AlignItems="AlignItems.Start">
+                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                    <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Small" Class="mr-1" />
+                    Đăng ký: 15/01/2025
+                </MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                    <MudIcon Icon="@Icons.Material.Filled.Store" Size="Size.Small" Class="mr-1" />
+                    2 gian hàng đang hoạt động
+                </MudText>
+            </MudStack>
+        </MudPaper>
+
+        <MudPaper Class="pa-4" Elevation="2" Style="border-radius:12px">
+            <MudText Typo="Typo.subtitle2" Style="font-weight:600" Class="mb-3">📋 Lịch sử đăng ký</MudText>
+            @foreach (var log in _logs)
+            {
+                <MudStack Row="true" AlignItems="AlignItems.Start" Class="mb-3" Spacing="2">
+                    <MudIcon Icon="@Icons.Material.Filled.FiberManualRecord"
+                             Size="Size.Small" Color="Color.Primary" Style="margin-top:3px;font-size:10px" />
+                    <MudStack Spacing="0">
+                        <MudText Typo="Typo.body2">@log.Item1</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">@log.Item2</MudText>
+                    </MudStack>
+                </MudStack>
+            }
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12" md="8">
+        <!-- Personal Info -->
+        <MudPaper Class="pa-5 mb-4" Elevation="2" Style="border-radius:12px">
+            <MudText Typo="Typo.subtitle1" Style="font-weight:600" Class="mb-4">✏️ Thông tin cá nhân</MudText>
+            <MudGrid>
+                <MudItem xs="12" md="6">
+                    <MudTextField @bind-Value="_name" Label="Họ và tên" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField @bind-Value="_email" Label="Email" Variant="Variant.Outlined"
+                                  InputType="InputType.Email" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField @bind-Value="_phone" Label="Số điện thoại" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField Value="Seller" Label="Vai trò" Variant="Variant.Outlined" ReadOnly="true" />
+                </MudItem>
+            </MudGrid>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4"
+                       StartIcon="@Icons.Material.Filled.Save" OnClick="SaveProfile"
+                       Disabled="_savingProfile">
+                @if (_savingProfile) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
+                Lưu thông tin
+            </MudButton>
+        </MudPaper>
+
+        <!-- Change Password -->
+        <MudPaper Class="pa-5" Elevation="2" Style="border-radius:12px">
+            <MudText Typo="Typo.subtitle1" Style="font-weight:600" Class="mb-4">🔑 Đổi mật khẩu</MudText>
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_curPwd" Label="Mật khẩu hiện tại"
+                                  InputType="InputType.Password" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField @bind-Value="_newPwd" Label="Mật khẩu mới"
+                                  InputType="InputType.Password" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField @bind-Value="_confirmPwd" Label="Xác nhận mật khẩu mới"
+                                  InputType="InputType.Password" Variant="Variant.Outlined"
+                                  Error="@(_newPwd != _confirmPwd && _confirmPwd.Length > 0)"
+                                  ErrorText="Mật khẩu không khớp" />
+                </MudItem>
+            </MudGrid>
+            <MudButton Variant="Variant.Outlined" Color="Color.Warning" Class="mt-4"
+                       StartIcon="@Icons.Material.Filled.Lock" OnClick="ChangePwd"
+                       Disabled="_savingPwd">
+                @if (_savingPwd) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
+                Đổi mật khẩu
+            </MudButton>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private string _name = "Nguyễn Văn A";
+    private string _email = "seller@foodstreet.vn";
+    private string _phone = "0901234567";
+    private string _curPwd = "", _newPwd = "", _confirmPwd = "";
+    private bool _savingProfile, _savingPwd;
+
+    private List<(string, string)> _logs = new()
+    {
+        ("Đăng ký gian hàng: Quán Ốc Bà Ba", "15/01/2025"),
+        ("Gian hàng được duyệt", "16/01/2025"),
+        ("Đăng ký gian hàng: Cơm Tấm Sài Gòn", "20/03/2025"),
+        ("Đang chờ duyệt", "20/03/2025"),
+    };
+
+    private async Task SaveProfile()
+    {
+        _savingProfile = true;
+        await Task.Delay(500);
+        // TODO: gọi API cập nhật profile
+        Snackbar.Add("Lưu thông tin thành công!", Severity.Success);
+        _savingProfile = false;
+    }
+
+    private async Task ChangePwd()
+    {
+        if (string.IsNullOrEmpty(_curPwd) || _newPwd != _confirmPwd)
+        { Snackbar.Add("Mật khẩu không hợp lệ!", Severity.Error); return; }
+        _savingPwd = true;
+        var (ok, msg) = await AuthSvc.ChangePasswordAsync(1, _curPwd, _newPwd);
+        Snackbar.Add(msg, ok ? Severity.Success : Severity.Error);
+        if (ok) _curPwd = _newPwd = _confirmPwd = "";
+        _savingPwd = false;
+    }
+}
