@@ -1,0 +1,125 @@
+@page "/admin/manage-tour"
+@layout AdminLayout
+@rendermode InteractiveServer
+@inject TourService TourSvc
+@inject ISnackbar Snackbar
+
+<PageTitle>Quản lý Nhóm Tuyến/Tour</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudStack Spacing="0">
+        <MudText Typo="Typo.h5" Style="font-weight:700">🗺️ Quản lý Tour Ẩm Thực</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">Thiết lập các tuyến tham quan kết hợp nhiều gian hàng</MudText>
+    </MudStack>
+    <MudSpacer />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="OpenNew">Tạo Tour Mới</MudButton>
+</MudStack>
+
+@if (_loading)
+{ <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-2" /> }
+
+<MudPaper Elevation="2" Style="border-radius:8px;overflow:hidden">
+    <MudTable Items="@_tours" Hover="true" Dense="true" Striped="true">
+        <HeaderContent>
+            <MudTh>ID</MudTh>
+            <MudTh>Tên Tour</MudTh>
+            <MudTh>Mô tả</MudTh>
+            <MudTh>Thời lượng</MudTh>
+            <MudTh>Số POI</MudTh>
+            <MudTh>Trạng thái</MudTh>
+            <MudTh>Thao tác</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Id</MudTd>
+            <MudTd><b>@context.Name</b></MudTd>
+            <MudTd>@(context.Description.Length > 30 ? context.Description.Substring(0, 30) + "..." : context.Description)</MudTd>
+            <MudTd>@context.EstimatedTime</MudTd>
+            <MudTd>@context.StoreIds.Count</MudTd>
+            <MudTd>
+                <MudChip T="string" Size="Size.Small" Color="@(context.IsActive ? Color.Success : Color.Error)">
+                    @(context.IsActive ? "Mở bán" : "Tạm ngưng")
+                </MudChip>
+            </MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Primary" Title="Sửa" OnClick="@(() => OpenEdit(context))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" Title="Xóa" OnClick="@(async () => await Delete(context))" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+<MudDialog @bind-Visible="_showDialog">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Map" Class="mr-2" />
+            @(_editing == null ? "Tạo Tour Mới" : "Sửa Tour")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="_form.Name" Label="Tên Tour" Variant="Variant.Outlined" Class="mb-3" />
+        <MudTextField @bind-Value="_form.EstimatedTime" Label="Thời gian dự kiến (vd: 2 giờ)" Variant="Variant.Outlined" Class="mb-3" />
+        <MudTextField @bind-Value="_form.Description" Label="Mô tả" Variant="Variant.Outlined" Lines="3" Class="mb-3" />
+        <MudTextField @bind-Value="_storeIdsText" Label="Danh sách POI (nhập ID gian hàng, cách nhau dấu phẩy)" Variant="Variant.Outlined" Class="mb-3" />
+        <MudCheckBox @bind-Value="_form.IsActive" Label="Kích hoạt tour" Color="Color.Primary" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _showDialog = false)" Variant="Variant.Outlined">Hủy</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save">Lưu</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private bool _loading = true, _showDialog;
+    private List<TourModel> _tours = new();
+    private TourModel? _editing;
+    private TourModel _form = new();
+    private string _storeIdsText = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        _tours = await TourSvc.GetToursAsync();
+        _loading = false;
+    }
+
+    private void OpenNew() { _editing = null; _form = new() { IsActive = true }; _storeIdsText = ""; _showDialog = true; }
+    private void OpenEdit(TourModel item) 
+    { 
+        _editing = item; 
+        _form = new() { Id = item.Id, Name = item.Name, Description = item.Description, EstimatedTime = item.EstimatedTime, IsActive = item.IsActive }; 
+        _storeIdsText = string.Join(", ", item.StoreIds);
+        _showDialog = true; 
+    }
+
+    private async Task Save()
+    {
+        if (string.IsNullOrWhiteSpace(_form.Name)) return;
+
+        // Parse IDs (chỉ là giả lập)
+        _form.StoreIds = _storeIdsText.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                     .Select(x => int.TryParse(x.Trim(), out int val) ? val : 0)
+                                     .Where(x => x > 0).ToList();
+
+        if (_editing == null)
+        {
+            var (ok, msg) = await TourSvc.CreateTourAsync(_form);
+            Snackbar.Add(msg, ok ? Severity.Success : Severity.Error);
+        }
+        else
+        {
+            var (ok, msg) = await TourSvc.UpdateTourAsync(_form);
+            Snackbar.Add(msg, ok ? Severity.Success : Severity.Error);
+        }
+        
+        _tours = await TourSvc.GetToursAsync();
+        _showDialog = false;
+    }
+
+    private async Task Delete(TourModel item)
+    {
+        await TourSvc.DeleteTourAsync(item.Id);
+        _tours.Remove(item);
+        Snackbar.Add("Đã xóa Tour!", Severity.Success);
+    }
+}

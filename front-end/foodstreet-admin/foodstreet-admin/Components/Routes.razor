@@ -24,9 +24,13 @@
                                 <MudText Typo="Typo.h5" Color="Color.Error" Class="mt-3">
                                     Không có quyền truy cập
                                 </MudText>
+                                @{
+                                    var role = context.User.Claims
+                                        .FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value
+                                        ?? "vai trò không xác định";
+                                }
                                 <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mt-1">
-                                    Trang này chỉ dành cho @context.User.Claims
-                                        .FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value.
+                                    Trang này chỉ dành cho @role
                                 </MudText>
                                 <MudButton Href="/" Variant="Variant.Filled" Color="Color.Primary"
                                            Class="mt-4" StartIcon="@Icons.Material.Filled.Home">

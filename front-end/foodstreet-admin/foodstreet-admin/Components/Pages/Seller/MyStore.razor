@@ -3,6 +3,8 @@
 @rendermode InteractiveServer
 @inject StoreService StoreSvc
 @inject ISnackbar Snackbar
+@inject IJSRuntime JS
+@implements IDisposable
 
 <PageTitle>Gian hàng của tôi</PageTitle>
 
@@ -23,10 +25,10 @@
         <MudItem xs="12" md="4">
             <MudTextField @bind-Value="_search" Label="Tìm kiếm..."
                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
-                          Variant="Variant.Outlined" Dense="true" Immediate="true" />
+                          Variant="Variant.Outlined" dense="true" Immediate="true" />
         </MudItem>
         <MudItem xs="12" md="3">
-            <MudSelect @bind-Value="_filterStatus" Label="Trạng thái" Variant="Variant.Outlined" Dense="true">
+            <MudSelect @bind-Value="_filterStatus" Label="Trạng thái" Variant="Variant.Outlined" dense="true">
                 <MudSelectItem Value="@("All")">Tất cả</MudSelectItem>
                 <MudSelectItem Value="@("Active")">Active</MudSelectItem>
                 <MudSelectItem Value="@("Pending")">Pending</MudSelectItem>
@@ -34,7 +36,7 @@
             </MudSelect>
         </MudItem>
         <MudItem xs="12" md="3">
-            <MudSelect @bind-Value="_filterCat" Label="Danh mục" Variant="Variant.Outlined" Dense="true">
+            <MudSelect @bind-Value="_filterCat" Label="Danh mục" Variant="Variant.Outlined" dense="true">
                 <MudSelectItem Value="@("All")">Tất cả</MudSelectItem>
                 @foreach (var cat in new[]{"Ốc","Hải sản","Cơm","Bún/Phở","Đồ uống"})
                 {
@@ -112,7 +114,7 @@
     {
         <MudItem xs="12">
             <MudPaper Class="pa-8 text-center" Elevation="0" Style="border:2px dashed #e0e0e0;border-radius:12px">
-                <MudIcon Icon="@Icons.Material.Filled.StorefrontOutlined" Size="Size.Large" Color="Color.Secondary" />
+                <MudIcon Icon="@Icons.Material.Filled.Storefront" Size="Size.Large" Color="Color.Secondary" />
                 <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mt-2">
                     Chưa có gian hàng nào
                 </MudText>
@@ -157,6 +159,12 @@
                     </MudItem>
                     <MudItem xs="6">
                         <MudTextField @bind-Value="_form.Longitude" Label="Kinh độ (GPS)" Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12">
+                        <div id="pickerMap" style="height: 200px; width: 100%; border-radius: 8px; margin-bottom: 8px; z-index: 1;"></div>
+                        <MudButton StartIcon="@Icons.Material.Filled.MyLocation" Color="Color.Info" Variant="Variant.Text" OnClick="GetMyLocation">
+                            Lấy vị trí thiết bị hiện tại
+                        </MudButton>
                     </MudItem>
                 </MudGrid>
             </MudItem>
@@ -220,9 +228,51 @@
         _loading = false;
     }
 
-    private void OpenNew() { _editing = null; _form = new() { SellerId = CurrentSellerId }; _showDialog = true; }
-    private void OpenEdit(StoreModel s) { _editing = s; _form = new StoreModel { Id=s.Id, Name=s.Name, Phone=s.Phone, Address=s.Address, Category=s.Category, Description=s.Description, Latitude=s.Latitude, Longitude=s.Longitude, SellerId=s.SellerId }; _showDialog = true; }
-    private void CloseDialog() { _showDialog = false; }
+    private async Task DeleteStore(StoreModel s)
+    {
+        var ok = await StoreSvc.DeleteStoreAsync(s.Id);
+        if (ok) { _stores.Remove(s); Snackbar.Add("Đã xóa gian hàng!", Severity.Success); }
+    }
+
+    private DotNetObjectReference<MyStore>? _objRef;
+
+    private async Task InitMapAsync()
+    {
+        _objRef ??= DotNetObjectReference.Create(this);
+        // Delay a bit to let the DOM render the #pickerMap div
+        await Task.Delay(200);
+        await JS.InvokeVoidAsync("leafletInterop.initPickerMap", "pickerMap", _form.Latitude, _form.Longitude, _objRef);
+    }
+
+    [JSInvokable]
+    public void OnLocationChanged(double lat, double lng)
+    {
+        _form.Latitude = lat;
+        _form.Longitude = lng;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task GetMyLocation()
+    {
+        if (_objRef != null)
+            await JS.InvokeVoidAsync("leafletInterop.getCurrentLocation", _objRef);
+    }
+
+    private void OpenNew() 
+    { 
+        _editing = null; 
+        _form = new() { SellerId = CurrentSellerId, Latitude = 10.762622, Longitude = 106.660172 }; 
+        _showDialog = true; 
+        _ = InitMapAsync();
+    }
+
+    private void OpenEdit(StoreModel s) 
+    { 
+        _editing = s; 
+        _form = new StoreModel { Id=s.Id, Name=s.Name, Phone=s.Phone, Address=s.Address, Category=s.Category, Description=s.Description, Latitude=s.Latitude, Longitude=s.Longitude, SellerId=s.SellerId }; 
+        _showDialog = true; 
+        _ = InitMapAsync();
+    }
 
     private async Task SaveStore()
     {
@@ -243,9 +293,10 @@
         _saving = false; CloseDialog();
     }
 
-    private async Task DeleteStore(StoreModel s)
+    private void CloseDialog() { _showDialog = false; }
+
+    public void Dispose()
     {
-        var ok = await StoreSvc.DeleteStoreAsync(s.Id);
-        if (ok) { _stores.Remove(s); Snackbar.Add("Đã xóa gian hàng!", Severity.Success); }
+        _objRef?.Dispose();
     }
 }

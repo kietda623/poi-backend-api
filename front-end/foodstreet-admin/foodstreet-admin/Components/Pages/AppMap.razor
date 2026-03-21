@@ -1,0 +1,133 @@
+@page "/app/map"
+@layout MainLayout
+@rendermode InteractiveServer
+@inject StoreService StoreSvc
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>Bản đồ Ẩm thực FoodStreet</PageTitle>
+
+<div style="position: relative; width: 100vw; height: 100vh; overflow: hidden;">
+    <!-- Map Container -->
+    <div id="appMap" style="position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1;"></div>
+
+    <!-- Nút trở về hoặc Header nổi -->
+    <MudAppBar Elevation="1" Dense="true" Style="background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); z-index: 10;">
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" Href="/" />
+        <MudText Typo="Typo.h6" Style="font-weight: 700; color: var(--mud-palette-primary);">Khám phá Ẩm thực</MudText>
+    </MudAppBar>
+
+    <!-- Drawer hoặc Bottom Sheet hiển thị POI gần nhất -->
+    @if (_nearestStore != null)
+    {
+        <MudPaper Elevation="4" Class="pa-4" Style="position: absolute; bottom: 16px; left: 16px; right: 16px; z-index: 1000; border-radius: 16px; animation: slideUp 0.3s ease-out;">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudAvatar Image="@(_nearestStore.ImageUrl != "" ? _nearestStore.ImageUrl : "https://placehold.co/100")" Size="Size.Large" />
+                <MudStack Spacing="0" Style="flex: 1;">
+                    <MudText Typo="Typo.subtitle1" Style="font-weight: 700;">@_nearestStore.Name</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Bạn đang cách ~@Math.Round(_distance, 0)m</MudText>
+                </MudStack>
+                <MudIconButton Icon="@(_isPlaying ? Icons.Material.Filled.PauseCircle : Icons.Material.Filled.PlayCircle)" 
+                               Color="Color.Primary" Size="Size.Large" OnClick="ToggleAudio" />
+            </MudStack>
+        </MudPaper>
+    }
+</div>
+
+<style>
+    @@keyframes slideUp {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+</style>
+
+@code {
+    private List<StoreModel> _stores = new();
+    private DotNetObjectReference<AppMap>? _objRef;
+    private StoreModel? _nearestStore;
+    private double _distance = double.MaxValue;
+    private bool _isPlaying = false;
+    private int _playingStoreId = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _stores = await StoreSvc.GetStoresAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _objRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("leafletInterop.initAppMap", "appMap", _objRef, _stores.Where(s => s.Status == "Active"));
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnUserLocationUpdated(double lat, double lng)
+    {
+        StoreModel? closest = null;
+        double minDst = double.MaxValue;
+
+        foreach (var store in _stores.Where(s => s.Status == "Active"))
+        {
+            var d = CalculateDistance(lat, lng, store.Latitude, store.Longitude);
+            if (d < minDst)
+            {
+                minDst = d;
+                closest = store;
+            }
+        }
+
+        // Nếu gần hơn 50 mét thì hiển thị popup
+        if (minDst <= 50)
+        {
+            if (_nearestStore?.Id != closest?.Id)
+            {
+                _nearestStore = closest;
+                _distance = minDst;
+                await JS.InvokeVoidAsync("leafletInterop.highlightPoi", closest!.Id);
+            }
+            else
+            {
+                _distance = minDst;
+            }
+        }
+        else
+        {
+            _nearestStore = null;
+            await JS.InvokeVoidAsync("leafletInterop.highlightPoi", -1);
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void ToggleAudio()
+    {
+        _isPlaying = !_isPlaying;
+        if (_isPlaying) _playingStoreId = _nearestStore!.Id;
+        // In real app, JS interop to play HTML5 audio
+    }
+
+    private double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
+    {
+        var R = 6371e3; // meters
+        var φ1 = lat1 * Math.PI / 180;
+        var φ2 = lat2 * Math.PI / 180;
+        var Δφ = (lat2 - lat1) * Math.PI / 180;
+        var Δλ = (lon2 - lon1) * Math.PI / 180;
+
+        var a = Math.Sin(Δφ / 2) * Math.Sin(Δφ / 2) +
+                Math.Cos(φ1) * Math.Cos(φ2) *
+                Math.Sin(Δλ / 2) * Math.Sin(Δλ / 2);
+        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+
+        return R * c;
+    }
+
+    public void Dispose()
+    {
+        _ = JS.InvokeVoidAsync("leafletInterop.destroyAppMap");
+        _objRef?.Dispose();
+    }
+}

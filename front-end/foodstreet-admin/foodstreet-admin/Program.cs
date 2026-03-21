@@ -2,12 +2,15 @@ using foodstreet_admin.Components;
 using foodstreet_admin.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using MudBlazor.Services;
+using Microsoft.AspNetCore.Authentication; 
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Razor Components ─────────────────────────────────────────────
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
 
 // ── MudBlazor ────────────────────────────────────────────────────
 builder.Services.AddMudServices(config =>
@@ -55,6 +58,10 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddScoped<ApiService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<StoreService>();
+builder.Services.AddScoped<LanguageService>();
+builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<TourService>();
+builder.Services.AddScoped<UsageHistoryService>();
 
 // ── Logging ──────────────────────────────────────────────────────
 builder.Logging.AddConsole();
@@ -78,7 +85,7 @@ app.UseAuthorization();
 app.UseAntiforgery();
 
 // Logout endpoint
-app.MapGet("/auth/logout", async (HttpContext ctx, Microsoft.AspNetCore.Authentication.IAuthenticationService auth) =>
+app.MapGet("/auth/logout", async (HttpContext ctx) =>
 {
     await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     return Results.Redirect("/auth/login");

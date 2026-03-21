@@ -1,0 +1,109 @@
+@page "/admin/manage-category"
+@layout AdminLayout
+@rendermode InteractiveServer
+@inject CategoryService CatSvc
+@inject ISnackbar Snackbar
+
+<PageTitle>Quản lý Danh mục</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudStack Spacing="0">
+        <MudText Typo="Typo.h5" Style="font-weight:700">📂 Quản lý Danh mục</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">Quản lý các loại hình gian hàng (Ốc, Hải sản,...)</MudText>
+    </MudStack>
+    <MudSpacer />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="OpenNew">Thêm Danh mục</MudButton>
+</MudStack>
+
+@if (_loading)
+{ <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-2" /> }
+
+<MudPaper Elevation="2" Style="border-radius:8px;overflow:hidden">
+    <MudTable Items="@_categories" Hover="true" Dense="true" Striped="true">
+        <HeaderContent>
+            <MudTh>ID</MudTh>
+            <MudTh>Tên danh mục</MudTh>
+            <MudTh>Slug</MudTh>
+            <MudTh>Số gian hàng</MudTh>
+            <MudTh>Trạng thái</MudTh>
+            <MudTh>Thao tác</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Id</MudTd>
+            <MudTd><b>@context.Name</b></MudTd>
+            <MudTd>@context.Slug</MudTd>
+            <MudTd>@context.StoreCount</MudTd>
+            <MudTd>
+                <MudChip T="string" Size="Size.Small" Color="@(context.IsActive ? Color.Success : Color.Error)">
+                    @(context.IsActive ? "Active" : "Disabled")
+                </MudChip>
+            </MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Primary" Title="Sửa" OnClick="@(() => OpenEdit(context))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" Title="Xóa" OnClick="@(async () => await Delete(context))" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+<MudDialog @bind-Visible="_showDialog">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Category" Class="mr-2" />
+            @(_editing == null ? "Thêm Danh mục" : "Sửa Danh mục")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="_form.Name" Label="Tên danh mục" Variant="Variant.Outlined" Class="mb-3" />
+        <MudTextField @bind-Value="_form.Slug" Label="Slug (đường dẫn)" Variant="Variant.Outlined" Class="mb-3" />
+        <MudCheckBox @bind-Value="_form.IsActive" Label="Sử dụng (Active)" Color="Color.Primary" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _showDialog = false)" Variant="Variant.Outlined">Hủy</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save">Lưu</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private bool _loading = true, _showDialog;
+    private List<CategoryModel> _categories = new();
+    private CategoryModel? _editing;
+    private CategoryModel _form = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _categories = await CatSvc.GetCategoriesAsync();
+        _loading = false;
+    }
+
+    private void OpenNew() { _editing = null; _form = new() { IsActive = true }; _showDialog = true; }
+    private void OpenEdit(CategoryModel item) { _editing = item; _form = new() { Id = item.Id, Name = item.Name, Slug = item.Slug, IsActive = item.IsActive }; _showDialog = true; }
+
+    private async Task Save()
+    {
+        if (string.IsNullOrWhiteSpace(_form.Name)) return;
+
+        if (_editing == null)
+        {
+            var (ok, msg) = await CatSvc.CreateCategoryAsync(_form);
+            Snackbar.Add(msg, ok ? Severity.Success : Severity.Error);
+        }
+        else
+        {
+            var (ok, msg) = await CatSvc.UpdateCategoryAsync(_form);
+            Snackbar.Add(msg, ok ? Severity.Success : Severity.Error);
+        }
+        
+        _categories = await CatSvc.GetCategoriesAsync();
+        _showDialog = false;
+    }
+
+    private async Task Delete(CategoryModel item)
+    {
+        await CatSvc.DeleteCategoryAsync(item.Id);
+        _categories.Remove(item);
+        Snackbar.Add("Đã xóa danh mục!", Severity.Success);
+    }
+}

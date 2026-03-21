@@ -1,0 +1,107 @@
+@page "/admin/manage-language"
+@layout AdminLayout
+@rendermode InteractiveServer
+@inject LanguageService LangSvc
+@inject ISnackbar Snackbar
+
+<PageTitle>Quản lý Ngôn ngữ</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudStack Spacing="0">
+        <MudText Typo="Typo.h5" Style="font-weight:700">🌐 Quản lý Ngôn ngữ</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">Thiết lập ngôn ngữ hỗ trợ thuyết minh</MudText>
+    </MudStack>
+    <MudSpacer />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="OpenNew">Thêm ngôn ngữ</MudButton>
+</MudStack>
+
+@if (_loading)
+{ <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-2" /> }
+
+<MudPaper Elevation="2" Style="border-radius:8px;overflow:hidden">
+    <MudTable Items="@_languages" Hover="true" Dense="true" Striped="true">
+        <HeaderContent>
+            <MudTh>ID</MudTh>
+            <MudTh>Mã ngôn ngữ</MudTh>
+            <MudTh>Tên ngôn ngữ</MudTh>
+            <MudTh>Trạng thái</MudTh>
+            <MudTh>Thao tác</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Id</MudTd>
+            <MudTd><b>@context.Code</b></MudTd>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>
+                <MudChip T="string" Size="Size.Small" Color="@(context.IsActive ? Color.Success : Color.Error)">
+                    @(context.IsActive ? "Kích hoạt" : "Vô hiệu hóa")
+                </MudChip>
+            </MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Primary" Title="Sửa" OnClick="@(() => OpenEdit(context))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" Title="Xóa" OnClick="@(async () => await Delete(context))" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+<MudDialog @bind-Visible="_showDialog">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Language" Class="mr-2" />
+            @(_editing == null ? "Thêm Ngôn ngữ" : "Sửa Ngôn ngữ")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="_form.Code" Label="Mã (vd: vi, en, ja)" Variant="Variant.Outlined" Class="mb-3" />
+        <MudTextField @bind-Value="_form.Name" Label="Tên hiển thị" Variant="Variant.Outlined" Class="mb-3" />
+        <MudCheckBox @bind-Value="_form.IsActive" Label="Kích hoạt" Color="Color.Primary" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _showDialog = false)" Variant="Variant.Outlined">Hủy</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save">Lưu</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private bool _loading = true, _showDialog;
+    private List<LanguageModel> _languages = new();
+    private LanguageModel? _editing;
+    private LanguageModel _form = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _languages = await LangSvc.GetLanguagesAsync();
+        _loading = false;
+    }
+
+    private void OpenNew() { _editing = null; _form = new() { IsActive = true }; _showDialog = true; }
+    private void OpenEdit(LanguageModel item) { _editing = item; _form = new() { Id = item.Id, Code = item.Code, Name = item.Name, IsActive = item.IsActive }; _showDialog = true; }
+
+    private async Task Save()
+    {
+        if (string.IsNullOrWhiteSpace(_form.Code) || string.IsNullOrWhiteSpace(_form.Name)) return;
+
+        if (_editing == null)
+        {
+            var (ok, msg) = await LangSvc.CreateLanguageAsync(_form);
+            Snackbar.Add(msg, ok ? Severity.Success : Severity.Error);
+        }
+        else
+        {
+            var (ok, msg) = await LangSvc.UpdateLanguageAsync(_form);
+            Snackbar.Add(msg, ok ? Severity.Success : Severity.Error);
+        }
+        
+        _languages = await LangSvc.GetLanguagesAsync();
+        _showDialog = false;
+    }
+
+    private async Task Delete(LanguageModel item)
+    {
+        await LangSvc.DeleteLanguageAsync(item.Id);
+        _languages.Remove(item);
+        Snackbar.Add("Đã xóa ngôn ngữ!", Severity.Success);
+    }
+}

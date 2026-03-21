@@ -18,7 +18,7 @@
             <MudText Typo="Typo.h6" Style="font-weight:600">@_name</MudText>
             <MudChip T="string" Color="Color.Success" Size="Size.Small" Class="mt-1">Seller</MudChip>
             <MudDivider Class="my-3" />
-            <MudStack Spacing="1" AlignItems="AlignItems.Start">
+            <MudStack Spacing="1" align-items="AlignItems.Start">
                 <MudText Typo="Typo.caption" Color="Color.Secondary">
                     <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Small" Class="mr-1" />
                     Đăng ký: 15/01/2025
@@ -34,7 +34,7 @@
             <MudText Typo="Typo.subtitle2" Style="font-weight:600" Class="mb-3">📋 Lịch sử đăng ký</MudText>
             @foreach (var log in _logs)
             {
-                <MudStack Row="true" AlignItems="AlignItems.Start" Class="mb-3" Spacing="2">
+                <MudStack Row="true" align-items="AlignItems.Start" Class="mb-3" Spacing="2">
                     <MudIcon Icon="@Icons.Material.Filled.FiberManualRecord"
                              Size="Size.Small" Color="Color.Primary" Style="margin-top:3px;font-size:10px" />
                     <MudStack Spacing="0">
@@ -62,7 +62,7 @@
                     <MudTextField @bind-Value="_phone" Label="Số điện thoại" Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12" md="6">
-                    <MudTextField Value="Seller" Label="Vai trò" Variant="Variant.Outlined" ReadOnly="true" />
+                    <MudTextField Value="@("Seller")" Label="Vai trò" Variant="Variant.Outlined" ReadOnly="true" />
                 </MudItem>
             </MudGrid>
             <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4"

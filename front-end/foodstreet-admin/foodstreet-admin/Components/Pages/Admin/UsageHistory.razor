@@ -1,0 +1,51 @@
+@page "/admin/usage-history"
+@layout AdminLayout
+@rendermode InteractiveServer
+@inject UsageHistoryService UsageSvc
+
+<PageTitle>Lịch sử sử dụng Audio</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudStack Spacing="0">
+        <MudText Typo="Typo.h5" Style="font-weight:700">🕒 Lịch sử sử dụng</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">Theo dõi hành vi nghe thuyết minh của người dùng</MudText>
+    </MudStack>
+</MudStack>
+
+@if (_loading)
+{ <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-2" /> }
+
+<MudPaper Elevation="2" Style="border-radius:8px;overflow:hidden">
+    <MudTable Items="@_history" Hover="true" Dense="true" Striped="true">
+        <HeaderContent>
+            <MudTh>ID</MudTh>
+            <MudTh>Người dùng/Thiết bị</MudTh>
+            <MudTh>Gian hàng nghe</MudTh>
+            <MudTh>Ngôn ngữ</MudTh>
+            <MudTh>Thời lượng nghe</MudTh>
+            <MudTh>Thời điểm</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Id</MudTd>
+            <MudTd><b>@context.DeviceId</b></MudTd>
+            <MudTd>@context.StoreName</MudTd>
+            <MudTd>@context.LanguageCode.ToUpper()</MudTd>
+            <MudTd>@context.DurationSeconds giây</MudTd>
+            <MudTd>@context.ListenedAt.ToString("dd/MM/yyyy HH:mm")</MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{10, 20, 50}" />
+        </PagerContent>
+    </MudTable>
+</MudPaper>
+
+@code {
+    private bool _loading = true;
+    private List<UsageHistoryModel> _history = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _history = await UsageSvc.GetUsageHistoriesAsync();
+        _loading = false;
+    }
+}
