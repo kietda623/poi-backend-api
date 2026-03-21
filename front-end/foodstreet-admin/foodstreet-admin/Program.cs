@@ -55,6 +55,7 @@ builder.Services.AddScoped(sp =>
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("API"));
 
 // ── App Services ─────────────────────────────────────────────────
+builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<ApiService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<StoreService>();

@@ -35,3 +35,10 @@ public class AuthResponse
     public string Token { get; set; } = "";
     public UserModel? User { get; set; }
 }
+
+/// <summary>Response từ POST /api/auth/login của back-end</summary>
+public class LoginResponse
+{
+    public string Token { get; set; } = "";
+    public string Role { get; set; } = "";
+}

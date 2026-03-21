@@ -73,25 +73,8 @@
             <MudLink Href="/auth/register" Color="Color.Primary">Đăng ký ngay</MudLink>
         </MudText>
 
-        <!-- Demo hint -->
-        <MudExpansionPanels Class="mt-3" Elevation="0">
-            <MudExpansionPanel Text="🧪 Tài khoản demo" Dense="true">
-                <MudStack Spacing="1">
-                    <MudText Typo="Typo.caption" Color="Color.Secondary">
-                        <b>Admin:</b> admin@foodstreet.vn / admin123
-                    </MudText>
-                    <MudText Typo="Typo.caption" Color="Color.Secondary">
-                        <b>Seller:</b> seller@foodstreet.vn / seller123
-                    </MudText>
-                    <MudStack Row="true" Spacing="2" Class="mt-1">
-                        <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Secondary"
-                                   OnClick="@(() => QuickFill("admin"))">Fill Admin</MudButton>
-                        <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary"
-                                   OnClick="@(() => QuickFill("seller"))">Fill Seller</MudButton>
-                    </MudStack>
-                </MudStack>
-            </MudExpansionPanel>
-        </MudExpansionPanels>
+
+
     </MudPaper>
 </MudContainer>
 
@@ -132,9 +115,4 @@
             _error = message;
     }
 
-    private void QuickFill(string role)
-    {
-        if (role == "admin") { _req.Email = "admin@foodstreet.vn"; _req.Password = "admin123"; }
-        else { _req.Email = "seller@foodstreet.vn"; _req.Password = "seller123"; }
-    }
 }
