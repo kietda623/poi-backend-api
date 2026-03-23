@@ -2,15 +2,13 @@ using foodstreet_admin.Components;
 using foodstreet_admin.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using MudBlazor.Services;
-using Microsoft.AspNetCore.Authentication; 
-
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Razor Components ─────────────────────────────────────────────
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
 
 // ── MudBlazor ────────────────────────────────────────────────────
 builder.Services.AddMudServices(config =>
@@ -45,7 +43,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient("API", client =>
 {
     client.BaseAddress = new Uri(
-        builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7001/api/");
+        builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5279/api/");
     client.DefaultRequestHeaders.Add("Accept", "application/json");
     client.Timeout = TimeSpan.FromSeconds(30);
 });
@@ -79,17 +77,36 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.UseAntiforgery();
 
-// Logout endpoint
+// ── Logout endpoint ───────────────────────────────────────────────
 app.MapGet("/auth/logout", async (HttpContext ctx) =>
 {
     await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     return Results.Redirect("/auth/login");
+});
+
+// ── Login cookie endpoint (handles cookie outside Blazor render) ──
+app.MapPost("/auth/login-cookie", async (HttpContext ctx, LoginCookieRequest req) =>
+{
+    var claims = new List<System.Security.Claims.Claim>
+    {
+        new(System.Security.Claims.ClaimTypes.NameIdentifier, "0"),
+        new(System.Security.Claims.ClaimTypes.Name,           req.Email),
+        new(System.Security.Claims.ClaimTypes.Email,          req.Email),
+        new(System.Security.Claims.ClaimTypes.Role,           req.Role),
+    };
+    var identity = new System.Security.Claims.ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    var principal = new System.Security.Claims.ClaimsPrincipal(identity);
+    var authProps = new AuthenticationProperties
+    {
+        IsPersistent = req.RememberMe,
+        ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
+    };
+    await ctx.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, authProps);
+    return Results.Ok();
 });
 
 app.MapRazorComponents<App>()

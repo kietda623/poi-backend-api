@@ -41,34 +41,19 @@ public class AuthService
             // Lưu JWT cho các API call tiếp theo
             _tokenService.SetToken(result.Token);
 
-            // Map role từ back-end (Admin/Owner/User) sang role front-end
+            // Map role từ back-end sang role front-end
             var role = result.Role?.ToLower() switch
             {
-                "admin"  => "Admin",
-                "owner"  => "Seller",   // Owner = Seller trong front-end
-                _        => result.Role ?? "User"
+                "admin" => "Admin",
+                "owner" => "Seller",
+                _ => result.Role ?? "User"
             };
 
-            // Tạo cookie session cho Blazor auth
-            var claims = new List<Claim>
-            {
-                new(ClaimTypes.NameIdentifier, "0"),
-                new(ClaimTypes.Name,           request.Email),
-                new(ClaimTypes.Email,          request.Email),
-                new(ClaimTypes.Role,           role),
-            };
-
-            var identity  = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
-
-            var authProps = new AuthenticationProperties
-            {
-                IsPersistent = request.RememberMe,
-                ExpiresUtc   = DateTimeOffset.UtcNow.AddHours(8)
-            };
-
-            await _httpContextAccessor.HttpContext!
-                .SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, authProps);
+            // Gọi endpoint để set cookie (ngoài Blazor render cycle)
+            await _api.PostAsync<object, object>(
+                "/auth/login-cookie",
+                new { email = request.Email, role = role, rememberMe = request.RememberMe }
+            );
 
             string redirect = role == "Admin" ? "/admin/dashboard" : "/seller/dashboard";
             return (true, "Đăng nhập thành công!", redirect);

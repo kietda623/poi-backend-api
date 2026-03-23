@@ -1,0 +1,1 @@
+public record LoginCookieRequest(string Email, string Role, bool RememberMe);
