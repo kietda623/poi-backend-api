@@ -1,0 +1,342 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\C# Project\\poi-backend-api\\backend\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\dtos\\owner\\menu\\createmenudto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\dtos\\owner\\menu\\createmenudto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\controllers\\owner\\menuscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\controllers\\owner\\menuscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\controllers\\admin\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\controllers\\admin\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\controllers\\admin\\menuscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\controllers\\admin\\menuscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\services\\implementations\\menuservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\services\\implementations\\menuservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\services\\interfaces\\imenuitemservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\services\\interfaces\\imenuitemservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\services\\interfaces\\imenuservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\services\\interfaces\\imenuservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\services\\interfaces\\ipoiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\services\\interfaces\\ipoiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\models\\menu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\models\\menu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\controllers\\app\\appmenuscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\controllers\\app\\appmenuscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\controllers\\admin\\menuitemscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\controllers\\admin\\menuitemscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\models\\menuitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\models\\menuitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\dtos\\admin\\requests\\createownerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\dtos\\admin\\requests\\createownerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\data\\appdbcontextfactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\data\\appdbcontextfactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|c:\\c# project\\poi-backend-api\\backend\\poiapi\\readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{3214838C-468D-DCF0-E7EF-6F7B15478F5B}|PoiApi\\PoiApi.csproj|solutionrelative:poiapi\\readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\appsettings.json",
+              "RelativeDocumentMoniker": "PoiApi\\appsettings.json",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\appsettings.json",
+              "RelativeToolTip": "PoiApi\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-03-23T14:43:40.12Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CreateMenuDto.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\DTOs\\Owner\\Menu\\CreateMenuDto.cs",
+              "RelativeDocumentMoniker": "PoiApi\\DTOs\\Owner\\Menu\\CreateMenuDto.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\DTOs\\Owner\\Menu\\CreateMenuDto.cs",
+              "RelativeToolTip": "PoiApi\\DTOs\\Owner\\Menu\\CreateMenuDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-08T21:31:22.425Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "PoiApi\\Controllers\\AuthController.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "PoiApi\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-06T01:52:49.036Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "UsersController.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Controllers\\Admin\\UsersController.cs",
+              "RelativeDocumentMoniker": "PoiApi\\Controllers\\Admin\\UsersController.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Controllers\\Admin\\UsersController.cs",
+              "RelativeToolTip": "PoiApi\\Controllers\\Admin\\UsersController.cs",
+              "ViewState": "AgIAAC8AAAAAAAAAAAAwwCAAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-06T00:46:40.393Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "MenusController.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Controllers\\Owner\\MenusController.cs",
+              "RelativeDocumentMoniker": "PoiApi\\Controllers\\Owner\\MenusController.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Controllers\\Owner\\MenusController.cs",
+              "RelativeToolTip": "PoiApi\\Controllers\\Owner\\MenusController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-06T12:29:51.726Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "IPoiService.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Services\\Interfaces\\IPoiService.cs",
+              "RelativeDocumentMoniker": "PoiApi\\Services\\Interfaces\\IPoiService.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Services\\Interfaces\\IPoiService.cs",
+              "RelativeToolTip": "PoiApi\\Services\\Interfaces\\IPoiService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T15:21:06.71Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "IMenuItemService.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Services\\Interfaces\\IMenuItemService.cs",
+              "RelativeDocumentMoniker": "PoiApi\\Services\\Interfaces\\IMenuItemService.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Services\\Interfaces\\IMenuItemService.cs",
+              "RelativeToolTip": "PoiApi\\Services\\Interfaces\\IMenuItemService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T15:21:01.44Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "IMenuService.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Services\\Interfaces\\IMenuService.cs",
+              "RelativeDocumentMoniker": "PoiApi\\Services\\Interfaces\\IMenuService.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Services\\Interfaces\\IMenuService.cs",
+              "RelativeToolTip": "PoiApi\\Services\\Interfaces\\IMenuService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T15:17:39.517Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "AppMenusController.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Controllers\\App\\AppMenusController.cs",
+              "RelativeDocumentMoniker": "PoiApi\\Controllers\\App\\AppMenusController.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Controllers\\App\\AppMenusController.cs",
+              "RelativeToolTip": "PoiApi\\Controllers\\App\\AppMenusController.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABYAAABAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T15:11:10.117Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "MenuService.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Services\\Implementations\\MenuService.cs",
+              "RelativeDocumentMoniker": "PoiApi\\Services\\Implementations\\MenuService.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Services\\Implementations\\MenuService.cs",
+              "RelativeToolTip": "PoiApi\\Services\\Implementations\\MenuService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T15:10:17.617Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "MenuItemsController.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Controllers\\Admin\\MenuItemsController.cs",
+              "RelativeDocumentMoniker": "PoiApi\\Controllers\\Admin\\MenuItemsController.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Controllers\\Admin\\MenuItemsController.cs",
+              "RelativeToolTip": "PoiApi\\Controllers\\Admin\\MenuItemsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T14:56:52.386Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "MenusController.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Controllers\\Admin\\MenusController.cs",
+              "RelativeDocumentMoniker": "PoiApi\\Controllers\\Admin\\MenusController.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Controllers\\Admin\\MenusController.cs",
+              "RelativeToolTip": "PoiApi\\Controllers\\Admin\\MenusController.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAACAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T14:56:42.463Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "MenuItem.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Models\\MenuItem.cs",
+              "RelativeDocumentMoniker": "PoiApi\\Models\\MenuItem.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Models\\MenuItem.cs",
+              "RelativeToolTip": "PoiApi\\Models\\MenuItem.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAABCAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T14:55:42.405Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Menu.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Models\\Menu.cs",
+              "RelativeDocumentMoniker": "PoiApi\\Models\\Menu.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Models\\Menu.cs",
+              "RelativeToolTip": "PoiApi\\Models\\Menu.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T14:54:53.87Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "CreateOwnerDto.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\DTOs\\Admin\\Requests\\CreateOwnerDto.cs",
+              "RelativeDocumentMoniker": "PoiApi\\DTOs\\Admin\\Requests\\CreateOwnerDto.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\DTOs\\Admin\\Requests\\CreateOwnerDto.cs",
+              "RelativeToolTip": "PoiApi\\DTOs\\Admin\\Requests\\CreateOwnerDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T14:31:12.737Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Data\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "PoiApi\\Data\\AppDbContext.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Data\\AppDbContext.cs",
+              "RelativeToolTip": "PoiApi\\Data\\AppDbContext.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAAgwCkAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T14:30:06.163Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "AppDbContextFactory.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Data\\AppDbContextFactory.cs",
+              "RelativeDocumentMoniker": "PoiApi\\Data\\AppDbContextFactory.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Data\\AppDbContextFactory.cs",
+              "RelativeToolTip": "PoiApi\\Data\\AppDbContextFactory.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T14:30:42.785Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Program.cs",
+              "RelativeDocumentMoniker": "PoiApi\\Program.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Program.cs",
+              "RelativeToolTip": "PoiApi\\Program.cs",
+              "ViewState": "AgIAACEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T14:30:35.866Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Models\\User.cs",
+              "RelativeDocumentMoniker": "PoiApi\\Models\\User.cs",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\Models\\User.cs",
+              "RelativeToolTip": "PoiApi\\Models\\User.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAIwAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-04T14:29:41.6Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "README.md",
+              "DocumentMoniker": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\README.md",
+              "RelativeDocumentMoniker": "PoiApi\\README.md",
+              "ToolTip": "C:\\C# Project\\poi-backend-api\\backend\\PoiApi\\README.md",
+              "RelativeToolTip": "PoiApi\\README.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-02-04T14:27:34.384Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
