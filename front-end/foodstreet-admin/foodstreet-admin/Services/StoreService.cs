@@ -68,15 +68,13 @@ public class StoreService
     {
         // TODO: return await _api.GetAsync<List<StoreModel>>($"/stores{(sellerId.HasValue ? $"?sellerId={sellerId}" : "")}") ?? new();
         await Task.Delay(100);
-        return sellerId.HasValue
-            ? _mockStores.Where(s => s.SellerId == sellerId).ToList()
-            : _mockStores.ToList();
+        return new List<StoreModel>();
     }
 
     public async Task<StoreModel?> GetStoreByIdAsync(int id)
     {
         await Task.Delay(50);
-        return _mockStores.FirstOrDefault(s => s.Id == id);
+        return null;
     }
 
     public async Task<(bool Success, string Message)> CreateStoreAsync(StoreModel store)
@@ -133,9 +131,9 @@ public class StoreService
     {
         await Task.Delay(100);
         // Gán stores cho mỗi seller
-        foreach (var seller in _mockSellers)
-            seller.Stores = _mockStores.Where(s => s.SellerId == seller.Id).ToList();
-        return _mockSellers.ToList();
+        //foreach (var seller in _mockSellers)
+        //    seller.Stores = _mockStores.Where(s => s.SellerId == seller.Id).ToList();
+        return new List<SellerModel>();
     }
 
     public async Task<bool> UpdateSellerStatusAsync(int id, string status)
@@ -152,7 +150,8 @@ public class StoreService
     public async Task<List<CustomerModel>> GetCustomersAsync()
     {
         await Task.Delay(100);
-        return _mockCustomers.ToList();
+        // return await _api.GetAsync<List<StatModel>>($"/stats/seller/{sellerId}") ?? new List<StatModel>()
+        return new List<CustomerModel>();
     }
 
     public async Task<bool> UpdateCustomerStatusAsync(int id, string status)
@@ -166,28 +165,27 @@ public class StoreService
 
     // ── Stats ────────────────────────────────────────────────────────
 
+    // ── Stats ────────────────────────────────────────────────────────
+
     public async Task<List<StatModel>> GetSellerStatsAsync(int sellerId)
     {
         await Task.Delay(100);
-        return new List<StatModel>
-        {
-            new() { Month="Tháng 1/2025", TotalListens=120, TotalViews=340, TotalReviews=5 },
-            new() { Month="Tháng 2/2025", TotalListens=180, TotalViews=420, TotalReviews=8 },
-            new() { Month="Tháng 3/2025", TotalListens=210, TotalViews=510, TotalReviews=11 },
-            new() { Month="Tháng 4/2025", TotalListens=290, TotalViews=620, TotalReviews=9 },
-            new() { Month="Tháng 5/2025", TotalListens=450, TotalViews=780, TotalReviews=14 },
-        };
+
+        // TODO: Khi nào Backend có API, hãy mở comment dòng dưới và xóa dòng return new List
+        return await _api.GetAsync<List<StatModel>>($"/stats/seller/{sellerId}") ?? new List<StatModel>();
+
+        // Tạm thời trả về list rỗng để tài khoản mới không bị hiển thị rác
+        return new List<StatModel>();
     }
 
     public async Task<List<ReviewModel>> GetStoreReviewsAsync(int storeId)
     {
         await Task.Delay(100);
-        return new List<ReviewModel>
-        {
-            new() { CustomerName="Nguyễn Thị B", Rating=5, Comment="Quán ngon, phục vụ tốt!", CreatedAt=new DateTime(2025,5,12) },
-            new() { CustomerName="Trần Văn C", Rating=4, Comment="Ốc tươi, giá hợp lý.", CreatedAt=new DateTime(2025,5,10) },
-            new() { CustomerName="Lê Thị D", Rating=5, Comment="Audio giới thiệu rất hay!", CreatedAt=new DateTime(2025,5,8) },
-            new() { CustomerName="Phạm Văn E", Rating=3, Comment="Không gian hơi chật.", CreatedAt=new DateTime(2025,5,5) },
-        };
+
+        // TODO: Tương tự, gọi API thật khi đã sẵn sàng
+        return await _api.GetAsync<List<ReviewModel>>($"/stores/{storeId}/reviews") ?? new List<ReviewModel>();
+
+        // Tạm thời trả về rỗng
+        return new List<ReviewModel>();
     }
 }

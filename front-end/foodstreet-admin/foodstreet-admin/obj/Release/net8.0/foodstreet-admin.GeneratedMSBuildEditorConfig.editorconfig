@@ -33,6 +33,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcQWRtaW5MYXlvdXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/C\# Project/poi-backend-api/front-end/foodstreet-admin/foodstreet-admin/Components/Layout/AppProviders.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcQXBwUHJvdmlkZXJzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/C\# Project/poi-backend-api/front-end/foodstreet-admin/foodstreet-admin/Components/Layout/RedirectToLogin.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcUmVkaXJlY3RUb0xvZ2luLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 

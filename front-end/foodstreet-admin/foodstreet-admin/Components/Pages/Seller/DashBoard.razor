@@ -3,6 +3,7 @@
 @rendermode InteractiveServer
 @inject StoreService StoreSvc
 @inject NavigationManager Nav
+@inject AuthenticationStateProvider AuthState
 
 <PageTitle>Dashboard - Seller</PageTitle>
 
@@ -157,13 +158,28 @@
     private List<StoreModel> _myStores = new();
     private int _totalListens, _totalViews, _totalReviews, _activeCount;
 
-    // Seller hiện tại - TODO: lấy từ ClaimsPrincipal
-    private const int CurrentSellerId = 1;
+    // Không dùng const nữa, đổi thành biến chứa ID thật
+    private int _currentSellerId = 0; 
 
     protected override async Task OnInitializedAsync()
     {
-        _myStores = await StoreSvc.GetStoresAsync(CurrentSellerId);
-        _stats = await StoreSvc.GetSellerStatsAsync(CurrentSellerId);
+        // 1. Lấy thông tin người dùng đang đăng nhập
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        // 2. Tìm ID thật sự của họ
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            var idClaim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (idClaim != null && int.TryParse(idClaim.Value, out int parsedId))
+            {
+                _currentSellerId = parsedId;
+            }
+        }
+
+        // 3. Gọi API với ID thật
+        _myStores = await StoreSvc.GetStoresAsync(_currentSellerId);
+        _stats = await StoreSvc.GetSellerStatsAsync(_currentSellerId);
 
         _totalListens = _myStores.Sum(s => s.TotalListens);
         _totalViews   = _myStores.Sum(s => s.TotalViews);

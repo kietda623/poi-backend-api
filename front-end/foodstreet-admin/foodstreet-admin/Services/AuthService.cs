@@ -84,7 +84,7 @@ public class AuthService
             {
                 email = request.Email,
                 password = request.Password,
-                role = "user"
+                role = string.IsNullOrEmpty(request.Role) ? "OWNER" : request.Role
             };
 
             await _api.PostAsync<object, object>("auth/register", payload);

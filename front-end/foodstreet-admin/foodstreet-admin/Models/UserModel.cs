@@ -26,6 +26,7 @@ public class RegisterRequest
     public string Phone { get; set; } = "";
     public string Password { get; set; } = "";
     public string ConfirmPassword { get; set; } = "";
+    public string Role { get; set; } = "OWNER";
 }
 
 public class AuthResponse

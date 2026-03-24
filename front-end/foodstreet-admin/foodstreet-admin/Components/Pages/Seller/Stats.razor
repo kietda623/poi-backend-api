@@ -4,6 +4,8 @@
 @layout SellerLayout
 @rendermode InteractiveServer
 @using MudBlazor
+@inject foodstreet_admin.Services.StoreService StoreSvc
+@inject AuthenticationStateProvider AuthState
 
 <PageTitle>Thống kê</PageTitle>
 
@@ -16,14 +18,15 @@
                Color="Color.Success" Size="Size.Small">Export Excel</MudButton>
 </MudStack>
 
-<!-- Store Selector -->
 <MudPaper Class="pa-3 mb-4" Elevation="1">
     <MudGrid AlignItems="AlignItems.Center">
         <MudItem xs="12" md="4">
             <MudSelect @bind-Value="selectedStoreId" Label="Chọn gian hàng" Variant="Variant.Outlined" Dense="true">
                 <MudSelectItem Value="0">Tất cả gian hàng</MudSelectItem>
-                <MudSelectItem Value="1">Quán Ốc Bà Ba</MudSelectItem>
-                <MudSelectItem Value="2">Cơm Tấm Sài Gòn</MudSelectItem>
+                @foreach (var store in myStores)
+                {
+                    <MudSelectItem Value="@store.Id">@store.Name</MudSelectItem>
+                }
             </MudSelect>
         </MudItem>
         <MudItem xs="12" md="4">
@@ -37,40 +40,38 @@
     </MudGrid>
 </MudPaper>
 
-<!-- Summary Cards -->
 <MudGrid Class="mb-4">
     <MudItem xs="6" md="3">
         <MudPaper Class="pa-4 text-center" Elevation="2">
             <MudIcon Icon="@Icons.Material.Filled.Headphones" Color="Color.Primary" Size="Size.Large" />
-            <MudText Typo="Typo.h4" Color="Color.Primary"><b>1,250</b></MudText>
+            <MudText Typo="Typo.h4" Color="Color.Primary"><b>@totalListens.ToString("N0")</b></MudText>
             <MudText Typo="Typo.body2">Lượt nghe audio</MudText>
         </MudPaper>
     </MudItem>
     <MudItem xs="6" md="3">
         <MudPaper Class="pa-4 text-center" Elevation="2">
             <MudIcon Icon="@Icons.Material.Filled.Visibility" Color="Color.Success" Size="Size.Large" />
-            <MudText Typo="Typo.h4" Color="Color.Success"><b>3,480</b></MudText>
+            <MudText Typo="Typo.h4" Color="Color.Success"><b>@totalViews.ToString("N0")</b></MudText>
             <MudText Typo="Typo.body2">Lượt xem gian hàng</MudText>
         </MudPaper>
     </MudItem>
     <MudItem xs="6" md="3">
         <MudPaper Class="pa-4 text-center" Elevation="2">
             <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" Size="Size.Large" />
-            <MudText Typo="Typo.h4" Color="Color.Warning"><b>4.7</b></MudText>
+            <MudText Typo="Typo.h4" Color="Color.Warning"><b>@averageRating.ToString("F1")</b></MudText>
             <MudText Typo="Typo.body2">Điểm đánh giá TB</MudText>
         </MudPaper>
     </MudItem>
     <MudItem xs="6" md="3">
         <MudPaper Class="pa-4 text-center" Elevation="2">
             <MudIcon Icon="@Icons.Material.Filled.RateReview" Color="Color.Secondary" Size="Size.Large" />
-            <MudText Typo="Typo.h4" Color="Color.Secondary"><b>47</b></MudText>
+            <MudText Typo="Typo.h4" Color="Color.Secondary"><b>@totalReviews.ToString("N0")</b></MudText>
             <MudText Typo="Typo.body2">Tổng review</MudText>
         </MudPaper>
     </MudItem>
 </MudGrid>
 
 <MudGrid>
-    <!-- Monthly Stats Table -->
     <MudItem xs="12" md="7">
         <MudPaper Class="pa-4" Elevation="2">
             <MudText Typo="Typo.h6" Class="mb-3">📊 Chi tiết theo tháng</MudText>
@@ -80,22 +81,20 @@
                     <MudTh><MudIcon Icon="@Icons.Material.Filled.Headphones" Size="Size.Small" /> Nghe</MudTh>
                     <MudTh><MudIcon Icon="@Icons.Material.Filled.Visibility" Size="Size.Small" /> Xem</MudTh>
                     <MudTh><MudIcon Icon="@Icons.Material.Filled.Star" Size="Size.Small" /> Review</MudTh>
-                    <MudTh>Tăng trưởng</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>@context.Month</MudTd>
                     <MudTd>@context.TotalListens</MudTd>
                     <MudTd>@context.TotalViews</MudTd>
                     <MudTd>@context.TotalReviews</MudTd>
-                    <MudTd>
-                        <MudChip T="string" Size="Size.Small" Color="Color.Success">+12%</MudChip>
-                    </MudTd>
                 </RowTemplate>
+                <NoRecordsContent>
+                    <MudText>Chưa có dữ liệu thống kê.</MudText>
+                </NoRecordsContent>
             </MudTable>
         </MudPaper>
     </MudItem>
 
-    <!-- Reviews -->
     <MudItem xs="12" md="5">
         <MudPaper Class="pa-4" Elevation="2">
             <MudText Typo="Typo.h6" Class="mb-3">⭐ Đánh giá gần đây</MudText>
@@ -109,8 +108,12 @@
                         <MudRating ReadOnly="true" SelectedValue="@review.Rating" Size="Size.Small" />
                     </MudStack>
                     <MudText Typo="Typo.body2" Color="Color.Secondary">@review.Comment</MudText>
-                    <MudText Typo="Typo.caption" Color="Color.Tertiary">@review.Date</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Tertiary">@review.CreatedAt.ToString("dd/MM/yyyy")</MudText>
                 </MudPaper>
+            }
+            @if (!recentReviews.Any())
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">Chưa có đánh giá nào.</MudText>
             }
         </MudPaper>
     </MudItem>
@@ -121,25 +124,46 @@
 
     private int selectedStoreId = 0;
     private string selectedPeriod = "month";
+    private int currentSellerId = 0;
 
-    private List<foodstreet_admin.Models.StatModel> monthlyStats = new()
+    // Các biến chứa dữ liệu thật
+    private List<foodstreet_admin.Models.StoreModel> myStores = new();
+    private List<foodstreet_admin.Models.StatModel> monthlyStats = new();
+    private List<foodstreet_admin.Models.ReviewModel> recentReviews = new();
+    
+    // Các biến hiển thị trên Summary Cards
+    private int totalListens = 0;
+    private int totalViews = 0;
+    private double averageRating = 0;
+    private int totalReviews = 0;
+
+    protected override async Task OnInitializedAsync()
     {
-        new() { Month = "Tháng 1/2025", TotalListens = 120, TotalViews = 340, TotalReviews = 5 },
-        new() { Month = "Tháng 2/2025", TotalListens = 180, TotalViews = 420, TotalReviews = 8 },
-        new() { Month = "Tháng 3/2025", TotalListens = 210, TotalViews = 510, TotalReviews = 11 },
-        new() { Month = "Tháng 4/2025", TotalListens = 290, TotalViews = 620, TotalReviews = 9 },
-        new() { Month = "Tháng 5/2025", TotalListens = 450, TotalViews = 780, TotalReviews = 14 },
-    };
+        // 1. Lấy ID người dùng hiện tại
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var user = authState.User;
 
-    private record ReviewItem(string CustomerName, int Rating, string Comment, string Date);
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            var idClaim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (idClaim != null && int.TryParse(idClaim.Value, out int parsedId))
+            {
+                currentSellerId = parsedId;
+            }
+        }
 
-    private List<ReviewItem> recentReviews = new()
-    {
-        new("Nguyễn Thị B", 5, "Quán ngon, phục vụ tốt, sẽ quay lại!", "12/05/2025"),
-        new("Trần Văn C", 4, "Ốc tươi, giá hợp lý.", "10/05/2025"),
-        new("Lê Thị D", 5, "Rất thích nơi này, audio giới thiệu hay!", "08/05/2025"),
-        new("Phạm Văn E", 3, "Bình thường, không gian hơi chật.", "05/05/2025"),
-    };
+        // 2. Lấy danh sách gian hàng để bỏ vào cái Dropdown
+        myStores = await StoreSvc.GetStoresAsync(currentSellerId);
+
+        // 3. Lấy số liệu thống kê & Review
+        monthlyStats = await StoreSvc.GetSellerStatsAsync(currentSellerId);
+        recentReviews = await StoreSvc.GetStoreReviewsAsync(selectedStoreId);
+
+        // 4. Tính toán tổng số (Tạm thời bằng 0 hết vì list rỗng)
+        totalListens = monthlyStats.Sum(s => s.TotalListens);
+        totalViews = monthlyStats.Sum(s => s.TotalViews);
+        totalReviews = monthlyStats.Sum(s => s.TotalReviews);
+    }
 
     protected override void OnParametersSet()
     {

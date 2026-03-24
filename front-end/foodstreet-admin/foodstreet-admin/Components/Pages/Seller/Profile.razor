@@ -3,6 +3,7 @@
 @rendermode InteractiveServer
 @inject AuthService AuthSvc
 @inject ISnackbar Snackbar
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Cài đặt Profile</PageTitle>
 
@@ -103,37 +104,81 @@
 </MudGrid>
 
 @code {
-    private string _name = "Nguyễn Văn A";
-    private string _email = "seller@foodstreet.vn";
-    private string _phone = "0901234567";
+    private string _name = "";
+    private string _email = "";
+    private string _phone = "";
     private string _curPwd = "", _newPwd = "", _confirmPwd = "";
     private bool _savingProfile, _savingPwd;
+    
+    // Biến lưu trữ ID thật của người dùng
+    private int _currentUserId = 0;
 
-    private List<(string, string)> _logs = new()
+    private List<(string, string)> _logs = new();
+
+    protected override async Task OnInitializedAsync()
     {
-        ("Đăng ký gian hàng: Quán Ốc Bà Ba", "15/01/2025"),
-        ("Gian hàng được duyệt", "16/01/2025"),
-        ("Đăng ký gian hàng: Cơm Tấm Sài Gòn", "20/03/2025"),
-        ("Đang chờ duyệt", "20/03/2025"),
-    };
+        // 1. Lấy thông tin từ Cookie (Chỉ dùng để hiển thị ban đầu)
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            _email = user.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "";
+            _name  = user.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ?? _email;
+            
+            var idClaim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (idClaim != null && int.TryParse(idClaim.Value, out int parsedId))
+            {
+                _currentUserId = parsedId;
+            }
+        }
+    }
 
     private async Task SaveProfile()
     {
+        // Nếu ID bằng 0, báo lỗi đỏ lên màn hình thay vì im lặng
+        if (_currentUserId == 0) 
+        {
+            Snackbar.Add("Lỗi: Không nhận diện được ID tài khoản của bạn!", Severity.Error);
+            return;
+        }
+        
         _savingProfile = true;
+        
+        // Tạm thời mô phỏng việc gọi API mất 0.5s
         await Task.Delay(500);
-        // TODO: gọi API cập nhật profile
-        Snackbar.Add("Lưu thông tin thành công!", Severity.Success);
+        bool ok = true; 
+        
+        if (ok)
+        {
+            Snackbar.Add("Lưu thành công!", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add("Lỗi khi lưu thông tin!", Severity.Error);
+        }
+        
         _savingProfile = false;
     }
 
     private async Task ChangePwd()
     {
         if (string.IsNullOrEmpty(_curPwd) || _newPwd != _confirmPwd)
-        { Snackbar.Add("Mật khẩu không hợp lệ!", Severity.Error); return; }
+        { 
+            Snackbar.Add("Mật khẩu không hợp lệ hoặc không khớp!", Severity.Error); 
+            return; 
+        }
+        
+        if (_currentUserId == 0) return;
+
         _savingPwd = true;
-        var (ok, msg) = await AuthSvc.ChangePasswordAsync(1, _curPwd, _newPwd);
+        
+        // Truyền _currentUserId thật vào, thay vì số 1 gõ cứng
+        var (ok, msg) = await AuthSvc.ChangePasswordAsync(_currentUserId, _curPwd, _newPwd);
+        
         Snackbar.Add(msg, ok ? Severity.Success : Severity.Error);
         if (ok) _curPwd = _newPwd = _confirmPwd = "";
+        
         _savingPwd = false;
     }
 }

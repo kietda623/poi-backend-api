@@ -23,8 +23,7 @@
                     Hồ sơ cá nhân
                 </MudMenuItem>
                 <MudDivider />
-                <MudMenuItem Icon="@Icons.Material.Filled.Logout" IconColor="Color.Error"
-                             OnClick="Logout">
+                <MudMenuItem Href="/auth/logout" Target="_top" Icon="@Icons.Material.Filled.Logout">
                     Đăng xuất
                 </MudMenuItem>
             </ChildContent>
@@ -51,8 +50,9 @@
             <MudNavLink Href="/seller/profile"
                         Icon="@Icons.Material.Filled.ManageAccounts">Cài đặt profile</MudNavLink>
             <MudDivider Class="my-2" />
-            <MudNavLink Icon="@Icons.Material.Filled.Logout" IconColor="Color.Error"
-                        OnClick="Logout">Đăng xuất</MudNavLink>
+            <MudNavLink Href="/auth/logout" Target="_top" Icon="@Icons.Material.Filled.Logout" IconColor="Color.Error">
+                Đăng xuất
+            </MudNavLink>
         </MudNavMenu>
     </MudDrawer>
 
@@ -69,9 +69,9 @@
     private bool _open = true;
     private void ToggleDrawer() => _open = !_open;
 
-    private async Task Logout()
+    private void Logout()
     {
-        await AuthSvc.LogoutAsync();
-        Nav.NavigateTo("/auth/login", forceLoad: true);
+        // await AuthSvc.LogoutAsync();
+        Nav.NavigateTo("/auth/logout", forceLoad: true);
     }
 }
