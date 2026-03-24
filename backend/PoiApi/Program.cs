@@ -8,7 +8,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//DATABASE
+// DATABASE
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("MySql"),
@@ -16,12 +16,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     )
 );
 
-//SERVICES
+// SERVICES
 builder.Services.AddScoped<IPoiService, PoiService>();
 builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddScoped<IMenuItemService, MenuItemService>();
 
-//AUTH
+// AUTH
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -37,19 +37,31 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             )
         };
     });
-
 builder.Services.AddAuthorization();
 
-//MVC / SWAGGER / MAPPER
+// ← ADD THIS: CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+    );
+});
+
+// MVC / SWAGGER / MAPPER
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.CustomSchemaIds(type => type.FullName);
+});
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-//BUILD APP
+// BUILD APP
 var app = builder.Build();
 
-//MIDDLEWARE
+// MIDDLEWARE
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -57,22 +69,21 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// seed roles
+// Seed roles
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
     if (!context.Roles.Any(r => r.Name == "ADMIN"))
         context.Roles.Add(new Role { Name = "ADMIN" });
-
     if (!context.Roles.Any(r => r.Name == "OWNER"))
         context.Roles.Add(new Role { Name = "OWNER" });
-
     context.SaveChanges();
 }
 
+// ← ADD THIS: must be BEFORE UseAuthentication
+app.UseCors("AllowFrontend");
+
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 app.Run();
