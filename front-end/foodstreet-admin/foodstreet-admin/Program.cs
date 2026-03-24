@@ -32,7 +32,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.SlidingExpiration = true;
         options.Cookie.Name = "FoodStreet.Auth";
         options.Cookie.HttpOnly = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     });
 
 builder.Services.AddAuthorization();
@@ -48,6 +48,10 @@ builder.Services.AddHttpClient("API", client =>
     client.Timeout = TimeSpan.FromSeconds(30);
 });
 
+builder.Services.AddHttpClient("Self", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5158/");
+});
 // Scoped HttpClient dùng cho ApiService
 builder.Services.AddScoped(sp =>
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("API"));
@@ -61,6 +65,7 @@ builder.Services.AddScoped<LanguageService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<TourService>();
 builder.Services.AddScoped<UsageHistoryService>();
+builder.Services.AddSingleton<PendingLoginService>();
 
 // ── Logging ──────────────────────────────────────────────────────
 builder.Logging.AddConsole();
@@ -89,24 +94,29 @@ app.MapGet("/auth/logout", async (HttpContext ctx) =>
 });
 
 // ── Login cookie endpoint (handles cookie outside Blazor render) ──
-app.MapPost("/auth/login-cookie", async (HttpContext ctx, LoginCookieRequest req) =>
+app.MapGet("/auth/finalize", async (HttpContext ctx, string t, PendingLoginService pending) =>
 {
+    var entry = pending.Consume(t);
+    if (entry == null) return Results.Redirect("/auth/login");
+
     var claims = new List<System.Security.Claims.Claim>
     {
         new(System.Security.Claims.ClaimTypes.NameIdentifier, "0"),
-        new(System.Security.Claims.ClaimTypes.Name,           req.Email),
-        new(System.Security.Claims.ClaimTypes.Email,          req.Email),
-        new(System.Security.Claims.ClaimTypes.Role,           req.Role),
+        new(System.Security.Claims.ClaimTypes.Name,  entry.Value.Email),
+        new(System.Security.Claims.ClaimTypes.Email, entry.Value.Email),
+        new(System.Security.Claims.ClaimTypes.Role,  entry.Value.Role),
     };
     var identity = new System.Security.Claims.ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
     var principal = new System.Security.Claims.ClaimsPrincipal(identity);
     var authProps = new AuthenticationProperties
     {
-        IsPersistent = req.RememberMe,
+        IsPersistent = entry.Value.RememberMe,
         ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
     };
     await ctx.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, authProps);
-    return Results.Ok();
+
+    string redirect = entry.Value.Role == "ADMIN" ? "/admin/dashboard" : "/seller/dashboard";
+    return Results.Redirect(redirect);
 });
 
 app.MapRazorComponents<App>()

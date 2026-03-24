@@ -1,7 +1,7 @@
 using foodstreet_admin.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Security.Claims;
+using System.Net.Http.Json;
 
 namespace foodstreet_admin.Services;
 
@@ -10,23 +10,26 @@ public class AuthService
     private readonly ApiService _api;
     private readonly TokenService _tokenService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly PendingLoginService _pending;
     private readonly ILogger<AuthService> _logger;
 
     public AuthService(
         ApiService api,
         TokenService tokenService,
         IHttpContextAccessor httpContextAccessor,
+        IHttpClientFactory httpClientFactory,
+        PendingLoginService pending,
         ILogger<AuthService> logger)
     {
         _api = api;
         _tokenService = tokenService;
         _httpContextAccessor = httpContextAccessor;
+        _httpClientFactory = httpClientFactory;
+        _pending = pending;
         _logger = logger;
     }
 
-    /// <summary>
-    /// Đăng nhập: gọi API thật → nhận JWT → lưu token → tạo cookie session
-    /// </summary>
     public async Task<(bool Success, string Message, string RedirectUrl)> LoginAsync(LoginRequest request)
     {
         try
@@ -38,24 +41,21 @@ public class AuthService
             if (result == null)
                 return (false, "Email hoặc mật khẩu không đúng!", "");
 
-            // Lưu JWT cho các API call tiếp theo
             _tokenService.SetToken(result.Token);
 
-            // Map role từ back-end sang role front-end
-            var role = result.Role?.ToLower() switch
+            var role = result.Role?.ToUpper() switch
             {
-                "admin" => "Admin",
-                "owner" => "Seller",
-                _ => result.Role ?? "User"
+                "ADMIN" => "ADMIN",
+                "OWNER" => "OWNER",
+                _ => result.Role?.ToUpper() ?? "USER"
             };
 
-            // Gọi endpoint để set cookie (ngoài Blazor render cycle)
-            await _api.PostAsync<object, object>(
-                "/auth/login-cookie",
-                new { email = request.Email, role = role, rememberMe = request.RememberMe }
-            );
+            // ---- ĐÃ SỬA: Dùng PendingLoginService thay vì HttpClient ----
+            var token = _pending.Store(request.Email, role, request.RememberMe);
 
-            string redirect = role == "Admin" ? "/admin/dashboard" : "/seller/dashboard";
+            // ---- ĐÃ SỬA: Trỏ về trạm /auth/finalize trong Program.cs ----
+            string redirect = $"/auth/finalize?t={token}";
+
             return (true, "Đăng nhập thành công!", redirect);
         }
         catch (HttpRequestException ex)
@@ -69,10 +69,8 @@ public class AuthService
             return (false, "Đã xảy ra lỗi. Vui lòng thử lại!", "");
         }
     }
+    
 
-    /// <summary>
-    /// Đăng ký tài khoản mới bằng API thật
-    /// </summary>
     public async Task<(bool Success, string Message)> RegisterAsync(RegisterRequest request)
     {
         if (request.Password != request.ConfirmPassword)
@@ -84,13 +82,12 @@ public class AuthService
         {
             var payload = new
             {
-                email    = request.Email,
+                email = request.Email,
                 password = request.Password,
-                role     = "user"   // default role khi register từ admin panel
+                role = "user"
             };
 
-            var response = await _api.PostAsync<object, object>("auth/register", payload);
-            // API trả về 200 OK với string hoặc object
+            await _api.PostAsync<object, object>("auth/register", payload);
             return (true, "Đăng ký thành công! Vui lòng đăng nhập.");
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("400"))
@@ -104,7 +101,6 @@ public class AuthService
         }
     }
 
-    /// <summary>Đăng xuất — xóa cookie và JWT token</summary>
     public async Task LogoutAsync()
     {
         _tokenService.ClearToken();
@@ -113,11 +109,30 @@ public class AuthService
             await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     }
 
-    /// <summary>Đổi mật khẩu (TODO: gọi API khi back-end có endpoint)</summary>
     public async Task<(bool Success, string Message)> ChangePasswordAsync(int userId, string currentPwd, string newPwd)
     {
         await Task.Delay(300);
-        // TODO: await _api.PostAsync<object,object>("auth/change-password", new { userId, currentPwd, newPwd });
         return (true, "Đổi mật khẩu thành công!");
+    }
+}
+public class PendingLoginService
+{
+    private readonly Dictionary<string, (string Email, string Role, bool RememberMe, DateTime Expires)> _pending = new();
+
+    public string Store(string email, string role, bool rememberMe)
+    {
+        var token = Guid.NewGuid().ToString("N");
+        _pending[token] = (email, role, rememberMe, DateTime.UtcNow.AddMinutes(2));
+        return token;
+    }
+
+    public (string Email, string Role, bool RememberMe)? Consume(string token)
+    {
+        if (_pending.TryGetValue(token, out var entry) && entry.Expires > DateTime.UtcNow)
+        {
+            _pending.Remove(token);
+            return (entry.Email, entry.Role, entry.RememberMe);
+        }
+        return null;
     }
 }

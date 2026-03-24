@@ -28,7 +28,6 @@ C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\bin\De
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\bin\Debug\net8.0\Microsoft.JSInterop.dll
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\bin\Debug\net8.0\MudBlazor.dll
-C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\bin\Debug\net8.0\System.Security.Permissions.dll
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\rjimswa.dswa.cache.json
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json

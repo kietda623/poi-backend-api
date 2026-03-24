@@ -28,14 +28,14 @@
         }
 
         <MudTextField @bind-Value="_req.Email"
-                      Label="Email" Variant="Variant.Outlined"
+                      Immediate="true" Label="Email" Variant="Variant.Outlined"
                       InputType="InputType.Email"
                       Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Email"
                       Class="mb-3" FullWidth="true"
                       OnKeyDown="@OnKeyDown" />
 
         <MudTextField @bind-Value="_req.Password"
-                      Label="Mật khẩu" Variant="Variant.Outlined"
+                      Immediate="true" Label="Mật khẩu" Variant="Variant.Outlined"
                       InputType="@_pwdType"
                       Adornment="Adornment.End"
                       AdornmentIcon="@_pwdIcon"
@@ -110,7 +110,7 @@
         _loading = false;
 
         if (success)
-            Nav.NavigateTo(ReturnUrl ?? redirect, forceLoad: true);
+            Nav.NavigateTo(redirect, forceLoad: true);
         else
             _error = message;
     }

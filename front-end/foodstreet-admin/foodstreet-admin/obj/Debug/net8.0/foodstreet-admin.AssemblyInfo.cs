@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("foodstreet-admin")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+999f1db5e09c4f78e5f71967200524b1e0785075")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e0a6253962bab09b38a165be5813250c1295a6c2")]
 [assembly: System.Reflection.AssemblyProductAttribute("foodstreet-admin")]
 [assembly: System.Reflection.AssemblyTitleAttribute("foodstreet-admin")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
