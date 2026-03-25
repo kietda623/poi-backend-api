@@ -1,5 +1,6 @@
-@attribute [Authorize(Roles = "Admin")]
 @page "/admin/settings"
+@layout AdminLayout
+@attribute [Authorize(Roles = "ADMIN")]
 @rendermode InteractiveServer
 @using MudBlazor
 

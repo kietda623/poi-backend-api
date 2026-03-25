@@ -99,13 +99,20 @@ app.MapGet("/auth/finalize", async (HttpContext ctx, string t, PendingLoginServi
     var entry = pending.Consume(t);
     if (entry == null) return Results.Redirect("/auth/login");
 
+    // 1. Sửa ID "0" thành "1" (Hoặc entry.Value.Id.ToString() nếu có)
+    string userId = "1";
+
+    // 2. Kiểm tra Role: Nếu không phải ADMIN thì tự động gắn chuẩn thẻ "OWNER"
+    string userRole = entry.Value.Role == "ADMIN" ? "ADMIN" : "OWNER";
+
     var claims = new List<System.Security.Claims.Claim>
     {
-        new(System.Security.Claims.ClaimTypes.NameIdentifier, "0"),
+        new(System.Security.Claims.ClaimTypes.NameIdentifier, userId),
         new(System.Security.Claims.ClaimTypes.Name,  entry.Value.Email),
         new(System.Security.Claims.ClaimTypes.Email, entry.Value.Email),
-        new(System.Security.Claims.ClaimTypes.Role,  entry.Value.Role),
+        new(System.Security.Claims.ClaimTypes.Role,  userRole),
     };
+
     var identity = new System.Security.Claims.ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
     var principal = new System.Security.Claims.ClaimsPrincipal(identity);
     var authProps = new AuthenticationProperties
@@ -115,7 +122,8 @@ app.MapGet("/auth/finalize", async (HttpContext ctx, string t, PendingLoginServi
     };
     await ctx.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, authProps);
 
-    string redirect = entry.Value.Role == "ADMIN" ? "/admin/dashboard" : "/seller/dashboard";
+    // Chuyển hướng đúng trang
+    string redirect = userRole == "ADMIN" ? "/admin/dashboard" : "/seller/dashboard";
     return Results.Redirect(redirect);
 });
 

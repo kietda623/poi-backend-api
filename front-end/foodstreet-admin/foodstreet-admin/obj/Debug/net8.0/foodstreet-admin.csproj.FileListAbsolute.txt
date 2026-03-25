@@ -1,11 +1,3 @@
-C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\foodstreet-admin.csproj.AssemblyReference.cache
-C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\rpswa.dswa.cache.json
-C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\foodstreet-admin.GeneratedMSBuildEditorConfig.editorconfig
-C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\foodstreet-admin.AssemblyInfoInputs.cache
-C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\foodstreet-admin.AssemblyInfo.cs
-C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\foodstreet-admin.csproj.CoreCompileInputs.cache
-C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\foodstreet-admin.MvcApplicationPartsAssemblyInfo.cache
-C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\foodstreet-admin.sourcelink.json
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\bin\Debug\net8.0\appsettings.Development.json
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\bin\Debug\net8.0\appsettings.json
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\bin\Debug\net8.0\foodstreet-admin.staticwebassets.runtime.json
@@ -28,6 +20,14 @@ C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\bin\De
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\bin\Debug\net8.0\Microsoft.JSInterop.dll
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\bin\Debug\net8.0\MudBlazor.dll
+C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\foodstreet-admin.csproj.AssemblyReference.cache
+C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\foodstreet-admin.GeneratedMSBuildEditorConfig.editorconfig
+C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\foodstreet-admin.AssemblyInfoInputs.cache
+C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\foodstreet-admin.AssemblyInfo.cs
+C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\foodstreet-admin.csproj.CoreCompileInputs.cache
+C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\foodstreet-admin.MvcApplicationPartsAssemblyInfo.cache
+C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\foodstreet-admin.sourcelink.json
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\rjimswa.dswa.cache.json
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
@@ -47,3 +47,4 @@ C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\De
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\foodstreet-admin.pdb
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\foodstreet-admin.genruntimeconfig.cache
 C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\ref\foodstreet-admin.dll
+C:\C# Project\poi-backend-api\front-end\foodstreet-admin\foodstreet-admin\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

@@ -1,5 +1,6 @@
 @attribute [Authorize(Roles = "ADMIN")]
 @page "/admin/manage-customer"
+@layout AdminLayout
 @rendermode InteractiveServer
 @using MudBlazor
 
@@ -11,7 +12,7 @@
     <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.TableChart"
                Color="Color.Success" Size="Size.Small" OnClick="ExportExcel">
         Export Excel
-    </MudButton>
+    </MudButton>    
 </MudStack>
 
 <!-- Filter Bar -->
