@@ -1,3 +1,20 @@
-".vs/" 
-"bin/" 
-"obj/" 
+
+# Visual Studio rác
+.vs/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Android rác
+*.apk
+*.ap_
+*.dex
+*.class
+
+# iOS rác
+build/
+DerivedData/
+*.moved-aside

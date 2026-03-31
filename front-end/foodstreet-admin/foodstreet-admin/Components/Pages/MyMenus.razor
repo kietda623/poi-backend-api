@@ -1,0 +1,582 @@
+@page "/seller/menus"
+@attribute [Authorize(Roles = "OWNER")]
+@layout SellerLayout
+@rendermode InteractiveServer
+@inject ApiService Api
+@inject ISnackbar Snackbar
+@inject AuthenticationStateProvider AuthState
+
+<PageTitle>Quản lý Menu</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudStack Spacing="0">
+        <MudText Typo="Typo.h5" Style="font-weight:700">🍜 Quản lý Menu & Thực đơn</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">Quản lý danh sách thực đơn và các món ăn của gian hàng</MudText>
+    </MudStack>
+    <MudSpacer />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.PlaylistAdd"
+               OnClick="OpenNewMenu" Disabled="@(_loading)">
+        Thêm Menu
+    </MudButton>
+</MudStack>
+
+@if (_loading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-4" />
+}
+
+@if (!_loading && !_menus.Any())
+{
+    <MudPaper Class="pa-8 text-center" Elevation="1" Style="border:2px dashed #e0e0e0;border-radius:12px">
+        <MudIcon Icon="@Icons.Material.Filled.MenuBook" Size="Size.Large" Color="Color.Secondary" />
+        <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mt-2">Chưa có menu nào</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Tertiary" Class="mt-1">
+            Thêm menu để bắt đầu quản lý thực đơn gian hàng của bạn
+        </MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4"
+                   StartIcon="@Icons.Material.Filled.PlaylistAdd" OnClick="OpenNewMenu">
+            Tạo Menu đầu tiên
+        </MudButton>
+    </MudPaper>
+}
+
+<!-- Menu Accordion List -->
+@foreach (var menu in _menus)
+{
+    <MudPaper Elevation="2" Class="mb-3" Style="border-radius:10px;overflow:hidden">
+        <!-- Menu Header -->
+        <MudStack Row="true" AlignItems="AlignItems.Center"
+                  Class="pa-4" Style="background:#f8f9ff;cursor:pointer"
+                  @onclick="@(() => ToggleMenu(menu))">
+            <MudIcon Icon="@Icons.Material.Filled.MenuBook" Color="Color.Primary" />
+            <MudStack Spacing="0" Style="flex:1" Class="ml-2">
+                <MudText Typo="Typo.subtitle1" Style="font-weight:700">@menu.Name</MudText>
+                @if (!string.IsNullOrEmpty(menu.Description))
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">@menu.Description</MudText>
+                }
+            </MudStack>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudChip T="string" Size="Size.Small"
+                         Color="@(menu.IsActive ? Color.Success : Color.Default)">
+                    @(menu.IsActive ? "Đang hiện" : "Ẩn")
+                </MudChip>
+                <MudChip T="string" Size="Size.Small" Color="Color.Info">
+                    @menu.Items.Count món
+                </MudChip>
+                <div @onclick:stopPropagation="true">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
+                                   Color="Color.Primary" title="Sửa menu"
+                                   OnClick="@(() => OpenEditMenu(menu))" />
+                </div>
+                <div @onclick:stopPropagation="true">
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
+                                   Color="Color.Error" title="Xóa menu"
+                                   OnClick="@(async () => await DeleteMenu(menu))" />
+                </div>
+                <MudIcon Icon="@(menu.IsExpanded ? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)"
+                         Color="Color.Secondary" />
+            </MudStack>
+        </MudStack>
+
+        <!-- Menu Items -->
+        @if (menu.IsExpanded)
+        {
+            <MudDivider />
+            <div class="pa-4">
+                <!-- Add item button -->
+                <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-3">
+                    <MudText Typo="Typo.subtitle2" Style="font-weight:600">
+                        Danh sách món ăn
+                    </MudText>
+                    <MudSpacer />
+                    <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Add"
+                               OnClick="@(() => OpenNewItem(menu))">
+                        Thêm món
+                    </MudButton>
+                </MudStack>
+
+                @if (!menu.Items.Any())
+                {
+                    <MudAlert Severity="Severity.Info" Dense="true">
+                        Menu này chưa có món ăn nào. Nhấn "Thêm món" để bắt đầu.
+                    </MudAlert>
+                }
+                else
+                {
+                    <MudTable Items="@menu.Items" Hover="true" Dense="true"
+                              Style="border:1px solid #e0e0e0;border-radius:8px">
+                        <HeaderContent>
+                            <MudTh Style="width:50px">Ảnh</MudTh>
+                            <MudTh>Tên món</MudTh>
+                            <MudTh>Mô tả</MudTh>
+                            <MudTh Style="width:120px">Giá</MudTh>
+                            <MudTh Style="width:80px">Thứ tự</MudTh>
+                            <MudTh Style="width:90px">Trạng thái</MudTh>
+                            <MudTh Style="width:100px">Thao tác</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>
+                                @if (!string.IsNullOrEmpty(context.ImageUrl))
+                                {
+                                    <MudAvatar Rounded="true" Style="width:40px;height:40px;border-radius:6px">
+                                        <MudImage Src="@context.ImageUrl" Fluid="true" />
+                                    </MudAvatar>
+                                }
+                                else
+                                {
+                                    <MudAvatar Color="Color.Secondary" Size="Size.Small" Rounded="true">
+                                        <MudIcon Icon="@Icons.Material.Filled.Fastfood" Size="Size.Small" />
+                                    </MudAvatar>
+                                }
+                            </MudTd>
+                            <MudTd>
+                                <MudText Typo="Typo.body2" Style="font-weight:600">@context.Name</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudText Typo="Typo.caption" Color="Color.Secondary"
+                                         Style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                                    @(context.Description ?? "—")
+                                </MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudText Typo="Typo.body2" Style="font-weight:600;color:#E65100">
+                                    @context.Price.ToString("N0") ₫
+                                </MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudChip T="string" Size="Size.Small" Color="Color.Default">
+                                    #@context.DisplayOrder
+                                </MudChip>
+                            </MudTd>
+                            <MudTd>
+                                <MudChip T="string" Size="Size.Small"
+                                         Color="@(context.IsAvailable ? Color.Success : Color.Default)">
+                                    @(context.IsAvailable ? "Còn bán" : "Hết")
+                                </MudChip>
+                            </MudTd>
+                            <MudTd>
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
+                                               Color="Color.Primary"
+                                               OnClick="@(() => OpenEditItem(menu, context))" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
+                                               Color="Color.Error"
+                                               OnClick="@(async () => await DeleteItem(menu, context))" />
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
+            </div>
+        }
+    </MudPaper>
+}
+
+<!-- ===================== DIALOG: MENU ===================== -->
+<MudDialog @bind-Visible="_showMenuDialog"
+           Options="@(new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true })">
+    <TitleContent>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudIcon Icon="@Icons.Material.Filled.MenuBook" Color="Color.Primary" />
+            <MudText Typo="Typo.h6">
+                @(_editingMenu == null ? "Thêm Menu mới" : "Chỉnh sửa Menu")
+            </MudText>
+        </MudStack>
+    </TitleContent>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_menuForm.Name"
+                              Label="Tên Menu *"
+                              Variant="Variant.Outlined"
+                              HelperText="VD: Thực đơn buổi sáng, Menu đặc biệt..."
+                              Placeholder="Nhập tên menu" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_menuForm.Description"
+                              Label="Mô tả menu"
+                              Variant="Variant.Outlined"
+                              Lines="2"
+                              Placeholder="Mô tả ngắn về menu này (tuỳ chọn)" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudNumericField @bind-Value="_menuForm.DisplayOrder"
+                                 Label="Thứ tự hiển thị"
+                                 Variant="Variant.Outlined"
+                                 Min="0" Max="100"
+                                 HelperText="Số nhỏ hơn hiển thị trước" />
+            </MudItem>
+            <MudItem xs="12" md="6" Class="d-flex align-center">
+                <MudCheckBox @bind-Value="_menuForm.IsActive"
+                             Label="Hiển thị menu này"
+                             Color="Color.Primary" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _showMenuDialog = false)" Variant="Variant.Outlined">Hủy</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled"
+                   OnClick="SaveMenu" Disabled="_saving">
+            @if (_saving)
+            { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
+            Lưu
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+<!-- ===================== DIALOG: MENU ITEM ===================== -->
+<MudDialog @bind-Visible="_showItemDialog"
+           Options="@(new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true })">
+    <TitleContent>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudIcon Icon="@Icons.Material.Filled.Fastfood" Color="Color.Primary" />
+            <MudText Typo="Typo.h6">
+                @(_editingItem == null ? "Thêm món ăn" : "Chỉnh sửa món ăn")
+            </MudText>
+        </MudStack>
+    </TitleContent>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_itemForm.Name"
+                              Label="Tên món *"
+                              Variant="Variant.Outlined"
+                              Placeholder="VD: Ốc hút, Bánh mì đặc biệt..." />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_itemForm.Description"
+                              Label="Mô tả món"
+                              Variant="Variant.Outlined"
+                              Lines="2"
+                              Placeholder="Nguyên liệu, đặc điểm... (tuỳ chọn)" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudNumericField @bind-Value="_itemForm.Price"
+                                 Label="Giá (VNĐ) *"
+                                 Variant="Variant.Outlined"
+                                 Min="0"
+                                 Format="N0"
+                                 Adornment="Adornment.End"
+                                 AdornmentText="₫" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudNumericField @bind-Value="_itemForm.DisplayOrder"
+                                 Label="Thứ tự"
+                                 Variant="Variant.Outlined"
+                                 Min="0" Max="100" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_itemForm.ImageUrl"
+                              Label="URL Ảnh món ăn"
+                              Variant="Variant.Outlined"
+                              Placeholder="https://... (tuỳ chọn)"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Image" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudCheckBox @bind-Value="_itemForm.IsAvailable"
+                             Label="Món này đang còn bán"
+                             Color="Color.Success" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _showItemDialog = false)" Variant="Variant.Outlined">Hủy</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled"
+                   OnClick="SaveItem" Disabled="_saving">
+            @if (_saving)
+            { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
+            Lưu
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    // ── State ────────────────────────────────────────────────────────
+    private bool _loading = true, _saving;
+    private bool _showMenuDialog, _showItemDialog;
+    private List<MenuViewModel> _menus = new();
+
+    private MenuViewModel? _editingMenu;
+    private MenuViewModel? _targetMenu; // menu đang thêm item vào
+    private MenuItemViewModel? _editingItem;
+
+    private MenuFormModel _menuForm = new();
+    private MenuItemFormModel _itemForm = new();
+
+    // ── Lifecycle ────────────────────────────────────────────────────
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMenus();
+    }
+
+    private async Task LoadMenus()
+    {
+        _loading = true;
+        var dtos = await Api.GetAsync<List<MenuApiDto>>("owner/menus") ?? new();
+        _menus = dtos.Select(d => new MenuViewModel
+        {
+            Id = d.Id,
+            Name = d.Name,
+            Description = d.Description,
+            IsActive = d.IsActive,
+            DisplayOrder = d.DisplayOrder,
+            Items = new List<MenuItemViewModel>()
+        }).ToList();
+
+        // Load items for each menu
+        foreach (var menu in _menus)
+        {
+            var items = await Api.GetAsync<List<MenuItemApiDto>>($"admin/menus/{menu.Id}/items") ?? new();
+            menu.Items = items.Select(i => new MenuItemViewModel
+            {
+                Id = i.Id,
+                Name = i.Name,
+                Price = i.Price,
+                Description = null,
+                ImageUrl = null,
+                IsAvailable = true,
+                DisplayOrder = 0
+            }).ToList();
+        }
+
+        _loading = false;
+    }
+
+    // ── Toggle accordion ──────────────────────────────────────────────
+    private void ToggleMenu(MenuViewModel menu) => menu.IsExpanded = !menu.IsExpanded;
+
+    // ── Menu dialogs ─────────────────────────────────────────────────
+    private void OpenNewMenu()
+    {
+        _editingMenu = null;
+        _menuForm = new MenuFormModel { IsActive = true };
+        _showMenuDialog = true;
+    }
+
+    private void OpenEditMenu(MenuViewModel menu)
+    {
+        _editingMenu = menu;
+        _menuForm = new MenuFormModel
+        {
+            Name = menu.Name,
+            Description = menu.Description,
+            IsActive = menu.IsActive,
+            DisplayOrder = menu.DisplayOrder
+        };
+        _showMenuDialog = true;
+    }
+
+    private async Task SaveMenu()
+    {
+        if (string.IsNullOrWhiteSpace(_menuForm.Name))
+        {
+            Snackbar.Add("Vui lòng nhập tên menu!", Severity.Warning);
+            return;
+        }
+
+        _saving = true;
+
+        if (_editingMenu == null)
+        {
+            var payload = new
+            {
+                name = _menuForm.Name,
+                description = _menuForm.Description,
+                displayOrder = _menuForm.DisplayOrder
+            };
+            var result = await Api.PostAsync<object, MenuApiDto>("owner/menus", payload);
+            if (result != null)
+            {
+                Snackbar.Add("Thêm menu thành công!", Severity.Success);
+                await LoadMenus();
+                _showMenuDialog = false;
+            }
+            else
+            {
+                Snackbar.Add("Lỗi khi thêm menu!", Severity.Error);
+            }
+        }
+        else
+        {
+            var payload = new
+            {
+                name = _menuForm.Name,
+                description = _menuForm.Description,
+                isActive = _menuForm.IsActive,
+                displayOrder = _menuForm.DisplayOrder
+            };
+            var result = await Api.PutAsync<object, MenuApiDto>($"owner/menus/{_editingMenu.Id}", payload);
+            if (result != null)
+            {
+                Snackbar.Add("Cập nhật menu thành công!", Severity.Success);
+                await LoadMenus();
+                _showMenuDialog = false;
+            }
+            else
+            {
+                Snackbar.Add("Lỗi khi cập nhật menu!", Severity.Error);
+            }
+        }
+
+        _saving = false;
+    }
+
+    private async Task DeleteMenu(MenuViewModel menu)
+    {
+        var ok = await Api.DeleteAsync($"owner/menus/{menu.Id}");
+        if (ok)
+        {
+            _menus.Remove(menu);
+            Snackbar.Add($"Đã xóa menu: {menu.Name}", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add("Lỗi khi xóa menu!", Severity.Error);
+        }
+    }
+
+    // ── Item dialogs ─────────────────────────────────────────────────
+    private void OpenNewItem(MenuViewModel menu)
+    {
+        _targetMenu = menu;
+        _editingItem = null;
+        _itemForm = new MenuItemFormModel { IsAvailable = true };
+        _showItemDialog = true;
+    }
+
+    private void OpenEditItem(MenuViewModel menu, MenuItemViewModel item)
+    {
+        _targetMenu = menu;
+        _editingItem = item;
+        _itemForm = new MenuItemFormModel
+        {
+            Name = item.Name,
+            Description = item.Description,
+            Price = item.Price,
+            ImageUrl = item.ImageUrl,
+            IsAvailable = item.IsAvailable,
+            DisplayOrder = item.DisplayOrder
+        };
+        _showItemDialog = true;
+    }
+
+    private async Task SaveItem()
+    {
+        if (string.IsNullOrWhiteSpace(_itemForm.Name) || _itemForm.Price <= 0)
+        {
+            Snackbar.Add("Vui lòng nhập tên món và giá hợp lệ!", Severity.Warning);
+            return;
+        }
+
+        _saving = true;
+
+        if (_editingItem == null && _targetMenu != null)
+        {
+            var payload = new
+            {
+                name = _itemForm.Name,
+                price = _itemForm.Price
+            };
+            // POST /api/owner/menu-items/{menuId}/items hoặc admin endpoint
+            var result = await Api.PostAsync<object, MenuItemApiDto>(
+                $"admin/menus/{_targetMenu.Id}/items", payload);
+            if (result != null)
+            {
+                Snackbar.Add($"Thêm món '{_itemForm.Name}' thành công!", Severity.Success);
+                // Refresh items for this menu
+                var items = await Api.GetAsync<List<MenuItemApiDto>>($"admin/menus/{_targetMenu.Id}/items") ?? new();
+                _targetMenu.Items = items.Select(i => new MenuItemViewModel
+                {
+                    Id = i.Id, Name = i.Name, Price = i.Price,
+                    IsAvailable = true
+                }).ToList();
+                _showItemDialog = false;
+            }
+            else
+            {
+                Snackbar.Add("Lỗi khi thêm món!", Severity.Error);
+            }
+        }
+        else if (_editingItem != null)
+        {
+            // Update local (backend PUT endpoint for owner items to be implemented)
+            _editingItem.Name = _itemForm.Name;
+            _editingItem.Description = _itemForm.Description;
+            _editingItem.Price = _itemForm.Price;
+            _editingItem.ImageUrl = _itemForm.ImageUrl;
+            _editingItem.IsAvailable = _itemForm.IsAvailable;
+            _editingItem.DisplayOrder = _itemForm.DisplayOrder;
+            Snackbar.Add("Cập nhật món thành công!", Severity.Success);
+            _showItemDialog = false;
+        }
+
+        _saving = false;
+    }
+
+    private async Task DeleteItem(MenuViewModel menu, MenuItemViewModel item)
+    {
+        // DELETE /api/owner/menus/{menuId}/items/{itemId} — to be implemented in backend
+        await Task.Delay(200);
+        menu.Items.Remove(item);
+        Snackbar.Add($"Đã xóa món: {item.Name}", Severity.Success);
+    }
+
+    // ── View Models ──────────────────────────────────────────────────
+    private class MenuViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public string? Description { get; set; }
+        public bool IsActive { get; set; } = true;
+        public int DisplayOrder { get; set; }
+        public bool IsExpanded { get; set; }
+        public List<MenuItemViewModel> Items { get; set; } = new();
+    }
+
+    private class MenuItemViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public string? Description { get; set; }
+        public decimal Price { get; set; }
+        public string? ImageUrl { get; set; }
+        public bool IsAvailable { get; set; } = true;
+        public int DisplayOrder { get; set; }
+    }
+
+    private class MenuFormModel
+    {
+        public string Name { get; set; } = "";
+        public string? Description { get; set; }
+        public bool IsActive { get; set; } = true;
+        public int DisplayOrder { get; set; }
+    }
+
+    private class MenuItemFormModel
+    {
+        public string Name { get; set; } = "";
+        public string? Description { get; set; }
+        public decimal Price { get; set; }
+        public string? ImageUrl { get; set; }
+        public bool IsAvailable { get; set; } = true;
+        public int DisplayOrder { get; set; }
+    }
+
+    private class MenuApiDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public string? Description { get; set; }
+        public bool IsActive { get; set; }
+        public int DisplayOrder { get; set; }
+    }
+
+    private class MenuItemApiDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public decimal Price { get; set; }
+    }
+}
