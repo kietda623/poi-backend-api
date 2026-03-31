@@ -63,7 +63,7 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<StoreService>();
 builder.Services.AddScoped<LanguageService>();
 builder.Services.AddScoped<CategoryService>();
-builder.Services.AddScoped<TourService>();
+builder.Services.AddScoped<ServicePackageService>();
 builder.Services.AddScoped<UsageHistoryService>();
 builder.Services.AddSingleton<PendingLoginService>();
 

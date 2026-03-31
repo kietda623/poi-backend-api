@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PoiApi.Data;
@@ -36,6 +36,41 @@ namespace PoiApi.Controllers.Admin
                 .ToList();
 
             return Ok(users);
+        }
+
+        // GET: api/admin/users/sellers
+        [HttpGet("sellers")]
+        public IActionResult GetSellers()
+        {
+            var sellers = _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Role.Name == RoleConstants.Owner)
+                .Select(u => new
+                {
+                    u.Id,
+                    u.FullName,
+                    u.Email,
+                    Phone = "", // Tạm thời để trống vì User model chưa có field Phone
+                    Status = u.IsActive ? "Active" : "Disabled",
+                    RegisteredAt = u.CreatedAt,
+                    StoreCount = _context.Shops.Count(s => s.OwnerId == u.Id)
+                })
+                .ToList();
+
+            return Ok(sellers);
+        }
+
+        // PATCH: api/admin/users/{id}/status
+        [HttpPatch("{id}/status")]
+        public IActionResult UpdateSellerStatus(int id, [FromQuery] string status)
+        {
+            var user = _context.Users.Find(id);
+            if (user == null) return NotFound("User not found");
+
+            user.IsActive = (status == "Active");
+            _context.SaveChanges();
+
+            return Ok(new { message = "Cập nhật trạng thái thành công" });
         }
 
         // GET: api/users/me

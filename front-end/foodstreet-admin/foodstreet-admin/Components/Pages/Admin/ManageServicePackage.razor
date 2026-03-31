@@ -1,0 +1,334 @@
+@page "/admin/manage-service-package"
+@layout AdminLayout
+@rendermode InteractiveServer
+@inject ServicePackageService PkgSvc
+@inject ISnackbar Snackbar
+@inject IDialogService DialogSvc
+
+<PageTitle>Quản lý Gói Dịch Vụ</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudStack Spacing="0">
+        <MudText Typo="Typo.h5" Style="font-weight:700">💎 Quản lý Gói Dịch Vụ</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">Thiết lập các gói dịch vụ cho Seller và theo dõi đăng ký</MudText>
+    </MudStack>
+    <MudSpacer />
+</MudStack>
+
+@if (_loading)
+{ <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-2" /> }
+
+<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-4">
+    @* ═══════════════ TAB 1: GÓI DỊCH VỤ ═══════════════ *@
+    <MudTabPanel Text="Gói dịch vụ" Icon="@Icons.Material.Filled.CardMembership" BadgeData="@_packages.Count"
+                 BadgeColor="Color.Primary">
+
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-3">
+            <MudText Typo="Typo.h6" Style="font-weight:600">Danh sách gói</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add" OnClick="OpenNewPackage">Tạo gói mới</MudButton>
+        </MudStack>
+
+        <MudGrid Spacing="3">
+            @foreach (var pkg in _packages)
+            {
+                <MudItem xs="12" sm="6" md="4">
+                    <MudCard Elevation="3" Style="@($"border-top: 4px solid {TierColor(pkg.Tier)}; border-radius:12px")">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudStack Row="true" AlignItems="AlignItems.Center">
+                                    <MudText Typo="Typo.h6" Style="font-weight:700">@pkg.Name</MudText>
+                                    <MudChip T="string" Size="Size.Small"
+                                             Style="@($"background:{TierColor(pkg.Tier)};color:white")">@pkg.Tier</MudChip>
+                                </MudStack>
+                            </CardHeaderContent>
+                            <CardHeaderActions>
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
+                                               Color="Color.Primary" OnClick="@(() => OpenEditPackage(pkg))" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
+                                               Color="Color.Error" OnClick="@(async () => await DeletePackage(pkg))" />
+                            </CardHeaderActions>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-3">@pkg.Description</MudText>
+
+                            <MudStack Spacing="1" Class="mb-3">
+                                <MudStack Row="true" AlignItems="AlignItems.Baseline">
+                                    <MudText Typo="Typo.h4" Style="font-weight:800" Color="Color.Primary">
+                                        @pkg.MonthlyPrice.ToString("N0")đ
+                                    </MudText>
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">/tháng</MudText>
+                                </MudStack>
+                                <MudStack Row="true" AlignItems="AlignItems.Baseline">
+                                    <MudText Typo="Typo.h6" Style="font-weight:600;color:#388e3c">
+                                        @pkg.YearlyPrice.ToString("N0")đ
+                                    </MudText>
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">/năm</MudText>
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Success"
+                                             Style="height:18px;font-size:10px">
+                                        Tiết kiệm @(Math.Round((1 - pkg.YearlyPrice / (pkg.MonthlyPrice * 12)) * 100))%
+                                    </MudChip>
+                                </MudStack>
+                            </MudStack>
+
+                            <MudDivider Class="my-2" />
+
+                            <MudText Typo="Typo.caption" Style="font-weight:600" Class="mb-1">TÍNH NĂNG:</MudText>
+                            @foreach (var f in pkg.Features)
+                            {
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                    <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small"
+                                             Style="@($"color:{TierColor(pkg.Tier)}")" />
+                                    <MudText Typo="Typo.body2">@f</MudText>
+                                </MudStack>
+                            }
+
+                            <MudDivider Class="my-2" />
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                <MudIcon Icon="@Icons.Material.Filled.Store" Size="Size.Small" />
+                                <MudText Typo="Typo.body2">Tối đa <b>@pkg.MaxStores</b> gian hàng</MudText>
+                            </MudStack>
+                        </MudCardContent>
+                        <MudCardActions Class="px-4 pb-3">
+                            <MudChip T="string" Size="Size.Small"
+                                     Color="@(pkg.IsActive ? Color.Success : Color.Default)">
+                                @(pkg.IsActive ? "Đang hoạt động" : "Tạm ngưng")
+                            </MudChip>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    </MudTabPanel>
+
+    @* ═══════════════ TAB 2: ĐĂNG KÝ CỦA SELLER ═══════════════ *@
+    <MudTabPanel Text="Đăng ký của Seller" Icon="@Icons.Material.Filled.People" BadgeData="@_pendingSubs"
+                 BadgeColor="Color.Warning">
+
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-3">
+            <MudText Typo="Typo.h6" Style="font-weight:600">Danh sách đăng ký gói dịch vụ</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchSub" Placeholder="Tìm seller..." Variant="Variant.Outlined"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                          Immediate="true" Class="mt-0" Style="max-width:280px" />
+        </MudStack>
+
+        <MudPaper Elevation="2" Style="border-radius:8px;overflow:hidden">
+            <MudTable Items="@FilteredSubscriptions" Hover="true" Dense="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>ID</MudTh>
+                    <MudTh>Seller</MudTh>
+                    <MudTh>Email</MudTh>
+                    <MudTh>Gói</MudTh>
+                    <MudTh>Thanh toán</MudTh>
+                    <MudTh>Giá</MudTh>
+                    <MudTh>Bắt đầu</MudTh>
+                    <MudTh>Kết thúc</MudTh>
+                    <MudTh>Trạng thái</MudTh>
+                    <MudTh>Thao tác</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Id</MudTd>
+                    <MudTd><b>@context.SellerName</b></MudTd>
+                    <MudTd>@context.SellerEmail</MudTd>
+                    <MudTd>
+                        <MudChip T="string" Size="Size.Small"
+                                 Style="@($"background:{TierColor(context.PackageTier)};color:white")">
+                            @context.PackageName
+                        </MudChip>
+                    </MudTd>
+                    <MudTd>
+                        <MudChip T="string" Size="Size.Small"
+                                 Color="@(context.BillingCycle == "Yearly" ? Color.Success : Color.Info)">
+                            @(context.BillingCycle == "Yearly" ? "Theo năm" : "Theo tháng")
+                        </MudChip>
+                    </MudTd>
+                    <MudTd>@context.Price.ToString("N0")đ</MudTd>
+                    <MudTd>@context.StartDate.ToString("dd/MM/yyyy")</MudTd>
+                    <MudTd>@context.EndDate.ToString("dd/MM/yyyy")</MudTd>
+                    <MudTd>
+                        <MudChip T="string" Size="Size.Small" Color="@SubStatusColor(context.Status)">
+                            @SubStatusText(context.Status)
+                        </MudChip>
+                    </MudTd>
+                    <MudTd>
+                        @if (context.Status == "Pending")
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small"
+                                           Color="Color.Success" Title="Duyệt"
+                                           OnClick="@(async () => await ApproveSub(context))" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Cancel" Size="Size.Small"
+                                           Color="Color.Error" Title="Từ chối"
+                                           OnClick="@(async () => await CancelSub(context))" />
+                        }
+                        else if (context.Status == "Active")
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.Cancel" Size="Size.Small"
+                                           Color="Color.Warning" Title="Hủy gói"
+                                           OnClick="@(async () => await CancelSub(context))" />
+                        }
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager />
+                </PagerContent>
+            </MudTable>
+        </MudPaper>
+    </MudTabPanel>
+</MudTabs>
+
+@* ═══════════════ DIALOG TẠO/SỬA GÓI ═══════════════ *@
+<MudDialog @bind-Visible="_showPkgDialog" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true })">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.CardMembership" Class="mr-2" />
+            @(_editingPkg == null ? "Tạo gói mới" : "Sửa gói dịch vụ")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="_pkgForm.Name" Label="Tên gói" Variant="Variant.Outlined" Class="mb-3" />
+        <MudSelect @bind-Value="_pkgForm.Tier" Label="Cấp bậc" Variant="Variant.Outlined" Class="mb-3">
+            <MudSelectItem T="string" Value="@("Basic")">Basic – Cơ bản</MudSelectItem>
+            <MudSelectItem T="string" Value="@("Premium")">Premium – Nâng cao</MudSelectItem>
+            <MudSelectItem T="string" Value="@("VIP")">VIP</MudSelectItem>
+        </MudSelect>
+        <MudNumericField @bind-Value="_pkgForm.MonthlyPrice" Label="Giá / tháng (đ)"
+                         Variant="Variant.Outlined" Class="mb-3" Format="N0" Min="0" />
+        <MudNumericField @bind-Value="_pkgForm.YearlyPrice" Label="Giá / năm (đ)"
+                         Variant="Variant.Outlined" Class="mb-3" Format="N0" Min="0" />
+        <MudNumericField @bind-Value="_pkgForm.MaxStores" Label="Số gian hàng tối đa"
+                         Variant="Variant.Outlined" Class="mb-3" Min="1" Max="99" />
+        <MudTextField @bind-Value="_pkgForm.Description" Label="Mô tả" Variant="Variant.Outlined"
+                      Lines="2" Class="mb-3" />
+        <MudTextField @bind-Value="_featuresText" Label="Tính năng (mỗi dòng 1 tính năng)"
+                      Variant="Variant.Outlined" Lines="4" Class="mb-3" />
+        <MudCheckBox @bind-Value="_pkgForm.IsActive" Label="Kích hoạt gói" Color="Color.Primary" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _showPkgDialog = false)" Variant="Variant.Outlined">Hủy</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SavePackage">Lưu</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private bool _loading = true, _showPkgDialog;
+    private List<ServicePackageModel> _packages = new();
+    private List<SubscriptionModel> _subscriptions = new();
+    private ServicePackageModel? _editingPkg;
+    private ServicePackageModel _pkgForm = new();
+    private string _featuresText = "";
+    private string _searchSub = "";
+
+    private int _pendingSubs => _subscriptions.Count(s => s.Status == "Pending");
+
+    private IEnumerable<SubscriptionModel> FilteredSubscriptions =>
+        string.IsNullOrWhiteSpace(_searchSub)
+            ? _subscriptions
+            : _subscriptions.Where(s =>
+                s.SellerName.Contains(_searchSub, StringComparison.OrdinalIgnoreCase) ||
+                s.SellerEmail.Contains(_searchSub, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        _packages = await PkgSvc.GetPackagesAsync();
+        _subscriptions = await PkgSvc.GetSubscriptionsAsync();
+        _loading = false;
+    }
+
+    // ── Package CRUD ────────────────────────────────────────────────
+
+    private void OpenNewPackage()
+    {
+        _editingPkg = null;
+        _pkgForm = new() { IsActive = true, MaxStores = 1 };
+        _featuresText = "";
+        _showPkgDialog = true;
+    }
+
+    private void OpenEditPackage(ServicePackageModel pkg)
+    {
+        _editingPkg = pkg;
+        _pkgForm = new()
+        {
+            Id = pkg.Id, Name = pkg.Name, Tier = pkg.Tier,
+            MonthlyPrice = pkg.MonthlyPrice, YearlyPrice = pkg.YearlyPrice,
+            Description = pkg.Description, MaxStores = pkg.MaxStores,
+            IsActive = pkg.IsActive
+        };
+        _featuresText = string.Join("\n", pkg.Features);
+        _showPkgDialog = true;
+    }
+
+    private async Task SavePackage()
+    {
+        if (string.IsNullOrWhiteSpace(_pkgForm.Name)) return;
+
+        _pkgForm.Features = _featuresText.Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                                          .Select(f => f.Trim()).Where(f => f.Length > 0).ToList();
+
+        if (_editingPkg == null)
+        {
+            var (ok, msg) = await PkgSvc.CreatePackageAsync(_pkgForm);
+            Snackbar.Add(msg, ok ? Severity.Success : Severity.Error);
+        }
+        else
+        {
+            var (ok, msg) = await PkgSvc.UpdatePackageAsync(_pkgForm);
+            Snackbar.Add(msg, ok ? Severity.Success : Severity.Error);
+        }
+
+        _packages = await PkgSvc.GetPackagesAsync();
+        _showPkgDialog = false;
+    }
+
+    private async Task DeletePackage(ServicePackageModel pkg)
+    {
+        await PkgSvc.DeletePackageAsync(pkg.Id);
+        _packages.Remove(pkg);
+        Snackbar.Add("Đã xóa gói dịch vụ!", Severity.Success);
+    }
+
+    // ── Subscription actions ────────────────────────────────────────
+
+    private async Task ApproveSub(SubscriptionModel sub)
+    {
+        await PkgSvc.ApproveSubscriptionAsync(sub.Id);
+        sub.Status = "Active";
+        Snackbar.Add($"Đã duyệt đăng ký của {sub.SellerName}!", Severity.Success);
+    }
+
+    private async Task CancelSub(SubscriptionModel sub)
+    {
+        await PkgSvc.CancelSubscriptionAsync(sub.Id);
+        sub.Status = "Cancelled";
+        Snackbar.Add($"Đã hủy đăng ký của {sub.SellerName}", Severity.Warning);
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────
+
+    private string TierColor(string tier) => tier switch
+    {
+        "VIP"     => "#ff6f00",
+        "Premium" => "#1565c0",
+        _         => "#43a047"
+    };
+
+    private Color SubStatusColor(string s) => s switch
+    {
+        "Active"    => Color.Success,
+        "Pending"   => Color.Warning,
+        "Expired"   => Color.Default,
+        "Cancelled" => Color.Error,
+        _           => Color.Default
+    };
+
+    private string SubStatusText(string s) => s switch
+    {
+        "Active"    => "Đang dùng",
+        "Pending"   => "Chờ duyệt",
+        "Expired"   => "Hết hạn",
+        "Cancelled" => "Đã hủy",
+        _           => s
+    };
+}
