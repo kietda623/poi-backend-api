@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using PoiApi.Data;
 using PoiApi.Mapping;
 using PoiApi.Models;
+using PoiApi.Services;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IPoiService, PoiService>();
 builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddScoped<IMenuItemService, MenuItemService>();
+builder.Services.AddScoped<AzureSpeechService>();
 
 // AUTH
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -60,6 +62,7 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // BUILD APP
 var app = builder.Build();
+app.UseStaticFiles();
 
 // MIDDLEWARE
 if (app.Environment.IsDevelopment())
