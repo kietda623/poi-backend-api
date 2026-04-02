@@ -2,6 +2,8 @@
 @page "/admin/dashboard"
 @layout AdminLayout
 @using MudBlazor
+@inject foodstreet_admin.Services.ApiService Api
+@inject foodstreet_admin.Services.StoreService StoreSvc
 
 <PageTitle>Admin Dashboard</PageTitle>
 
@@ -151,40 +153,46 @@
 </MudGrid>
 
 @code {
-    private int totalStores = 156;
-    private int pendingStores = 8;
-    private int totalCustomers = 2340;
-    private int totalListens = 48500;
+    private int totalStores = 0;
+    private int pendingStores = 0;
+    private int totalCustomers = 0;
+    private int totalListens = 0;
 
-    private record PendingItem(string StoreName, string SellerName, string Date);
+    private record PendingItem(int Id, string StoreName, string SellerName, string Date);
     private record RevenueRow(string Month, int NewStores, int NewCustomers, int Listens);
 
-    private List<PendingItem> pendingList = new()
-    {
-        new("Quán Ốc Bà Năm", "Nguyễn Thị B", "10/05/2025"),
-        new("Hải Sản 3 Miền", "Trần Văn C", "11/05/2025"),
-        new("Cơm Nhà Làm", "Lê Thị D", "12/05/2025"),
-        new("Bánh Mì Phượng", "Phạm Văn E", "12/05/2025"),
-        new("Bún Bò Huế Cô Ba", "Võ Thị F", "13/05/2025"),
-    };
+    private List<PendingItem> pendingList = new();
+    private List<RevenueRow> revenueStats = new();
 
-    private List<RevenueRow> revenueStats = new()
+    protected override async Task OnInitializedAsync()
     {
-        new("Tháng 1", 12, 145, 3200),
-        new("Tháng 2", 15, 198, 4100),
-        new("Tháng 3", 18, 220, 5600),
-        new("Tháng 4", 22, 310, 7800),
-        new("Tháng 5", 19, 280, 6900),
-    };
+        var stats = await Api.GetAsync<foodstreet_admin.Models.AdminStatsModel>("admin/stats");
+        if (stats != null)
+        {
+            totalStores = stats.TotalStores;
+            pendingStores = stats.PendingStores;
+            totalCustomers = stats.TotalCustomers;
+            totalListens = stats.TotalListens;
+
+            revenueStats = stats.MonthlyOverview.Select(m => new RevenueRow(m.Month, m.NewStores, m.NewCustomers, m.TotalListens)).ToList();
+        }
+
+        var stores = await StoreSvc.GetStoresAsync();
+        pendingList = stores.Where(s => s.Status != "Active")
+                            .Select(s => new PendingItem(s.Id, s.Name, s.SellerName, s.CreatedAt.ToString("dd/MM/yyyy")))
+                            .ToList();
+    }
 
     private void ApproveStore(PendingItem item)
     {
+        // Future: call API
         pendingList.Remove(item);
         pendingStores = pendingList.Count;
     }
 
     private void RejectStore(PendingItem item)
     {
+        // Future: call API
         pendingList.Remove(item);
         pendingStores = pendingList.Count;
     }

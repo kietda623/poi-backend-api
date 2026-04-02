@@ -1,19 +1,22 @@
-# Visual Studio rác
-.vs/
+# Build artifacts
+[Bb]in/
+[Oo]bj/
 bin/
 obj/
+
+# Visual Studio files
+.vs/
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
 
-# Android rác
+# Mobile / MAUI
 *.apk
 *.ap_
+*.aab
 *.dex
 *.class
-
-# iOS rác
 build/
 DerivedData/
 *.moved-aside

@@ -9,22 +9,36 @@
         private readonly HttpClient _http;
         private readonly TokenService _tokenService;
         private readonly ILogger<ApiService> _logger;
+        private readonly Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider _authState;
 
         private static readonly JsonSerializerOptions _jsonOptions = new()
         {
             PropertyNameCaseInsensitive = true
         };
 
-        public ApiService(HttpClient http, TokenService tokenService, ILogger<ApiService> logger)
+        public ApiService(HttpClient http, TokenService tokenService, ILogger<ApiService> logger, Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider authState)
         {
             _http = http;
             _tokenService = tokenService;
             _logger = logger;
+            _authState = authState;
         }
 
         // Đính Bearer token vào header trước mỗi request
-        private void ApplyAuthHeader()
+        private async Task ApplyAuthHeaderAsync()
         {
+            if (!_tokenService.HasToken)
+            {
+                try 
+                {
+                    var authState = await _authState.GetAuthenticationStateAsync();
+                    var jwtClaim = authState.User.FindFirst("jwt_token");
+                    if (jwtClaim != null)
+                        _tokenService.SetToken(jwtClaim.Value);
+                }
+                catch { }
+            }
+
             if (_tokenService.HasToken)
                 _http.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", _tokenService.Token);
@@ -36,7 +50,7 @@
         {
             try
             {
-                ApplyAuthHeader();
+                await ApplyAuthHeaderAsync();
                 var response = await _http.GetAsync(endpoint);
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadFromJsonAsync<T>(_jsonOptions);
@@ -52,7 +66,7 @@
         {
             try
             {
-                ApplyAuthHeader();
+                await ApplyAuthHeaderAsync();
                 var response = await _http.PostAsJsonAsync(endpoint, data);
 
                 // 401/403 → không throw, trả về null để caller xử lý
@@ -79,7 +93,7 @@
         {
             try
             {
-                ApplyAuthHeader();
+                await ApplyAuthHeaderAsync();
                 var response = await _http.PutAsJsonAsync(endpoint, data);
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadFromJsonAsync<TResponse>(_jsonOptions);
@@ -95,7 +109,7 @@
         {
             try
             {
-                ApplyAuthHeader();
+                await ApplyAuthHeaderAsync();
                 var response = await _http.DeleteAsync(endpoint);
                 return response.IsSuccessStatusCode;
             }

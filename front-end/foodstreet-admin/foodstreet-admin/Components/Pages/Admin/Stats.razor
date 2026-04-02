@@ -3,6 +3,7 @@
 @layout AdminLayout
 @rendermode InteractiveServer
 @using MudBlazor
+@inject foodstreet_admin.Services.ApiService Api
 
 <PageTitle>Thống kê & Báo cáo</PageTitle>
 
@@ -41,28 +42,28 @@
     <MudItem xs="6" md="3">
         <MudPaper Class="pa-4 text-center" Elevation="2">
             <MudIcon Icon="@Icons.Material.Filled.Store" Color="Color.Primary" Size="Size.Large" />
-            <MudText Typo="Typo.h4" Color="Color.Primary"><b>156</b></MudText>
+            <MudText Typo="Typo.h4" Color="Color.Primary"><b>@totalStores</b></MudText>
             <MudText Typo="Typo.body2">Tổng gian hàng</MudText>
         </MudPaper>
     </MudItem>
     <MudItem xs="6" md="3">
         <MudPaper Class="pa-4 text-center" Elevation="2">
             <MudIcon Icon="@Icons.Material.Filled.People" Color="Color.Success" Size="Size.Large" />
-            <MudText Typo="Typo.h4" Color="Color.Success"><b>2,340</b></MudText>
+            <MudText Typo="Typo.h4" Color="Color.Success"><b>@totalCustomers</b></MudText>
             <MudText Typo="Typo.body2">Khách đăng ký</MudText>
         </MudPaper>
     </MudItem>
     <MudItem xs="6" md="3">
         <MudPaper Class="pa-4 text-center" Elevation="2">
             <MudIcon Icon="@Icons.Material.Filled.Headphones" Color="Color.Info" Size="Size.Large" />
-            <MudText Typo="Typo.h4" Color="Color.Info"><b>48,500</b></MudText>
+            <MudText Typo="Typo.h4" Color="Color.Info"><b>@totalListens</b></MudText>
             <MudText Typo="Typo.body2">Tổng lượt nghe</MudText>
         </MudPaper>
     </MudItem>
     <MudItem xs="6" md="3">
         <MudPaper Class="pa-4 text-center" Elevation="2">
             <MudIcon Icon="@Icons.Material.Filled.AttachMoney" Color="Color.Warning" Size="Size.Large" />
-            <MudText Typo="Typo.h4" Color="Color.Warning"><b>15.4M</b></MudText>
+            <MudText Typo="Typo.h4" Color="Color.Warning"><b>@revenue.ToString("N0")</b></MudText>
             <MudText Typo="Typo.body2">Doanh thu (VNĐ)</MudText>
         </MudPaper>
     </MudItem>
@@ -158,33 +159,28 @@
     private string filterLanguage = "all";
     private string filterPeriod = "month";
 
-    private record TopStore(string Name, string Category, int Listens);
-    private record LangStat(string Language, int Listens, double Percent);
-    private record MonthlyRow(string Month, int NewStores, int NewCustomers, int TotalListens, decimal Revenue, double Growth);
+    private int totalStores = 0;
+    private int totalCustomers = 0;
+    private int totalListens = 0;
+    private decimal revenue = 0;
 
-    private List<TopStore> topStores = new()
-    {
-        new("Quán Ốc Bà Ba", "Ốc", 3200),
-        new("Hải Sản Tươi Sống", "Hải sản", 2800),
-        new("Bún Bò Huế Cô Ba", "Bún/Phở", 2400),
-        new("Cơm Tấm Sài Gòn", "Cơm", 1900),
-        new("Bánh Mì Phượng", "Bánh mì", 1500),
-    };
+    private List<foodstreet_admin.Models.TopStoreModel> topStores = new();
+    private List<foodstreet_admin.Models.LangStatModel> langStats = new();
+    private List<foodstreet_admin.Models.MonthlyOverviewModel> monthlyOverview = new();
 
-    private List<LangStat> langStats = new()
+    protected override async Task OnInitializedAsync()
     {
-        new("Tiếng Việt", 28500, 58.8),
-        new("English", 12000, 24.7),
-        new("中文", 5000, 10.3),
-        new("日本語", 3000, 6.2),
-    };
-
-    private List<MonthlyRow> monthlyOverview = new()
-    {
-        new("Tháng 1/2025", 12, 145, 3200, 1188000, 0),
-        new("Tháng 2/2025", 15, 198, 4100, 1485000, 12.5),
-        new("Tháng 3/2025", 18, 220, 5600, 1782000, 18.2),
-        new("Tháng 4/2025", 22, 310, 7800, 2178000, 22.1),
-        new("Tháng 5/2025", 19, 280, 6900, 1881000, -11.5),
-    };
+        var stats = await Api.GetAsync<foodstreet_admin.Models.AdminStatsModel>("admin/stats");
+        if (stats != null)
+        {
+            totalStores = stats.TotalStores;
+            totalCustomers = stats.TotalCustomers;
+            totalListens = stats.TotalListens;
+            revenue = stats.TotalRevenue;
+            
+            topStores = stats.TopStores;
+            langStats = stats.LangStats;
+            monthlyOverview = stats.MonthlyOverview;
+        }
+    }
 }

@@ -3,6 +3,7 @@
 @layout AdminLayout
 @rendermode InteractiveServer
 @using MudBlazor
+@inject foodstreet_admin.Services.StoreService StoreSvc
 
 <PageTitle>Quản lý Khách tham quan</PageTitle>
 
@@ -148,15 +149,12 @@
     private string notifyMessage = "";
     private string notifyChannel = "email";
 
-    private List<foodstreet_admin.Models.CustomerModel> customers = new()
+    private List<foodstreet_admin.Models.CustomerModel> customers = new();
+
+    protected override async Task OnInitializedAsync()
     {
-        new() { Id=1, FullName="Nguyễn Thị A", Email="customer1@mail.com", Phone="0911111111", Status="Active", RegisteredAt=new DateTime(2025,1,10), TotalListens=450 },
-        new() { Id=2, FullName="Trần Văn B", Email="customer2@mail.com", Phone="0922222222", Status="Active", RegisteredAt=new DateTime(2025,2,15), TotalListens=230 },
-        new() { Id=3, FullName="Lê Thị C", Email="customer3@mail.com", Phone="0933333333", Status="Disabled", RegisteredAt=new DateTime(2025,1,20), TotalListens=50 },
-        new() { Id=4, FullName="Phạm Văn D", Email="customer4@mail.com", Phone="0944444444", Status="Active", RegisteredAt=new DateTime(2025,3,5), TotalListens=780 },
-        new() { Id=5, FullName="Võ Thị E", Email="customer5@mail.com", Phone="0955555555", Status="Active", RegisteredAt=new DateTime(2025,4,12), TotalListens=120 },
-        new() { Id=6, FullName="Đặng Văn F", Email="customer6@mail.com", Phone="0966666666", Status="Active", RegisteredAt=new DateTime(2025,5,1), TotalListens=95 },
-    };
+        customers = await StoreSvc.GetCustomersAsync();
+    }
 
     private IEnumerable<foodstreet_admin.Models.CustomerModel> FilteredCustomers =>
         customers.Where(c =>

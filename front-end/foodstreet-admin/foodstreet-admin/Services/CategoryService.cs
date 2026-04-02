@@ -4,44 +4,32 @@ namespace foodstreet_admin.Services;
 
 public class CategoryService
 {
-    private static List<CategoryModel> _mockCategories = new()
+    private readonly ApiService _api;
+
+    public CategoryService(ApiService api)
     {
-        new() { Id=1, Name="Ốc", Slug="oc", StoreCount=15, IsActive=true },
-        new() { Id=2, Name="Hải sản", Slug="hai-san", StoreCount=8, IsActive=true },
-        new() { Id=3, Name="Cơm", Slug="com", StoreCount=12, IsActive=true },
-        new() { Id=4, Name="Bún/Phở", Slug="bun-pho", StoreCount=20, IsActive=true },
-        new() { Id=5, Name="Đồ uống", Slug="do-uong", StoreCount=5, IsActive=true }
-    };
+        _api = api;
+    }
 
     public async Task<List<CategoryModel>> GetCategoriesAsync()
     {
-        await Task.Delay(100);
-        return _mockCategories.ToList();
+        return await _api.GetAsync<List<CategoryModel>>("admin/categories") ?? new();
     }
 
     public async Task<(bool, string)> CreateCategoryAsync(CategoryModel model)
     {
-        await Task.Delay(200);
-        model.Id = _mockCategories.Count > 0 ? _mockCategories.Max(x => x.Id) + 1 : 1;
-        model.StoreCount = 0;
-        _mockCategories.Add(model);
-        return (true, "Thêm danh mục thành công!");
+        var result = await _api.PostAsync<CategoryModel, CategoryModel>("admin/categories", model);
+        return result != null ? (true, "Thêm danh mục thành công!") : (false, "Lỗi khi thêm danh mục!");
     }
 
     public async Task<(bool, string)> UpdateCategoryAsync(CategoryModel model)
     {
-        await Task.Delay(200);
-        var idx = _mockCategories.FindIndex(c => c.Id == model.Id);
-        if (idx < 0) return (false, "Không tìm thấy danh mục!");
-        _mockCategories[idx] = model;
-        return (true, "Cập nhật thành công!");
+        var result = await _api.PutAsync<CategoryModel, CategoryModel>($"admin/categories/{model.Id}", model);
+        return result != null ? (true, "Cập nhật thành công!") : (false, "Lỗi khi cập nhật!");
     }
 
     public async Task<bool> DeleteCategoryAsync(int id)
     {
-        await Task.Delay(100);
-        var item = _mockCategories.FirstOrDefault(x => x.Id == id);
-        if (item != null) _mockCategories.Remove(item);
-        return true;
+        return await _api.DeleteAsync($"admin/categories/{id}");
     }
 }

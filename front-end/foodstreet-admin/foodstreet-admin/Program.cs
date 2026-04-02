@@ -99,8 +99,7 @@ app.MapGet("/auth/finalize", async (HttpContext ctx, string t, PendingLoginServi
     var entry = pending.Consume(t);
     if (entry == null) return Results.Redirect("/auth/login");
 
-    // 1. Sửa ID "0" thành "1" (Hoặc entry.Value.Id.ToString() nếu có)
-    string userId = "1";
+    string userId = entry.Value.UserId.ToString();
 
     // 2. Kiểm tra Role: Nếu không phải ADMIN thì tự động gắn chuẩn thẻ "OWNER"
     string userRole = entry.Value.Role == "ADMIN" ? "ADMIN" : "OWNER";
@@ -111,6 +110,7 @@ app.MapGet("/auth/finalize", async (HttpContext ctx, string t, PendingLoginServi
         new(System.Security.Claims.ClaimTypes.Name,  entry.Value.Email),
         new(System.Security.Claims.ClaimTypes.Email, entry.Value.Email),
         new(System.Security.Claims.ClaimTypes.Role,  userRole),
+        new("jwt_token", entry.Value.JwtToken)
     };
 
     var identity = new System.Security.Claims.ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

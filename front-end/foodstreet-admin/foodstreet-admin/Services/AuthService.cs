@@ -50,8 +50,8 @@ public class AuthService
                 _ => result.Role?.ToUpper() ?? "USER"
             };
 
-            // ---- ĐÃ SỬA: Dùng PendingLoginService thay vì HttpClient ----
-            var token = _pending.Store(request.Email, role, request.RememberMe);
+            // ---- ĐÃ SỬA: Dùng PendingLoginService thay vì HttpClient, lưu cả JwtToken ----
+            var token = _pending.Store(result.UserId, request.Email, role, request.RememberMe, result.Token);
 
             // ---- ĐÃ SỬA: Trỏ về trạm /auth/finalize trong Program.cs ----
             string redirect = $"/auth/finalize?t={token}";
@@ -117,21 +117,21 @@ public class AuthService
 }
 public class PendingLoginService
 {
-    private readonly Dictionary<string, (string Email, string Role, bool RememberMe, DateTime Expires)> _pending = new();
+    private readonly Dictionary<string, (int UserId, string Email, string Role, bool RememberMe, string JwtToken, DateTime Expires)> _pending = new();
 
-    public string Store(string email, string role, bool rememberMe)
+    public string Store(int userId, string email, string role, bool rememberMe, string jwtToken)
     {
         var token = Guid.NewGuid().ToString("N");
-        _pending[token] = (email, role, rememberMe, DateTime.UtcNow.AddMinutes(2));
+        _pending[token] = (userId, email, role, rememberMe, jwtToken, DateTime.UtcNow.AddMinutes(2));
         return token;
     }
 
-    public (string Email, string Role, bool RememberMe)? Consume(string token)
+    public (int UserId, string Email, string Role, bool RememberMe, string JwtToken)? Consume(string token)
     {
         if (_pending.TryGetValue(token, out var entry) && entry.Expires > DateTime.UtcNow)
         {
             _pending.Remove(token);
-            return (entry.Email, entry.Role, entry.RememberMe);
+            return (entry.UserId, entry.Email, entry.Role, entry.RememberMe, entry.JwtToken);
         }
         return null;
     }
