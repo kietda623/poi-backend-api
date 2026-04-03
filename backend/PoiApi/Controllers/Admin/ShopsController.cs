@@ -20,12 +20,20 @@ namespace PoiApi.Controllers.Admin
 
         // GET: api/admin/shops
         [HttpGet]
-        public IActionResult GetAllShops()
+        public IActionResult GetAllShops([FromQuery] int? ownerId)
         {
-            var shops = _context.Shops
+            var query = _context.Shops
                 .Include(s => s.Owner)
                 .Include(s => s.Poi)
                     .ThenInclude(p => p.Translations)
+                .AsQueryable();
+
+            if (ownerId.HasValue)
+            {
+                query = query.Where(s => s.OwnerId == ownerId.Value);
+            }
+
+            var shops = query
                 .OrderByDescending(s => s.CreatedAt)
                 .Select(s => new
                 {

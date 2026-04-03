@@ -22,6 +22,10 @@ namespace PoiApi.Data
         public DbSet<ServicePackage> ServicePackages => Set<ServicePackage>();
         public DbSet<Subscription> Subscriptions => Set<Subscription>();
 
+        public DbSet<Category> Categories => Set<Category>();
+        public DbSet<Language> Languages => Set<Language>();
+        public DbSet<UsageHistory> UsageHistories => Set<UsageHistory>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -72,6 +76,23 @@ namespace PoiApi.Data
             modelBuilder.Entity<ServicePackage>().Property(p => p.MonthlyPrice).HasColumnType("decimal(18,2)");
             modelBuilder.Entity<ServicePackage>().Property(p => p.YearlyPrice).HasColumnType("decimal(18,2)");
             modelBuilder.Entity<Subscription>().Property(s => s.Price).HasColumnType("decimal(18,2)");
+
+            // ── UsageHistory ────────────────────────────────────────
+            modelBuilder.Entity<UsageHistory>()
+                .HasOne(uh => uh.Shop)
+                .WithMany()
+                .HasForeignKey(uh => uh.ShopId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ── Language unique index ───────────────────────────────
+            modelBuilder.Entity<Language>()
+                .HasIndex(l => l.Code)
+                .IsUnique();
+
+            // ── Category unique index ───────────────────────────────
+            modelBuilder.Entity<Category>()
+                .HasIndex(c => c.Slug)
+                .IsUnique();
 
             // ── Seed data ───────────────────────────────────────────
             modelBuilder.Entity<Role>().HasData(

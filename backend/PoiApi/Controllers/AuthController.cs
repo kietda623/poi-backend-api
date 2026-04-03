@@ -38,7 +38,7 @@ public class AuthController : ControllerBase
             return Unauthorized();
 
         var token = GenerateToken(user);
-        return Ok(new { token, role = user.Role.Name, fullName = user.FullName, email = user.Email });
+        return Ok(new { token, role = user.Role.Name, fullName = user.FullName, email = user.Email, userId = user.Id });
     }
 
     [Authorize]

@@ -60,6 +60,28 @@ namespace PoiApi.Controllers.Admin
             return Ok(sellers);
         }
 
+        // GET: api/admin/users/customers
+        [HttpGet("customers")]
+        public IActionResult GetCustomers()
+        {
+            var customers = _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Role.Name == RoleConstants.User)
+                .Select(u => new
+                {
+                    u.Id,
+                    u.FullName,
+                    u.Email,
+                    Phone = "", // Placeholder
+                    Status = u.IsActive ? "Active" : "Disabled",
+                    RegisteredAt = u.CreatedAt,
+                    TotalListens = 0 // Future extension with UsageHistory
+                })
+                .ToList();
+
+            return Ok(customers);
+        }
+
         // PATCH: api/admin/users/{id}/status
         [HttpPatch("{id}/status")]
         public IActionResult UpdateSellerStatus(int id, [FromQuery] string status)
