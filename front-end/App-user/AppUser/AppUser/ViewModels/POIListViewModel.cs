@@ -28,7 +28,7 @@ namespace AppUser.ViewModels
         private bool isEmpty = false;
 
         [ObservableProperty]
-        private bool isMapView = false;
+        private bool isMapView = true;
 
         [ObservableProperty]
         private Location? userLocation;
@@ -150,7 +150,7 @@ namespace AppUser.ViewModels
             IsLoading = true;
             try
             {
-                _allPOIs = await _poiService.GetAllPOIsAsync();
+                _allPOIs = await _poiService.GetAllPOIsAsync(CurrentLanguage);
                 ApplyFilter();
             }
             finally
@@ -185,9 +185,34 @@ namespace AppUser.ViewModels
         }
 
         [RelayCommand]
+        private async Task PlayPOIById(int poiId)
+        {
+            var poi = _allPOIs.FirstOrDefault(p => p.Id == poiId);
+            if (poi != null)
+            {
+                await NavigateToPOIAsync(poi);
+            }
+        }
+
+        [RelayCommand]
+        private async Task ToggleLanguageAsync()
+        {
+            CurrentLanguage = CurrentLanguage switch
+            {
+                "vi" => "en",
+                "en" => "zh",
+                _ => "vi"
+            };
+            
+            _audioService.SetLanguage(CurrentLanguage);
+            await LoadAllPOIsAsync();
+        }
+
+        [RelayCommand]
         private async Task RefreshAsync()
         {
             SearchQuery = string.Empty;
+            CurrentLanguage = _audioService.CurrentLanguage;
             await LoadAllPOIsAsync();
         }
 

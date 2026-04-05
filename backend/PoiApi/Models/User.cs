@@ -8,7 +8,7 @@ namespace PoiApi.Models
         public string FullName { get; set; } = string.Empty;
         public int RoleId { get; set; }
         public Role Role { get; set; } = null!;
-        public Shop? Shop { get; set; }
+        public ICollection<Shop> Shops { get; set; } = new List<Shop>();
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

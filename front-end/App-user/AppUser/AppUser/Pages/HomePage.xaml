@@ -16,32 +16,43 @@
             <VerticalStackLayout Spacing="0">
 
                 <!-- ── HEADER ── -->
-                <Grid BackgroundColor="{StaticResource Primary}"
-                      Padding="20,16,20,40"
-                      RowDefinitions="Auto,Auto">
+                <Grid Padding="20,24,20,44">
+                    <Grid.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="{StaticResource Primary}" Offset="0.1" />
+                            <GradientStop Color="{StaticResource PrimaryLight}" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Grid.Background>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
                     <!-- Top row: greeting + language toggle -->
-                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
-                        <VerticalStackLayout Grid.Column="0">
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,20">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
                             <Label Text="{Binding GreetingText}"
                                    Style="{StaticResource BodyMedium}"
-                                   TextColor="#DDFFFFFF"/>
+                                   TextColor="#CCFFFFFF"
+                                   FontFamily="PoppinsMedium"/>
                             <Label Text="Khám phá ẩm thực"
-                                   Style="{StaticResource HeadlineSmall}"
-                                   TextColor="White"/>
+                                   Style="{StaticResource HeadlineMedium}"
+                                   TextColor="White"
+                                   FontSize="24"/>
                         </VerticalStackLayout>
 
                         <!-- Language Toggle -->
                         <Border Grid.Column="1"
-                                BackgroundColor="#25FFFFFF"
-                                StrokeShape="RoundRectangle 20"
+                                BackgroundColor="#30FFFFFF"
+                                StrokeShape="RoundRectangle 18"
                                 StrokeThickness="0"
-                                Padding="12,6">
+                                Padding="12,6"
+                                VerticalOptions="Center">
                             <Button Text="{Binding CurrentLanguage, StringFormat='{0} ▼'}"
                                     Command="{Binding ToggleLanguageCommand}"
                                     BackgroundColor="Transparent"
                                     TextColor="White"
-                                    FontFamily="PoppinsSemiBold"
+                                    FontFamily="PoppinsBold"
                                     FontSize="13"
                                     Padding="0"
                                     HeightRequest="32"/>
@@ -51,15 +62,21 @@
                     <!-- Search bar -->
                     <Border Grid.Row="1"
                             BackgroundColor="White"
-                            StrokeShape="RoundRectangle 14"
+                            StrokeShape="RoundRectangle 18"
                             StrokeThickness="0"
-                            Padding="14,10">
-                        <HorizontalStackLayout Spacing="10">
+                            Padding="16,12"
+                            Margin="0,0,0,-20"
+                            HeightRequest="60">
+                        <Border.Shadow>
+                            <Shadow Brush="#20000000" Offset="0,10" Radius="20" Opacity="0.5"/>
+                        </Border.Shadow>
+                        <HorizontalStackLayout Spacing="12">
                             <Label Text="🔍" FontSize="18" VerticalOptions="Center"/>
                             <Label Text="Tìm điểm ẩm thực..."
                                    Style="{StaticResource BodyMedium}"
                                    TextColor="{StaticResource TextHint}"
-                                   VerticalOptions="Center">
+                                   VerticalOptions="Center"
+                                   FontSize="15">
                                 <Label.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding NavigateToAllPOIsCommand}"/>
                                 </Label.GestureRecognizers>
@@ -69,91 +86,91 @@
                 </Grid>
 
                 <!-- ── SECTION: Điểm nổi bật ── -->
-                <VerticalStackLayout Padding="20,24,20,0" Spacing="16">
+                <VerticalStackLayout Padding="20,12,20,0" Spacing="16">
 
                     <!-- Section header -->
-                    <Grid ColumnDefinitions="*,Auto">
+                    <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
                         <Label Grid.Column="0"
                                Text="✨ Điểm ẩm thực nổi bật"
-                               Style="{StaticResource TitleLarge}"/>
+                               Style="{StaticResource TitleLarge}"
+                               FontSize="18"/>
                         <Label Grid.Column="1"
-                               Text="Xem tất cả →"
+                               Text="Xem tất cả"
                                Style="{StaticResource BodySmall}"
                                TextColor="{StaticResource Primary}"
-                               VerticalOptions="Center">
+                               FontFamily="PoppinsBold"
+                               VerticalOptions="Center"
+                               Margin="0,0,4,0">
                             <Label.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding NavigateToAllPOIsCommand}"/>
                             </Label.GestureRecognizers>
                         </Label>
                     </Grid>
 
-                    <!-- Loading skeleton -->
-                    <ActivityIndicator IsRunning="{Binding IsLoading}"
-                                       IsVisible="{Binding IsLoading}"
-                                       HeightRequest="200"
-                                       HorizontalOptions="Center"/>
-
-                    <!-- POI Cards (vertical list) -->
-                    <BindableLayout.ItemsSource>
-                        <x:Reference Name="FeaturedList"/>
-                    </BindableLayout.ItemsSource>
-
                     <!-- Scrollable horizontal cards -->
                     <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never"
                                 Margin="-20,0"
                                 IsVisible="{Binding IsLoading, Converter={StaticResource BoolInverterConverter}}">
                         <HorizontalStackLayout x:Name="FeaturedList"
-                                               Spacing="12" Padding="20,4">
+                                               Spacing="16" Padding="20,8">
                             <BindableLayout.ItemsSource>
                                 <Binding Path="FeaturedPOIs"/>
                             </BindableLayout.ItemsSource>
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:POIDto">
-                                    <Border BackgroundColor="{StaticResource Surface}"
-                                            StrokeShape="RoundRectangle 16"
-                                            StrokeThickness="0"
-                                            WidthRequest="220"
-                                            HeightRequest="280">
-                                        <Border.Shadow>
-                                            <Shadow Brush="#20000000" Offset="0,4" Radius="12" Opacity="0.2"/>
-                                        </Border.Shadow>
+                                    <Border Style="{StaticResource PremiumBorder}"
+                                            WidthRequest="240"
+                                            HeightRequest="300"
+                                            Padding="0">
                                         <Border.GestureRecognizers>
                                             <TapGestureRecognizer
                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=NavigateToPOICommand}"
                                                 CommandParameter="{Binding .}"/>
                                         </Border.GestureRecognizers>
 
-                                        <Grid RowDefinitions="180,*">
+                                        <Grid>
                                             <!-- POI Image -->
-                                            <Image Grid.Row="0"
-                                                   Source="{Binding ImageUrl}"
+                                            <Image Source="{Binding ImageUrl}"
                                                    Aspect="AspectFill"
-                                                   HeightRequest="180"/>
+                                                   HeightRequest="300"/>
 
-                                            <!-- Audio badge -->
-                                            <Border Grid.Row="0"
-                                                    BackgroundColor="{StaticResource Primary}"
+                                            <!-- Bottom Gradient Overlay -->
+                                            <BoxView VerticalOptions="End" HeightRequest="120">
+                                                <BoxView.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                        <GradientStop Color="Transparent" Offset="0" />
+                                                        <GradientStop Color="#CC0F172A" Offset="1" />
+                                                    </LinearGradientBrush>
+                                                </BoxView.Background>
+                                            </BoxView>
+
+                                            <!-- Audio badge (Gold) -->
+                                            <Border BackgroundColor="{StaticResource Accent}"
                                                     StrokeShape="RoundRectangle 8"
                                                     StrokeThickness="0"
                                                     Padding="8,4"
                                                     HorizontalOptions="End"
-                                                    VerticalOptions="End"
-                                                    Margin="0,0,8,8">
-                                                <Label Text="🎧 Có thuyết minh"
+                                                    VerticalOptions="Start"
+                                                    Margin="12">
+                                                <Label Text="🎧 VOX"
                                                        Style="{StaticResource LabelCaption}"
-                                                       TextColor="White"/>
+                                                       TextColor="{StaticResource TextPrimary}"
+                                                       FontFamily="PoppinsBold"
+                                                       FontSize="10"/>
                                             </Border>
 
                                             <!-- Info section -->
-                                            <VerticalStackLayout Grid.Row="1" Padding="12,10" Spacing="4">
+                                            <VerticalStackLayout VerticalOptions="End" Padding="16" Spacing="4">
                                                 <Label Text="{Binding Shop.Name}"
-                                                       Style="{StaticResource TitleMedium}"
+                                                       Style="{StaticResource TitleLarge}"
+                                                       TextColor="White"
                                                        LineBreakMode="TailTruncation"
                                                        MaxLines="1"/>
-                                                <HorizontalStackLayout Spacing="4">
-                                                    <Label Text="📍" FontSize="11"/>
+                                                <HorizontalStackLayout Spacing="6">
+                                                    <Label Text="📍" FontSize="12"/>
                                                     <Label Text="{Binding Location}"
                                                            Style="{StaticResource BodySmall}"
+                                                           TextColor="#BBFFFFFF"
                                                            LineBreakMode="TailTruncation"
                                                            MaxLines="1"/>
                                                 </HorizontalStackLayout>
@@ -165,71 +182,90 @@
                         </HorizontalStackLayout>
                     </ScrollView>
 
+                    <!-- Loading skeleton -->
+                    <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                       IsVisible="{Binding IsLoading}"
+                                       HeightRequest="100"
+                                       Color="{StaticResource Primary}"
+                                       HorizontalOptions="Center"/>
                 </VerticalStackLayout>
 
                 <!-- ── SECTION: Tất cả địa điểm ── -->
-                <VerticalStackLayout Padding="20,24,20,20" Spacing="12">
+                <VerticalStackLayout Padding="20,24,20,20" Spacing="16">
 
-                    <Label Text="🗺️ Tất cả địa điểm"
-                           Style="{StaticResource TitleLarge}"/>
+                    <Label Text="🗺️ Khám phá thêm"
+                           Style="{StaticResource TitleLarge}"
+                           FontSize="18"/>
 
                     <!-- Vertical POI List -->
                     <CollectionView ItemsSource="{Binding FeaturedPOIs}"
                                     SelectionMode="None">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="12"/>
+                        </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:POIDto">
-                                <Border BackgroundColor="{StaticResource Surface}"
-                                        StrokeShape="RoundRectangle 14"
-                                        StrokeThickness="0"
-                                        Margin="0,4"
-                                        Padding="0">
-                                    <Border.Shadow>
-                                        <Shadow Brush="#10000000" Offset="0,2" Radius="8" Opacity="0.15"/>
-                                    </Border.Shadow>
+                                <Border Style="{StaticResource PremiumBorder}"
+                                        Padding="8">
                                     <Border.GestureRecognizers>
                                         <TapGestureRecognizer
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=NavigateToPOICommand}"
                                             CommandParameter="{Binding .}"/>
                                     </Border.GestureRecognizers>
 
-                                    <Grid ColumnDefinitions="100,*" HeightRequest="90">
-                                        <Image Grid.Column="0"
-                                               Source="{Binding ImageUrl}"
-                                               Aspect="AspectFill"
-                                               WidthRequest="100"
-                                               HeightRequest="90"/>
-
-                                        <!-- Clip image frame -->
+                                    <Grid ColumnDefinitions="100,*" HeightRequest="100" ColumnSpacing="16">
+                                        <!-- Image with inner border radius -->
                                         <Border Grid.Column="0"
-                                                BackgroundColor="Transparent"
-                                                StrokeShape="RoundRectangle 14,0,0,14"
-                                                StrokeThickness="0"
-                                                HorizontalOptions="Fill"
-                                                VerticalOptions="Fill"
-                                                IsVisible="False"/>
+                                                StrokeShape="RoundRectangle 14"
+                                                StrokeThickness="0">
+                                            <Image Source="{Binding ImageUrl}"
+                                                   Aspect="AspectFill"
+                                                   HeightRequest="100"
+                                                   WidthRequest="100"/>
+                                        </Border>
 
                                         <VerticalStackLayout Grid.Column="1"
-                                                             Padding="14,12"
-                                                             Spacing="4"
+                                                             Spacing="6"
                                                              VerticalOptions="Center">
                                             <Label Text="{Binding Shop.Name}"
-                                                   Style="{StaticResource TitleMedium}"
+                                                   Style="{StaticResource TitleLarge}"
+                                                   FontSize="16"
                                                    LineBreakMode="TailTruncation"
                                                    MaxLines="1"/>
-                                            <HorizontalStackLayout Spacing="4">
-                                                <Label Text="📍" FontSize="12"/>
+                                            <HorizontalStackLayout Spacing="6">
+                                                <Label Text="📍" FontSize="12" Opacity="0.7"/>
                                                 <Label Text="{Binding Location}"
-                                                       Style="{StaticResource BodySmall}"
+                                                       Style="{StaticResource BodyMedium}"
+                                                       FontSize="13"
+                                                       TextColor="{StaticResource TextSecondary}"
                                                        LineBreakMode="TailTruncation"
                                                        MaxLines="1"/>
                                             </HorizontalStackLayout>
-                                            <HorizontalStackLayout Spacing="4" Margin="0,2,0,0">
-                                                <Label Text="🎧" FontSize="12"/>
-                                                <Label Text="Có thuyết minh audio"
-                                                       Style="{StaticResource LabelCaption}"
-                                                       TextColor="{StaticResource Primary}"/>
+                                            <HorizontalStackLayout Spacing="6" Margin="0,2,0,0">
+                                                <Border BackgroundColor="{StaticResource SurfaceVariant}"
+                                                        StrokeShape="RoundRectangle 6"
+                                                        StrokeThickness="0"
+                                                        Padding="6,2">
+                                                    <HorizontalStackLayout Spacing="4">
+                                                        <Label Text="🎧" FontSize="10" VerticalOptions="Center"/>
+                                                        <Label Text="Audio Guide"
+                                                               Style="{StaticResource LabelCaption}"
+                                                               TextColor="{StaticResource Primary}"
+                                                               FontFamily="PoppinsSemiBold"
+                                                               VerticalOptions="Center"/>
+                                                    </HorizontalStackLayout>
+                                                </Border>
                                             </HorizontalStackLayout>
                                         </VerticalStackLayout>
+
+                                        <!-- Arrow Icon -->
+                                        <Label Grid.Column="1"
+                                               Text="〉"
+                                               TextColor="{StaticResource Border}"
+                                               FontSize="18"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center"
+                                               Margin="0,0,8,0"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>

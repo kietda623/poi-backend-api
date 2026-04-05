@@ -3,36 +3,42 @@
 @rendermode InteractiveServer
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Components.Authorization
+@using System.Text.Json
 @inject StoreService StoreSvc
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject IJSRuntime JS
 @inject AuthenticationStateProvider AuthStateProvider
+@inject IConfiguration Configuration
+@inject UILanguageService Lang
 @implements IDisposable
 
-<PageTitle>Gian hàng của tôi</PageTitle>
+<PageTitle>@Lang.T("MyStore")</PageTitle>
 
-<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-6 animate-fade-in-up">
     <MudStack Spacing="0">
-        <MudText Typo="Typo.h5" Style="font-weight:700">🏪 Gian hàng của tôi</MudText>
-        <MudText Typo="Typo.body2" Color="Color.Secondary">Quản lý toàn bộ gian hàng</MudText>
+        <MudText Typo="Typo.h4" Style="font-weight:800" Class="gradient-text">🏪 @Lang.T("MyStore")</MudText>
+        <MudText Typo="Typo.body2" Style="opacity:0.6">@Lang.T("StoreSettings")</MudText>
     </MudStack>
     <MudSpacer />
     <MudButton Variant="Variant.Filled" Color="Color.Primary"
                StartIcon="@Icons.Material.Filled.AddBusiness"
-               OnClick="OpenNew">Đăng ký gian hàng mới</MudButton>
+               OnClick="OpenNew"
+               Style="height:48px; border-radius:12px; box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3)">
+        @Lang.T("Add")
+    </MudButton>
 </MudStack>
 
 <!-- Filters -->
-<MudPaper Class="pa-4 mb-4" Elevation="1" Style="border-radius:8px">
+<MudPaper Class="pa-6 mb-8 glass-card animate-fade-in-up delay-1" Elevation="0">
     <MudGrid AlignItems="AlignItems.Center">
         <MudItem xs="12" md="3">
-            <MudTextField @bind-Value="_search" Label="Tìm kiếm..."
+            <MudTextField @bind-Value="_search" Label="@Lang.T("Search")"
                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
-                          Variant="Variant.Outlined" dense="true" Immediate="true" Clearable="true" />
+                          Variant="Variant.Outlined" Margin="Margin.Dense" Immediate="true" Clearable="true" />
         </MudItem>
         <MudItem xs="12" md="2">
-            <MudSelect @bind-Value="_filterStatus" Label="Trạng thái" Variant="Variant.Outlined" dense="true">
+            <MudSelect @bind-Value="_filterStatus" Label="Trạng thái" Variant="Variant.Outlined" Margin="Margin.Dense">
                 <MudSelectItem Value="@("All")">Tất cả</MudSelectItem>
                 <MudSelectItem Value="@("Active")">Active</MudSelectItem>
                 <MudSelectItem Value="@("Pending")">Pending</MudSelectItem>
@@ -40,7 +46,7 @@
             </MudSelect>
         </MudItem>
         <MudItem xs="12" md="3">
-            <MudSelect @bind-Value="_filterCat" Label="Danh mục" Variant="Variant.Outlined" dense="true">
+            <MudSelect @bind-Value="_filterCat" Label="Danh mục" Variant="Variant.Outlined" Margin="Margin.Dense">
                 <MudSelectItem Value="@("All")">Tất cả</MudSelectItem>
                 @foreach (var cat in new[]{"Ốc","Hải sản","Cơm","Bún/Phở","Đồ uống","Ăn vặt","Trà sữa","Cà phê","Quán nhậu","Lẩu/Nướng"})
                 {
@@ -49,7 +55,7 @@
             </MudSelect>
         </MudItem>
         <MudItem xs="12" md="2">
-            <MudSelect @bind-Value="_sortBy" Label="Sắp xếp" Variant="Variant.Outlined" dense="true">
+            <MudSelect @bind-Value="_sortBy" Label="Sắp xếp" Variant="Variant.Outlined" Margin="Margin.Dense">
                 <MudSelectItem Value="@("Mới nhất")">Mới nhất</MudSelectItem>
                 <MudSelectItem Value="@("Cũ nhất")">Cũ nhất</MudSelectItem>
                 <MudSelectItem Value="@("Tên A-Z")">Tên A-Z</MudSelectItem>
@@ -57,9 +63,9 @@
             </MudSelect>
         </MudItem>
         <MudItem xs="12" md="2" Class="d-flex align-center justify-end">
-            <MudText Typo="Typo.body2" Color="Color.Secondary">
-                <b>@Filtered.Count()</b> gian hàng
-            </MudText>
+            <MudChip T="string" Color="Color.Primary" Variant="Variant.Text" Icon="@Icons.Material.Filled.Countertops">
+                <b>@Filtered.Count()</b> Stores
+            </MudChip>
         </MudItem>
     </MudGrid>
 </MudPaper>
@@ -73,50 +79,57 @@
 <MudGrid>
     @foreach (var store in Filtered)
     {
-        <MudItem xs="12" md="6" lg="4">
-            <MudCard Elevation="3" Style="border-radius:10px;overflow:hidden">
-                <MudCardMedia Image="@(string.IsNullOrEmpty(store.ImageUrl)
-                    ? "https://placehold.co/400x160/e3f2fd/1565C0?text=No+Image"
-                    : store.ImageUrl)" Height="160" />
-                <MudCardContent>
-                    <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-2">
-                        <MudText Typo="Typo.h6" Style="font-weight:600;flex:1">@store.Name</MudText>
-                        <MudChip T="string" Size="Size.Small" Color="@StatusColor(store.Status)">
+        <MudItem xs="12" md="6" lg="4" Class="animate-fade-in-up">
+            <MudCard Elevation="0" Class="glass-card h-100 d-flex flex-column" Style="overflow:hidden">
+                <div style="position:relative">
+                    <MudCardMedia Image="@(string.IsNullOrEmpty(store.ImageUrl)
+                        ? "https://placehold.co/400x160/e3f2fd/1565C0?text=No+Image"
+                        : ResolveAudioUrl(store.ImageUrl))" Height="180" />
+                    <div style="position:absolute; top:12px; left:12px">
+                        <MudChip T="string" Size="Size.Small" Color="@StatusColor(store.Status)" 
+                                 Style="box-shadow: 0 4px 10px rgba(0,0,0,0.1)">
                             @store.Status
                         </MudChip>
-                    </MudStack>
-                    <MudStack Spacing="1">
-                        <MudText Typo="Typo.body2" Color="Color.Secondary">
-                            <MudIcon Icon="@Icons.Material.Filled.Category" Size="Size.Small" Class="mr-1" />
-                            @store.Category
-                        </MudText>
-                        <MudText Typo="Typo.body2" Color="Color.Secondary">
-                            <MudIcon Icon="@Icons.Material.Filled.LocationOn" Size="Size.Small" Class="mr-1" />
-                            @store.Address
-                        </MudText>
-                        <MudText Typo="Typo.body2" Color="Color.Secondary">
-                            <MudIcon Icon="@Icons.Material.Filled.Phone" Size="Size.Small" Class="mr-1" />
-                            @store.Phone
-                        </MudText>
+                    </div>
+                </div>
+                <MudCardContent Class="flex-grow-1 pa-5">
+                    <MudText Typo="Typo.h6" Style="font-weight:700" Class="mb-3">@store.Name</MudText>
+                    <MudStack Spacing="2">
+                        <div class="d-flex align-center">
+                            <MudIcon Icon="@Icons.Material.Filled.Category" Size="Size.Small" Style="opacity:0.5" Class="mr-2" />
+                            <MudText Typo="Typo.body2" Style="font-weight:500">@store.Category</MudText>
+                        </div>
+                        <div class="d-flex align-center">
+                            <MudIcon Icon="@Icons.Material.Filled.LocationOn" Size="Size.Small" Style="opacity:0.5" Class="mr-2" />
+                            <MudText Typo="Typo.body2" Style="opacity:0.7">@store.Address</MudText>
+                        </div>
+                        
                         @if (!string.IsNullOrEmpty(store.AudioUrl))
                         {
-                            <MudChip T="string" Size="Size.Small" Color="Color.Info"
-                                     Icon="@Icons.Material.Filled.Audiotrack">
-                                Có audio thuyết minh
-                            </MudChip>
+                            <MudPaper Class="pa-3 mt-4" Elevation="0" Style="background: rgba(99,102,241,0.05); border-radius:12px">
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-1">
+                                    <MudIcon Icon="@Icons.Material.Filled.RecordVoiceOver" Size="Size.Small" Color="Color.Primary" />
+                                    <MudText Typo="Typo.caption" Color="Color.Primary" Style="font-weight:700">Audio Guide</MudText>
+                                </MudStack>
+                                <audio @key="@($"audio-{store.Id}-{store.AudioUrl}")" 
+                                       src="@ResolveAudioUrl(store.AudioUrl)" 
+                                       controls preload="auto" 
+                                       style="width: 100%; height: 32px; filter: grayscale(1) opacity(0.8)">
+                                </audio>
+                            </MudPaper>
                         }
                     </MudStack>
                 </MudCardContent>
-                <MudCardActions>
-                    <MudButton Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled"
+                <MudCardActions Class="pa-4 pt-0">
+                    <MudButton Size="Size.Small" Color="Color.Primary" Variant="Variant.Text"
                                StartIcon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenEdit(store))">
-                        Chỉnh sửa
+                        @Lang.T("Edit")
                     </MudButton>
                     <MudButton Size="Size.Small" Color="Color.Info" Variant="Variant.Text"
                                StartIcon="@Icons.Material.Filled.Analytics"
-                               Href="@($"/seller/stats/{store.Id}")">Thống kê</MudButton>
+                               Href="@($"/seller/stats/{store.Id}")">Stats</MudButton>
                     <MudSpacer />
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
+                    <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="Color.Error"
                                    Size="Size.Small" OnClick="@(() => DeleteStore(store))" />
                 </MudCardActions>
             </MudCard>
@@ -132,7 +145,7 @@
                 </MudText>
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-3"
                            StartIcon="@Icons.Material.Filled.AddBusiness" OnClick="OpenNew">
-                    Đăng ký gian hàng đầu tiên
+                    @Lang.T("Add")
                 </MudButton>
             </MudPaper>
         </MudItem>
@@ -144,22 +157,22 @@
     <TitleContent>
         <MudText Typo="Typo.h6">
             <MudIcon Icon="@Icons.Material.Filled.AddBusiness" Class="mr-2" />
-            @(_editing == null ? "Đăng ký gian hàng mới" : "Chỉnh sửa gian hàng")
+            @(_editing == null ? Lang.T("Add") : Lang.T("Edit"))
         </MudText>
     </TitleContent>
     <DialogContent>
         <MudGrid>
             <MudItem xs="12" md="6">
-                <MudTextField @bind-Value="_form.Name" Label="Tên quán *" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="_form.Name" Label="@Lang.T("StoreName")" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" md="6">
                 <MudTextField @bind-Value="_form.Phone" Label="Số điện thoại" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12">
-                <MudTextField @bind-Value="_form.Address" Label="Địa chỉ *" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="_form.Address" Label="@Lang.T("Location")" Variant="Variant.Outlined" />
             </MudItem>
             <MudItem xs="12" md="6">
-                <MudSelect @bind-Value="_form.Category" Label="Danh mục *" Variant="Variant.Outlined">
+                <MudSelect @bind-Value="_form.Category" Label="@Lang.T("Category")" Variant="Variant.Outlined">
                     @foreach (var cat in new[]{"Ốc","Hải sản","Cơm","Bún/Phở","Đồ uống","Ăn vặt","Trà sữa","Cà phê","Quán nhậu","Lẩu/Nướng"})
                     { <MudSelectItem Value="@cat">@cat</MudSelectItem> }
                 </MudSelect>
@@ -181,39 +194,132 @@
                 </MudGrid>
             </MudItem>
             <MudItem xs="12">
-                <MudTextField @bind-Value="_form.Description" Label="Mô tả, đặc sản"
+                <MudTextField @bind-Value="_form.Description" Label="@Lang.T("Description")"
                               Variant="Variant.Outlined" Lines="3" />
             </MudItem>
             <!-- Upload zones -->
             <MudItem xs="12" md="6">
                 <MudText Typo="Typo.subtitle2" Class="mb-1">Ảnh đại diện</MudText>
-                <MudPaper Outlined="true" Class="pa-4 text-center" Style="border-style:dashed;cursor:pointer;border-radius:8px">
-                    <MudIcon Icon="@Icons.Material.Filled.AddPhotoAlternate" Color="Color.Primary" />
-                    <MudText Typo="Typo.caption" Class="mt-1">JPG/PNG, tối đa 5MB</MudText>
-                </MudPaper>
+                <label for="profileUpload" style="display: block;">
+                    <div class="d-flex flex-column align-center border-dashed pa-4" style="border: 2px dashed #ccc; border-radius: 8px; cursor: pointer; position: relative;">
+                        @if (!string.IsNullOrEmpty(_form.ImageUrl))
+                        {
+                            <MudImage Src="@(ResolveAudioUrl(_form.ImageUrl))" Height="120" Style="object-fit: cover; width: 100%; border-radius: 4px;" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Info" Style="position: absolute; top: 5px; right: 5px; background: rgba(255,255,255,0.7)" />
+                        }
+                        else
+                        {
+                            @if (_isUploadingProfile)
+                            {
+                                <MudProgressCircular Indeterminate="true" Size="Size.Medium" Color="Color.Primary" />
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.AddPhotoAlternate" Size="Size.Large" Color="Color.Primary" />
+                                <MudText Typo="Typo.caption" Class="mt-1">Chọn ảnh JPG/PNG (Max 5MB)</MudText>
+                            }
+                        }
+                    </div>
+                </label>
+                <InputFile id="profileUpload" OnChange="HandleProfileUpload" hidden accept=".jpg,.jpeg,.png" />
             </MudItem>
+
             <MudItem xs="12" md="6">
-                <MudText Typo="Typo.subtitle2" Class="mb-1">Audio thuyết minh (mp3/m4a ≤10MB)</MudText>
-                <MudPaper Outlined="true" Class="pa-4 text-center" Style="border-style:dashed;cursor:pointer;border-radius:8px">
-                    <MudIcon Icon="@Icons.Material.Filled.AudioFile" Color="Color.Info" />
-                    <MudText Typo="Typo.caption" Class="mt-1">MP3 / M4A, tối đa 10MB</MudText>
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="12">
                 <MudText Typo="Typo.subtitle2" Class="mb-1">Ảnh menu (nhiều ảnh)</MudText>
-                <MudPaper Outlined="true" Class="pa-4 text-center" Style="border-style:dashed;cursor:pointer;border-radius:8px">
-                    <MudIcon Icon="@Icons.Material.Filled.Collections" Color="Color.Secondary" />
-                    <MudText Typo="Typo.caption" Class="mt-1">Upload nhiều ảnh menu</MudText>
-                </MudPaper>
+                <label for="menuUpload" style="display: block;">
+                    <div class="d-flex flex-column align-center border-dashed pa-4" style="border: 2px dashed #ccc; border-radius: 8px; cursor: pointer;">
+                        @if (_isUploadingMenu)
+                        {
+                            <MudProgressCircular Indeterminate="true" Size="Size.Medium" Color="Color.Secondary" />
+                        }
+                        else
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Collections" Size="Size.Large" Color="Color.Secondary" />
+                            <MudText Typo="Typo.caption" Class="mt-1">Chọn nhiều ảnh menu</MudText>
+                        }
+                    </div>
+                </label>
+                <InputFile id="menuUpload" OnChange="HandleMenuUpload" multiple hidden accept=".jpg,.jpeg,.png" />
             </MudItem>
-        </MudGrid>
-    </DialogContent>
+
+            @if (!string.IsNullOrEmpty(_form.MenuImagesUrl))
+            {
+                <MudItem xs="12">
+                    <MudText Typo="Typo.caption" Class="mb-1">Danh sách ảnh menu:</MudText>
+                    <MudStack Row="true" Spacing="2" Class="overflow-x-auto pb-2">
+                        @foreach (var url in _form.MenuImagesUrl.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            <div style="position: relative; flex-shrink: 0;">
+                                <MudImage Src="@(ResolveAudioUrl(url))" Height="80" Width="80" Style="object-fit: cover; border-radius: 4px;" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Cancel" Size="Size.Small" Color="Color.Error" 
+                                               Style="position: absolute; top: -5px; right: -5px; padding: 2px; background: white;"
+                                               OnClick="@(() => RemoveMenuImage(url))" />
+                            </div>
+                        }
+                    </MudStack>
+                </MudItem>
+            }
+
+            <MudItem xs="12">
+                <MudDivider Class="my-2" />
+                <MudText Typo="Typo.subtitle2" Class="mb-2" Style="font-weight:600">
+                    <MudIcon Icon="@Icons.Material.Filled.RecordVoiceOver" Size="Size.Small" Class="mr-1" />
+                    Giọng thuyết minh (TTS)
+                </MudText>
+
+                @if (_editing == null)
+                {
+                    <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Dense="true" Class="mb-2">
+                        Sau khi đăng ký gian hàng, bạn có thể tạo giọng thuyết minh tự động.
+                    </MudAlert>
+                }
+                else
+                {
+                    <MudTextField @bind-Value="_form.Description" Label="Nội dung thuyết minh (TTS)"
+                                  Variant="Variant.Outlined" Lines="3" Class="mb-2"
+                                  HelperText="Nội dung này sẽ được chuyển thành giọng nói và ĐƯỢC LƯU vào mô tả quán. Bạn có thể chỉnh sửa tùy ý." />
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                        <MudSelect @bind-Value="_selectedTtsLang" Label="Ngôn ngữ thuyết minh" Variant="Variant.Outlined" dense="true" Style="max-width: 200px;">
+                            @foreach (var lang in _supportedLangs)
+                            {
+                                <MudSelectItem Value="@lang.Code">@lang.Name</MudSelectItem>
+                            }
+                        </MudSelect>
+                        <MudButton Variant="Variant.Filled" Color="Color.Info"
+                                   OnClick="GenerateTTS" Disabled="@(_generatingTts || string.IsNullOrWhiteSpace(_form.Description))">
+                            @if (_generatingTts) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
+                            @Lang.T("Generate") (@_selectedTtsLang.ToUpper())
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Default" Size="Size.Small"
+                                   StartIcon="@Icons.Material.Filled.Refresh"
+                                   OnClick="ResetTtsText">Đặt lại nội dung</MudButton>
+                    </MudStack>
+
+                    @if (!string.IsNullOrEmpty(_form.AudioUrl))
+                    {
+                        <MudPaper Class="pa-3 mt-3" Elevation="0" Style="background:#e8f5e9;border-radius:8px">
+                            <MudText Typo="Typo.caption" Color="Color.Success" Class="d-flex align-center mb-1">
+                                <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small" Class="mr-1" />
+                                Audio thuyết minh đã sẵn sàng:
+                            </MudText>
+                            <audio @key="@($"dialog-audio-{_form.Id}-{_form.AudioUrl}")" 
+                                   src="@ResolveAudioUrl(_form.AudioUrl)" 
+                                   controls preload="auto" 
+                                   style="width: 100%; height: 36px;">
+                                Trình duyệt không hỗ trợ audio.
+                            </audio>
+                        </MudPaper>
+                }
+            }
+        </MudItem>
+    </MudGrid>
+</DialogContent>
     <DialogActions>
-        <MudButton OnClick="CloseDialog" Variant="Variant.Outlined">Hủy</MudButton>
+        <MudButton OnClick="CloseDialog" Variant="Variant.Outlined">@Lang.T("Cancel")</MudButton>
         <MudButton Color="Color.Primary" Variant="Variant.Filled"
                    OnClick="SaveStore" Disabled="_saving">
             @if (_saving) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
-            @(_editing == null ? "Đăng ký (chờ duyệt)" : "Lưu thay đổi")
+            @Lang.T("Save")
         </MudButton>
     </DialogActions>
 </MudDialog>
@@ -225,6 +331,14 @@
     private StoreModel? _editing;
     private StoreModel _form = new();
     private int CurrentSellerId;
+
+    private string _selectedTtsLang = "vi";
+    private List<(string Code, string Name)> _supportedLangs = new()
+    {
+        ("vi", "Tiếng Việt 🇻🇳"),
+        ("en", "English 🇺🇸"),
+        ("zh", "Chinese 🇨🇳")
+    };
 
     private IEnumerable<StoreModel> Filtered
     {
@@ -249,6 +363,20 @@
     { "Active" => Color.Success, "Pending" => Color.Warning, _ => Color.Error };
 
     protected override async Task OnInitializedAsync()
+    {
+        Lang.OnLanguageChanged += HandleLanguageChanged;
+        await LoadData();
+    }
+
+    private void HandleLanguageChanged()
+    {
+        _ = InvokeAsync(async () => {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    private async Task LoadData()
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -321,7 +449,13 @@
     private void OpenEdit(StoreModel s) 
     { 
         _editing = s; 
-        _form = new StoreModel { Id=s.Id, Name=s.Name, Phone=s.Phone, Address=s.Address, Category=s.Category, Description=s.Description, Latitude=s.Latitude, Longitude=s.Longitude, SellerId=s.SellerId }; 
+        _form = new StoreModel { 
+            Id=s.Id, Name=s.Name, Phone=s.Phone, Address=s.Address, 
+            Category=s.Category, Description=s.Description, 
+            Latitude=s.Latitude, Longitude=s.Longitude, 
+            SellerId=s.SellerId, AudioUrl=s.AudioUrl, 
+            ImageUrl=s.ImageUrl, MenuImagesUrl=s.MenuImagesUrl 
+        }; 
         _showDialog = true; 
         _ = InitMapAsync();
     }
@@ -334,7 +468,19 @@
         {
             var (ok, msg) = await StoreSvc.CreateStoreAsync(_form);
             Snackbar.Add(msg, ok ? Severity.Success : Severity.Error);
-            if (ok) _stores = await StoreSvc.GetStoresAsync(CurrentSellerId);
+            if (ok) 
+            {
+                _stores = await StoreSvc.GetStoresAsync(CurrentSellerId);
+                // Auto-switch to edit mode for the newly created shop so user can generate TTS
+                var newShop = _stores.OrderByDescending(s => s.Id).FirstOrDefault();
+                if (newShop != null)
+                {
+                    _editing = newShop;
+                    _form.Id = newShop.Id;
+                    _form.AudioUrl = newShop.AudioUrl;
+                    Snackbar.Add("Bạn có thể tạo giọng thuyết minh ngay bây giờ!", Severity.Info);
+                }
+            }
         }
         else
         {
@@ -342,15 +488,132 @@
             Snackbar.Add(msg, ok ? Severity.Success : Severity.Error);
             if (ok) _stores = await StoreSvc.GetStoresAsync(CurrentSellerId);
         }
-        _saving = false; CloseDialog();
+        _saving = false;
     }
 
+    // private string _ttsText = ""; // Biến này không còn cần thiết vì dùng trực tiếp _form.Description
+    private bool _generatingTts, _isUploadingProfile, _isUploadingMenu;
 
+    private async Task HandleProfileUpload(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file == null) return;
+        _isUploadingProfile = true;
+        try
+        {
+            using var stream = file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024); // 5MB
+            var result = await StoreSvc.UploadMediaAsync(stream, file.Name);
+            if (!string.IsNullOrEmpty(result))
+            {
+                _form.ImageUrl = result;
+                Snackbar.Add("Tải ảnh đại diện thành công!", Severity.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Lỗi tải ảnh: {ex.Message}", Severity.Error);
+        }
+        finally { _isUploadingProfile = false; }
+    }
+
+    private async Task HandleMenuUpload(InputFileChangeEventArgs e)
+    {
+        var files = e.GetMultipleFiles(maximumFileCount: 10);
+        if (!files.Any()) return;
+        _isUploadingMenu = true;
+        try
+        {
+            var uploadTasks = files.Select(async f => {
+                using var s = f.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024);
+                return await StoreSvc.UploadMediaAsync(s, f.Name);
+            });
+            var results = await Task.WhenAll(uploadTasks);
+            var successfulUrls = results.Where(r => !string.IsNullOrEmpty(r)).ToList();
+            
+            if (successfulUrls.Any())
+            {
+                var currentImages = string.IsNullOrEmpty(_form.MenuImagesUrl) 
+                    ? new List<string>() 
+                    : _form.MenuImagesUrl.Split(',').ToList();
+                currentImages.AddRange(successfulUrls);
+                _form.MenuImagesUrl = string.Join(",", currentImages);
+                Snackbar.Add($"Đã tải lên {successfulUrls.Count} ảnh menu!", Severity.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Lỗi tải ảnh menu: {ex.Message}", Severity.Error);
+        }
+        finally { _isUploadingMenu = false; }
+    }
+
+    private void RemoveMenuImage(string url)
+    {
+        var images = _form.MenuImagesUrl?.Split(',').ToList() ?? new();
+        images.Remove(url);
+        _form.MenuImagesUrl = string.Join(",", images);
+    }
+
+    private void ResetTtsText()
+    {
+        // Reset nội dung về Tên quán và địa chỉ mặc định
+        _form.Description = $"{_form.Name}. {_form.Phone}";
+    }
+
+    private async Task GenerateTTS()
+    {
+        if (_editing == null || string.IsNullOrWhiteSpace(_form.Description)) return;
+        _generatingTts = true;
+        
+        // Gửi văn bản mô tả hiện tại và mã ngôn ngữ đã chọn lên để sinh audio
+        var result = await StoreSvc.GenerateTTSWithTextAsync(_editing.Id, _form.Description, _selectedTtsLang);
+        
+        if (result.ValueKind != JsonValueKind.Undefined && result.TryGetProperty("audioUrl", out var audioUrlProp))
+        {
+            var audioUrl = audioUrlProp.GetString();
+            _form.AudioUrl = audioUrl;
+            _editing.AudioUrl = audioUrl;
+
+            // Cập nhật text đã dịch vào Form để Seller thấy
+            if (result.TryGetProperty("description", out var descProp))
+            {
+                _form.Description = descProp.GetString() ?? _form.Description;
+                _editing.Description = _form.Description;
+            }
+            if (result.TryGetProperty("name", out var nameProp))
+            {
+                _form.Name = nameProp.GetString() ?? _form.Name;
+                _editing.Name = _form.Name;
+            }
+
+            Snackbar.Add($"Đã dịch và tạo giọng nói ({_selectedTtsLang.ToUpper()}) thành công!", Severity.Success);
+            _stores = await StoreSvc.GetStoresAsync(CurrentSellerId);
+        }
+        else
+        {
+            Snackbar.Add("Lỗi khi tạo TTS hoặc dịch thuật. Vui lòng kiểm tra lại cấu hình Azure.", Severity.Error);
+        }
+        _generatingTts = false;
+    }
 
     private void CloseDialog() { _showDialog = false; }
 
+    private string ResolveAudioUrl(string? url)
+    {
+        if (string.IsNullOrEmpty(url)) return "";
+        if (url.StartsWith("http", StringComparison.OrdinalIgnoreCase)) return url;
+        
+        var apiBase = Configuration["ApiBaseUrl"] ?? "http://localhost:5279/api/";
+        var backendBase = apiBase.Replace("/api/", "", StringComparison.OrdinalIgnoreCase).TrimEnd('/');
+        
+        // Ensure url starts with /
+        var normalizedUrl = url.StartsWith("/") ? url : "/" + url;
+        return $"{backendBase}{normalizedUrl}";
+    }
+
     public void Dispose()
     {
+        Lang.OnLanguageChanged -= HandleLanguageChanged;
         _objRef?.Dispose();
     }
 }

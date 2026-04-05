@@ -10,23 +10,31 @@
         private readonly TokenService _tokenService;
         private readonly ILogger<ApiService> _logger;
         private readonly Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider _authState;
+        private readonly UILanguageService _uiLang;
 
         private static readonly JsonSerializerOptions _jsonOptions = new()
         {
             PropertyNameCaseInsensitive = true
         };
 
-        public ApiService(HttpClient http, TokenService tokenService, ILogger<ApiService> logger, Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider authState)
+        public ApiService(HttpClient http, TokenService tokenService, ILogger<ApiService> logger, 
+                         Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider authState,
+                         UILanguageService uiLang)
         {
             _http = http;
             _tokenService = tokenService;
             _logger = logger;
             _authState = authState;
+            _uiLang = uiLang;
         }
 
-        // Đính Bearer token vào header trước mỗi request
-        private async Task ApplyAuthHeaderAsync()
+        // Đính Bearer token và Accept-Language vào header trước mỗi request
+        private async Task ApplyHeadersAsync()
         {
+            // Set Language Header
+            _http.DefaultRequestHeaders.AcceptLanguage.Clear();
+            _http.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue(_uiLang.CurrentLanguage));
+
             if (!_tokenService.HasToken)
             {
                 try 
@@ -50,7 +58,7 @@
         {
             try
             {
-                await ApplyAuthHeaderAsync();
+                await ApplyHeadersAsync();
                 var response = await _http.GetAsync(endpoint);
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadFromJsonAsync<T>(_jsonOptions);
@@ -66,19 +74,19 @@
         {
             try
             {
-                await ApplyAuthHeaderAsync();
+                await ApplyHeadersAsync();
                 var response = await _http.PostAsJsonAsync(endpoint, data);
 
-                // 401/403 → không throw, trả về null để caller xử lý
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("POST {Endpoint} returned {StatusCode}", endpoint, response.StatusCode);
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("POST {Endpoint} returned {StatusCode}: {ErrorBody}", endpoint, response.StatusCode, errorBody);
                     return default;
                 }
 
                 return await response.Content.ReadFromJsonAsync<TResponse>(_jsonOptions);
             }
-            catch (HttpRequestException)  // lỗi mạng / server không chạy → re-throw
+            catch (HttpRequestException)
             {
                 throw;
             }
@@ -89,11 +97,68 @@
             }
         }
 
+        public async Task<TResponse?> PostMultipartAsync<TResponse>(string endpoint, Stream fileStream, string fileName)
+        {
+            try
+            {
+                await ApplyHeadersAsync();
+                using var content = new MultipartFormDataContent();
+                var fileContent = new StreamContent(fileStream);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg"); // Adjust based on file extension
+                content.Add(fileContent, "file", fileName);
+
+                var response = await _http.PostAsync(endpoint, content);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("POST Multipart {Endpoint} returned {StatusCode}: {ErrorBody}", endpoint, response.StatusCode, errorBody);
+                    return default;
+                }
+
+                return await response.Content.ReadFromJsonAsync<TResponse>(_jsonOptions);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "POST Multipart {Endpoint} failed", endpoint);
+                return default;
+            }
+        }
+
+        public async Task<TResponse?> PostMultipartMultipleAsync<TResponse>(string endpoint, List<(Stream Stream, string FileName)> files)
+        {
+            try
+            {
+                await ApplyHeadersAsync();
+                using var content = new MultipartFormDataContent();
+                foreach (var file in files)
+                {
+                    var fileContent = new StreamContent(file.Stream);
+                    fileContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+                    content.Add(fileContent, "files", file.FileName);
+                }
+
+                var response = await _http.PostAsync(endpoint, content);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("POST Multipart {Endpoint} returned {StatusCode}: {ErrorBody}", endpoint, response.StatusCode, errorBody);
+                    return default;
+                }
+
+                return await response.Content.ReadFromJsonAsync<TResponse>(_jsonOptions);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "POST Multiple Multipart {Endpoint} failed", endpoint);
+                return default;
+            }
+        }
+
         public async Task<TResponse?> PutAsync<TRequest, TResponse>(string endpoint, TRequest data)
         {
             try
             {
-                await ApplyAuthHeaderAsync();
+                await ApplyHeadersAsync();
                 var response = await _http.PutAsJsonAsync(endpoint, data);
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadFromJsonAsync<TResponse>(_jsonOptions);
@@ -109,7 +174,7 @@
         {
             try
             {
-                await ApplyAuthHeaderAsync();
+                await ApplyHeadersAsync();
                 var response = await _http.DeleteAsync(endpoint);
                 return response.IsSuccessStatusCode;
             }
@@ -124,7 +189,7 @@
         {
             try
             {
-                ApplyAuthHeader();
+                await ApplyHeadersAsync();
                 var response = await _http.PatchAsync(endpoint, null);
                 return response.IsSuccessStatusCode;
             }

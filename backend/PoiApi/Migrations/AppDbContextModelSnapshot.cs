@@ -56,6 +56,66 @@ namespace PoiApi.Migrations
                     b.ToTable("POITranslations");
                 });
 
+            modelBuilder.Entity("PoiApi.Models.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("PoiApi.Models.Language", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("Languages");
+                });
+
             modelBuilder.Entity("PoiApi.Models.Menu", b =>
                 {
                     b.Property<int>("Id")
@@ -143,6 +203,9 @@ namespace PoiApi.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AudioUrl")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("ImageUrl")
                         .HasColumnType("longtext");
 
@@ -154,6 +217,9 @@ namespace PoiApi.Migrations
 
                     b.Property<double?>("Longitude")
                         .HasColumnType("double");
+
+                    b.Property<string>("MenuImagesUrl")
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
@@ -311,8 +377,7 @@ namespace PoiApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OwnerId")
-                        .IsUnique();
+                    b.HasIndex("OwnerId");
 
                     b.HasIndex("PoiId");
 
@@ -360,6 +425,38 @@ namespace PoiApi.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Subscriptions");
+                });
+
+            modelBuilder.Entity("PoiApi.Models.UsageHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("DurationSeconds")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LanguageCode")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("ListenedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("ShopId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ShopId");
+
+                    b.ToTable("UsageHistories");
                 });
 
             modelBuilder.Entity("PoiApi.Models.User", b =>
@@ -438,8 +535,8 @@ namespace PoiApi.Migrations
             modelBuilder.Entity("PoiApi.Models.Shop", b =>
                 {
                     b.HasOne("PoiApi.Models.User", "Owner")
-                        .WithOne("Shop")
-                        .HasForeignKey("PoiApi.Models.Shop", "OwnerId")
+                        .WithMany("Shops")
+                        .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -469,6 +566,17 @@ namespace PoiApi.Migrations
                     b.Navigation("ServicePackage");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PoiApi.Models.UsageHistory", b =>
+                {
+                    b.HasOne("PoiApi.Models.Shop", "Shop")
+                        .WithMany()
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Shop");
                 });
 
             modelBuilder.Entity("PoiApi.Models.User", b =>
@@ -511,7 +619,7 @@ namespace PoiApi.Migrations
 
             modelBuilder.Entity("PoiApi.Models.User", b =>
                 {
-                    b.Navigation("Shop");
+                    b.Navigation("Shops");
                 });
 #pragma warning restore 612, 618
         }

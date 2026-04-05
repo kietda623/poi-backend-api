@@ -10,18 +10,28 @@
     {
         PaletteLight = new PaletteLight()
         {
-            Primary        = "#1565C0",
-            PrimaryDarken  = "#003c8f",
-            PrimaryLighten = "#5e92f3",
-            Secondary      = "#6A1B9A",
-            Success        = "#2E7D32",
-            Warning        = "#E65100",
-            Error          = "#B71C1C",
-            Info           = "#01579B",
-            AppbarBackground = "#1565C0",
-            DrawerBackground = "#FAFAFA",
-            Background     = "#F0F2F5",
+            Primary        = "#6366F1", // Indigo
+            PrimaryDarken  = "#4F46E5",
+            PrimaryLighten = "#818CF8",
+            Secondary      = "#A855F7", // Purple
+            SecondaryDarken  = "#9333EA",
+            SecondaryLighten = "#C084FC",
+            Success        = "#10B981", // Emerald
+            Warning        = "#F59E0B", // Amber
+            Error          = "#EF4444", // Red
+            Info           = "#3B82F6", // Blue
+            AppbarBackground = "rgba(255, 255, 255, 0.8)",
+            AppbarText       = "#1E293B",
+            DrawerBackground = "rgba(255, 255, 255, 0.5)",
+            Background     = "#F8FAFC",
             Surface        = "#FFFFFF",
-        }
+        },
+        LayoutProperties = new LayoutProperties()
+        {
+            DefaultBorderRadius = "12px",
+            AppbarHeight = "64px"
+        },
+        Typography = new Typography(),
+
     };
 }

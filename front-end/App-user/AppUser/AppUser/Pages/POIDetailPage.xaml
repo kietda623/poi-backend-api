@@ -13,71 +13,68 @@
             <VerticalStackLayout Spacing="0">
 
                 <!-- ── HERO IMAGE ── -->
-                <Grid HeightRequest="380">
+                <Grid HeightRequest="400">
                     <Image Source="{Binding POI.ImageUrl}"
                            Aspect="AspectFill"
-                           HeightRequest="380"
+                           HeightRequest="400"
                            HorizontalOptions="Fill"/>
 
                     <!-- Dark gradient overlay -->
                     <BoxView HorizontalOptions="Fill" VerticalOptions="Fill">
                         <BoxView.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                <GradientStop Color="#40000000" Offset="0" />
-                                <GradientStop Color="#80000000" Offset="0.6" />
-                                <GradientStop Color="#D0000000" Offset="1" />
+                                <GradientStop Color="#200F172A" Offset="0" />
+                                <GradientStop Color="#600F172A" Offset="0.6" />
+                                <GradientStop Color="#D00F172A" Offset="1" />
                             </LinearGradientBrush>
                         </BoxView.Background>
                     </BoxView>
 
-                    <!-- Back button -->
-                    <Border BackgroundColor="#80000000"
-                            StrokeShape="RoundRectangle 22"
-                            StrokeThickness="0"
-                            WidthRequest="44" HeightRequest="44"
+                    <!-- Back button (Glass) -->
+                    <Border Style="{StaticResource GlassBorder}"
+                            WidthRequest="48" HeightRequest="48"
                             HorizontalOptions="Start"
                             VerticalOptions="Start"
-                            Margin="16,48,0,0">
+                            Margin="16,48,0,0"
+                            Padding="0">
                         <Button Text="←"
                                 Command="{Binding GoBackCommand}"
                                 BackgroundColor="Transparent"
                                 TextColor="White"
-                                FontSize="20"
-                                Padding="0"
-                                WidthRequest="44" HeightRequest="44"/>
+                                FontSize="22"
+                                Padding="0"/>
                     </Border>
 
-                    <!-- Language toggle -->
-                    <Border BackgroundColor="#80000000"
-                            StrokeShape="RoundRectangle 16"
-                            StrokeThickness="0"
-                            Padding="10,6"
+                    <!-- Language toggle (Glass) -->
+                    <Border Style="{StaticResource GlassBorder}"
+                            Padding="12,4"
                             HorizontalOptions="End"
                             VerticalOptions="Start"
-                            Margin="0,52,16,0">
+                            Margin="0,52,16,0"
+                            HeightRequest="40">
                         <Button Text="{Binding CurrentLanguage, StringFormat='🌐 {0}'}"
-                                Command="{Binding ToggleLanguageCommand}"
+                                Command="{Binding ToggleLanguageAsyncCommand}"
                                 BackgroundColor="Transparent"
                                 TextColor="White"
-                                FontFamily="PoppinsSemiBold"
+                                FontFamily="PoppinsBold"
                                 FontSize="13"
-                                Padding="0"
-                                HeightRequest="32"/>
+                                Padding="0"/>
                     </Border>
 
                     <!-- POI Name on image -->
                     <VerticalStackLayout VerticalOptions="End"
                                          HorizontalOptions="Start"
-                                         Padding="20,16">
+                                         Padding="20,24">
                         <Label Text="{Binding DisplayName}"
-                               Style="{StaticResource HeadlineMedium}"
+                               Style="{StaticResource HeadlineLarge}"
                                TextColor="White"
+                               FontSize="28"
                                LineBreakMode="WordWrap"/>
-                        <HorizontalStackLayout Spacing="6" Margin="0,4,0,0">
-                            <Label Text="📍" FontSize="14" TextColor="White"/>
+                        <HorizontalStackLayout Spacing="8" Margin="0,6,0,0">
+                            <Label Text="📍" FontSize="14" TextColor="White" Opacity="0.9"/>
                             <Label Text="{Binding POI.Location}"
                                    Style="{StaticResource BodyMedium}"
-                                   TextColor="#DDFFFFFF"
+                                   TextColor="#E2E8F0"
                                    LineBreakMode="TailTruncation"
                                    MaxLines="1"/>
                         </HorizontalStackLayout>
@@ -85,123 +82,126 @@
                 </Grid>
 
                 <!-- ── MAIN CONTENT CARD ── -->
-                <Border BackgroundColor="{StaticResource Surface}"
-                        StrokeShape="RoundRectangle 24,24,0,0"
+                <Border BackgroundColor="{StaticResource Background}"
+                        StrokeShape="RoundRectangle 30,30,0,0"
                         StrokeThickness="0"
-                        Margin="0,-24,0,0"
-                        Padding="20,24,20,20">
+                        Margin="0,-30,0,0"
+                        Padding="20,32,20,20">
 
-                    <VerticalStackLayout Spacing="20">
+                    <VerticalStackLayout Spacing="24">
 
                         <!-- ── AUDIO PLAYER PREVIEW ── -->
                         <Border BackgroundColor="{StaticResource Primary}"
-                                StrokeShape="RoundRectangle 16"
+                                StrokeShape="RoundRectangle 20"
                                 StrokeThickness="0"
-                                Padding="16,14"
+                                Padding="20,16"
                                 IsVisible="{Binding HasAudio}">
+                            <Border.Shadow>
+                                <Shadow Brush="{StaticResource Primary}" Offset="0,10" Radius="20" Opacity="0.3"/>
+                            </Border.Shadow>
                             <Grid ColumnDefinitions="*,Auto">
                                 <VerticalStackLayout Grid.Column="0" Spacing="4">
-                                    <Label Text="🎧 Thuyết minh audio"
+                                    <Label Text="{Binding AudioGuideLabel, StringFormat='🎧 {0}'}"
                                            Style="{StaticResource TitleMedium}"
-                                           TextColor="White"/>
+                                           TextColor="White"
+                                           Opacity="0.8"/>
                                     <Label Text="{Binding CurrentAudioGuide.Title}"
-                                           Style="{StaticResource BodySmall}"
-                                           TextColor="#DDFFFFFF"
+                                           Style="{StaticResource TitleLarge}"
+                                           TextColor="White"
                                            LineBreakMode="TailTruncation"
                                            MaxLines="1"/>
                                     <Label Text="{Binding CurrentAudioGuide.DurationDisplay, StringFormat='⏱️ {0}'}"
                                            Style="{StaticResource LabelCaption}"
-                                           TextColor="#AAFFFFFF"/>
+                                           TextColor="#B2FFFFFF"/>
                                 </VerticalStackLayout>
 
                                 <Button Grid.Column="1"
-                                        Text="▶ Nghe"
+                                        Text="{Binding PlayButtonLabel, StringFormat='▶ {0}'}"
                                         Command="{Binding PlayAudioCommand}"
                                         BackgroundColor="White"
                                         TextColor="{StaticResource Primary}"
                                         FontFamily="PoppinsBold"
                                         FontSize="14"
-                                        CornerRadius="10"
-                                        HeightRequest="40"
-                                        Padding="14,0"/>
+                                        CornerRadius="12"
+                                        HeightRequest="44"
+                                        Padding="16,0"
+                                        VerticalOptions="Center"/>
                             </Grid>
                         </Border>
 
                         <!-- No audio state -->
                         <Border BackgroundColor="{StaticResource SurfaceVariant}"
-                                StrokeShape="RoundRectangle 12"
+                                StrokeShape="RoundRectangle 16"
                                 StrokeThickness="0"
-                                Padding="16,12"
+                                Padding="16,14"
                                 IsVisible="{Binding HasAudio, Converter={StaticResource BoolInverterConverter}}">
-                            <Label Text="🔇 Chưa có audio thuyết minh cho ngôn ngữ này"
-                                   Style="{StaticResource BodySmall}"
+                            <Label Text="{Binding NoAudioLabel, StringFormat='🔇 {0}'}"
+                                   Style="{StaticResource BodyMedium}"
                                    TextColor="{StaticResource TextHint}"
                                    HorizontalOptions="Center"/>
                         </Border>
 
-                        <!-- ── DIVIDER ── -->
-                        <BoxView Style="{StaticResource Divider}"/>
-
                         <!-- ── DESCRIPTION ── -->
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Giới thiệu"
-                                   Style="{StaticResource HeadlineSmall}"/>
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="{Binding IntroLabel}"
+                                   Style="{StaticResource HeadlineSmall}"
+                                   TextColor="{StaticResource Primary}"/>
                             <Label Text="{Binding DisplayDescription}"
                                    Style="{StaticResource BodyLarge}"
-                                   LineBreakMode="WordWrap"/>
+                                   TextColor="{StaticResource TextPrimary}"/>
                         </VerticalStackLayout>
 
                         <!-- ── DIVIDER ── -->
-                        <BoxView Style="{StaticResource Divider}"/>
+                        <BoxView Style="{StaticResource Divider}" Margin="0,4"/>
 
                         <!-- ── MENU SECTION ── -->
-                        <VerticalStackLayout Spacing="12">
-                            <Label Text="🍽️ Thực đơn"
-                                   Style="{StaticResource HeadlineSmall}"/>
+                        <VerticalStackLayout Spacing="16">
+                            <Label Text="{Binding MenuLabel, StringFormat='🍽️ {0}'}"
+                                   Style="{StaticResource HeadlineSmall}"
+                                   TextColor="{StaticResource Primary}"/>
 
                             <!-- Menu Groups -->
                             <CollectionView ItemsSource="{Binding POI.Shop.Menus}"
                                             SelectionMode="None">
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="models:MenuDto">
-                                        <VerticalStackLayout Spacing="8" Margin="0,0,0,16">
+                                        <VerticalStackLayout Spacing="12" Margin="0,0,0,24">
 
                                             <!-- Menu name -->
                                             <Label Text="{Binding Name}"
                                                    Style="{StaticResource TitleLarge}"
-                                                   TextColor="{StaticResource Primary}"/>
+                                                   TextColor="{StaticResource TextPrimary}"
+                                                   FontSize="18"/>
 
                                             <!-- Menu Items -->
                                             <CollectionView ItemsSource="{Binding Items}"
                                                             SelectionMode="None">
+                                                <CollectionView.ItemsLayout>
+                                                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="12"/>
+                                                </CollectionView.ItemsLayout>
                                                 <CollectionView.ItemTemplate>
                                                     <DataTemplate x:DataType="models:MenuItemDto">
-                                                        <Border BackgroundColor="{StaticResource Surface}"
-                                                                StrokeShape="RoundRectangle 16"
-                                                                StrokeThickness="0"
-                                                                Margin="0,6,0,8"
-                                                                Padding="16,16">
-                                                            <Border.Shadow>
-                                                                <Shadow Brush="#15000000" Offset="0,4" Radius="10" Opacity="1"/>
-                                                            </Border.Shadow>
+                                                        <Border Style="{StaticResource PremiumBorder}"
+                                                                Padding="16">
                                                             <Grid ColumnDefinitions="*,Auto">
                                                                 <VerticalStackLayout Grid.Column="0" Spacing="4">
                                                                     <Label Text="{Binding Name}"
-                                                                           FontFamily="PoppinsBold" FontSize="16" TextColor="{StaticResource TextPrimary}"/>
+                                                                           Style="{StaticResource TitleMedium}"
+                                                                           TextColor="{StaticResource TextPrimary}"/>
                                                                     <Label Text="{Binding Description}"
-                                                                           FontFamily="PoppinsRegular" FontSize="13" TextColor="{StaticResource TextSecondary}"
+                                                                           Style="{StaticResource BodySmall}"
                                                                            LineBreakMode="TailTruncation"
                                                                            MaxLines="2"/>
                                                                 </VerticalStackLayout>
                                                                 <VerticalStackLayout Grid.Column="1"
                                                                                      HorizontalOptions="End"
-                                                                                     VerticalOptions="Center" Spacing="2">
+                                                                                     VerticalOptions="Center" Spacing="4">
                                                                     <Label Text="{Binding PriceDisplay}"
-                                                                           FontFamily="PoppinsSemiBold" FontSize="16"
+                                                                           Style="{StaticResource TitleLarge}"
                                                                            TextColor="{StaticResource Primary}"
                                                                            HorizontalOptions="End"/>
-                                                                    <Border BackgroundColor="#E8F5E9" StrokeShape="RoundRectangle 8" StrokeThickness="0" Padding="8,4" IsVisible="{Binding IsAvailable}" HorizontalOptions="End">
-                                                                        <Label Text="Còn hàng" FontFamily="PoppinsMedium" FontSize="10" TextColor="{StaticResource Success}"/>
+                                                                    <Border BackgroundColor="#DCFCE7" StrokeShape="RoundRectangle 8" StrokeThickness="0" Padding="8,4" IsVisible="{Binding IsAvailable}" HorizontalOptions="End">
+                                                                        <Label Text="{Binding BindingContext.InStockLabel, Source={x:Reference Name=this}}" Style="{StaticResource LabelCaption}" TextColor="{StaticResource Success}" FontFamily="PoppinsBold"/>
                                                                     </Border>
                                                                 </VerticalStackLayout>
                                                             </Grid>
@@ -219,33 +219,33 @@
                 </Border>
 
                 <!-- Bottom padding -->
-                <BoxView HeightRequest="32" Color="Transparent"/>
+                <BoxView HeightRequest="80" Color="Transparent"/>
             </VerticalStackLayout>
         </ScrollView>
 
         <!-- ── FLOATING PLAY BUTTON ── -->
-        <Border StrokeShape="RoundRectangle 24"
+        <Border StrokeShape="RoundRectangle 28"
                 StrokeThickness="0"
                 IsVisible="{Binding HasAudio}"
                 HorizontalOptions="Fill"
                 VerticalOptions="End"
-                Margin="20,0,20,32"
-                HeightRequest="56">
+                Margin="24,0,24,32"
+                HeightRequest="60">
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                     <GradientStop Color="{StaticResource Primary}" Offset="0.0" />
-                    <GradientStop Color="{StaticResource PrimaryDark}" Offset="1.0" />
+                    <GradientStop Color="{StaticResource PrimaryLight}" Offset="1.0" />
                 </LinearGradientBrush>
             </Border.Background>
             <Border.Shadow>
-                <Shadow Brush="{StaticResource PrimaryDark}" Offset="0,10" Radius="20" Opacity="0.5"/>
+                <Shadow Brush="{StaticResource Primary}" Offset="0,10" Radius="20" Opacity="0.4"/>
             </Border.Shadow>
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding PlayAudioCommand}" />
             </Border.GestureRecognizers>
             <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="12">
-                <Label Text="🎧" FontSize="24" TextColor="White" VerticalOptions="Center"/>
-                <Label Text="Nghe thuyết minh ngay" FontFamily="PoppinsBold" FontSize="16" TextColor="White" VerticalOptions="Center"/>
+                <Label Text="🎧" FontSize="26" TextColor="White" VerticalOptions="Center"/>
+                <Label Text="{Binding ListenNowLabel}" FontFamily="PoppinsBold" FontSize="17" TextColor="White" VerticalOptions="Center"/>
             </HorizontalStackLayout>
         </Border>
     </Grid>

@@ -47,7 +47,7 @@ namespace AppUser.ViewModels
             IsLoading = true;
             try
             {
-                var pois = await _poiService.GetFeaturedPOIsAsync(5);
+                var pois = await _poiService.GetFeaturedPOIsAsync(5, CurrentLanguage);
                 FeaturedPOIs.Clear();
                 foreach (var p in pois)
                     FeaturedPOIs.Add(p);
@@ -72,21 +72,50 @@ namespace AppUser.ViewModels
         }
 
         [RelayCommand]
-        private void ToggleLanguage()
+        private async Task ToggleLanguageAsync()
         {
-            CurrentLanguage = CurrentLanguage == "vi" ? "en" : "vi";
+            CurrentLanguage = CurrentLanguage switch
+            {
+                "vi" => "en",
+                "en" => "zh",
+                _ => "vi"
+            };
+            
             _audioService.SetLanguage(CurrentLanguage);
+            UpdateGreeting();
+            await LoadFeaturedPOIsAsync();
         }
 
         private void UpdateGreeting()
         {
             var hour = DateTime.Now.Hour;
-            GreetingText = hour switch
+            if (CurrentLanguage == "vi")
             {
-                >= 5 and < 12 => "Chào buổi sáng!",
-                >= 12 and < 18 => "Chào buổi chiều!",
-                _ => "Chào buổi tối!"
-            };
+                GreetingText = hour switch
+                {
+                    >= 5 and < 12 => "Chào buổi sáng!",
+                    >= 12 and < 18 => "Chào buổi chiều!",
+                    _ => "Chào buổi tối!"
+                };
+            }
+            else if (CurrentLanguage == "en")
+            {
+                GreetingText = hour switch
+                {
+                    >= 5 and < 12 => "Good Morning!",
+                    >= 12 and < 18 => "Good Afternoon!",
+                    _ => "Good Evening!"
+                };
+            }
+            else if (CurrentLanguage == "zh")
+            {
+                GreetingText = hour switch
+                {
+                    >= 5 and < 12 => "早上好!",
+                    >= 12 and < 18 => "下午好!",
+                    _ => "晚上好!"
+                };
+            }
         }
     }
 }

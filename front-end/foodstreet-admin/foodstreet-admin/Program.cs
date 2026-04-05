@@ -62,6 +62,7 @@ builder.Services.AddScoped<ApiService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<StoreService>();
 builder.Services.AddScoped<LanguageService>();
+builder.Services.AddScoped<UILanguageService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ServicePackageService>();
 builder.Services.AddScoped<UsageHistoryService>();

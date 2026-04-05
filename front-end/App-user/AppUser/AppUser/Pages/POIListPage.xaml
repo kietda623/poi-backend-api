@@ -129,9 +129,10 @@
                 </Grid>
             </RefreshView>
 
-            <!-- MAP VIEW CONTAINER -->
             <Grid IsVisible="{Binding IsMapView}">
-                <WebView x:Name="MapWebView" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Navigated="MapWebView_Navigated" />
+                <WebView x:Name="MapWebView" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" 
+                         Navigating="MapWebView_Navigating"
+                         Navigated="MapWebView_Navigated" />
             </Grid>
 
             <!-- PREMIUN FLOATING TOGGLE BUTTON -->

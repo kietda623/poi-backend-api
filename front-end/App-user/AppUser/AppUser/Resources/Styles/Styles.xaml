@@ -13,44 +13,65 @@
         <Setter Property="Shell.BackgroundColor" Value="{StaticResource Primary}" />
         <Setter Property="Shell.ForegroundColor" Value="White" />
         <Setter Property="Shell.TitleColor" Value="White" />
-        <Setter Property="Shell.DisabledColor" Value="#B2FFFFFF" />
-        <Setter Property="Shell.UnselectedColor" Value="#B5917A" />
+        <Setter Property="Shell.DisabledColor" Value="#40FFFFFF" />
+        <Setter Property="Shell.UnselectedColor" Value="#94A3B8" />
         <Setter Property="Shell.NavBarHasShadow" Value="False" />
         <Setter Property="Shell.TabBarBackgroundColor" Value="{StaticResource TabBarBackground}" />
         <Setter Property="Shell.TabBarForegroundColor" Value="{StaticResource Primary}" />
         <Setter Property="Shell.TabBarUnselectedColor" Value="{StaticResource TextHint}" />
         <Setter Property="Shell.TabBarTitleColor" Value="{StaticResource Primary}" />
     </Style>
+    
+    <!-- ===== BORDER STYLES (NEW) ===== -->
+    <Style x:Key="PremiumBorder" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="#10000000" Offset="0,10" Radius="20" Opacity="0.8" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GlassBorder" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource Glass}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 24" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="Stroke" Value="#40FFFFFF" />
+        <Setter Property="Padding" Value="16" />
+    </Style>
 
     <!-- ===== LABEL STYLES ===== -->
     <Style x:Key="HeadlineLarge" TargetType="Label">
         <Setter Property="FontFamily" Value="PoppinsBold" />
-        <Setter Property="FontSize" Value="28" />
+        <Setter Property="FontSize" Value="30" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
         <Setter Property="LineBreakMode" Value="WordWrap" />
     </Style>
 
     <Style x:Key="HeadlineMedium" TargetType="Label">
         <Setter Property="FontFamily" Value="PoppinsBold" />
-        <Setter Property="FontSize" Value="22" />
+        <Setter Property="FontSize" Value="24" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
     </Style>
 
     <Style x:Key="HeadlineSmall" TargetType="Label">
         <Setter Property="FontFamily" Value="PoppinsSemiBold" />
-        <Setter Property="FontSize" Value="18" />
+        <Setter Property="FontSize" Value="20" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
     </Style>
 
     <Style x:Key="TitleLarge" TargetType="Label">
         <Setter Property="FontFamily" Value="PoppinsSemiBold" />
-        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontSize" Value="17" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
     </Style>
 
     <Style x:Key="TitleMedium" TargetType="Label">
         <Setter Property="FontFamily" Value="PoppinsSemiBold" />
-        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontSize" Value="15" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
     </Style>
 
@@ -58,7 +79,7 @@
         <Setter Property="FontFamily" Value="Poppins" />
         <Setter Property="FontSize" Value="16" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
-        <Setter Property="LineBreakMode" Value="WordWrap" />
+        <Setter Property="LineHeight" Value="1.4" />
     </Style>
 
     <Style x:Key="BodyMedium" TargetType="Label">
@@ -90,27 +111,27 @@
     <Style x:Key="PrimaryButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
         <Setter Property="TextColor" Value="White" />
-        <Setter Property="FontFamily" Value="PoppinsSemiBold" />
-        <Setter Property="FontSize" Value="16" />
-        <Setter Property="CornerRadius" Value="14" />
-        <Setter Property="HeightRequest" Value="52" />
+        <Setter Property="FontFamily" Value="PoppinsBold" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="HeightRequest" Value="54" />
         <Setter Property="Padding" Value="24,0" />
         <Setter Property="Shadow">
             <Setter.Value>
-                <Shadow Brush="{StaticResource Primary}" Offset="0,4" Radius="12" Opacity="0.3" />
+                <Shadow Brush="{StaticResource Primary}" Offset="0,8" Radius="15" Opacity="0.4" />
             </Setter.Value>
         </Setter>
     </Style>
 
     <Style x:Key="SecondaryButton" TargetType="Button">
-        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="BackgroundColor" Value="White" />
         <Setter Property="TextColor" Value="{StaticResource Primary}" />
         <Setter Property="FontFamily" Value="PoppinsSemiBold" />
-        <Setter Property="FontSize" Value="16" />
-        <Setter Property="CornerRadius" Value="14" />
-        <Setter Property="HeightRequest" Value="52" />
-        <Setter Property="BorderColor" Value="{StaticResource Primary}" />
-        <Setter Property="BorderWidth" Value="1.5" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="HeightRequest" Value="54" />
+        <Setter Property="BorderColor" Value="{StaticResource Border}" />
+        <Setter Property="BorderWidth" Value="1" />
         <Setter Property="Padding" Value="24,0" />
     </Style>
 
@@ -119,19 +140,19 @@
         <Setter Property="TextColor" Value="{StaticResource Primary}" />
         <Setter Property="FontSize" Value="24" />
         <Setter Property="Padding" Value="8" />
-        <Setter Property="CornerRadius" Value="50" />
+        <Setter Property="CornerRadius" Value="24" />
         <Setter Property="WidthRequest" Value="48" />
         <Setter Property="HeightRequest" Value="48" />
     </Style>
 
-    <!-- ===== ENTRY / EDITOR STYLES ===== -->
+    <!-- ===== ENTRY STYLES ===== -->
     <Style x:Key="InputEntry" TargetType="Entry">
         <Setter Property="FontFamily" Value="Poppins" />
         <Setter Property="FontSize" Value="15" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
         <Setter Property="PlaceholderColor" Value="{StaticResource TextHint}" />
         <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="HeightRequest" Value="52" />
+        <Setter Property="HeightRequest" Value="54" />
     </Style>
 
     <!-- ===== FRAME / CARD STYLES ===== -->
@@ -169,7 +190,7 @@
         <Setter Property="FontFamily" Value="Poppins" />
         <Setter Property="PlaceholderColor" Value="{StaticResource TextHint}" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
-        <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="CancelButtonColor" Value="{StaticResource Primary}" />
     </Style>
 

@@ -32,7 +32,8 @@ public class PoiService : IPoiService
 				Latitude = p.Latitude,
 				Longitude = p.Longitude,
 				Name = t.Name,
-				Description = t.Description
+				Description = t.Description,
+				AudioUrl = t.AudioUrl
 			};
 		}).ToList();
 	}
@@ -55,7 +56,8 @@ public class PoiService : IPoiService
 			Latitude = poi.Latitude,
 			Longitude = poi.Longitude,
 			Name = t.Name,
-			Description = t.Description
+			Description = t.Description,
+			AudioUrl = t.AudioUrl
 		};
 	}
 

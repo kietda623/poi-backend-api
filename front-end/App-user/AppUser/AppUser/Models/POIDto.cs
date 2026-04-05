@@ -23,6 +23,7 @@ namespace AppUser.Models
         public List<POITranslationDto> Translations { get; set; } = new();
         public ShopDto? Shop { get; set; }
         public List<AudioGuideDto> AudioGuides { get; set; } = new();
+        public List<AppLanguageDto>? AvailableLanguages { get; set; } = new();
 
         // Helper: get translation by language code
         public POITranslationDto? GetTranslation(string langCode = "vi")

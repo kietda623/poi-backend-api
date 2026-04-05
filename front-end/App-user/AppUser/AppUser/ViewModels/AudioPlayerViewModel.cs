@@ -35,16 +35,47 @@ namespace AppUser.ViewModels
         [ObservableProperty]
         private bool isLoading = false;
 
-        public string POIName => POI?.DisplayName() ?? string.Empty;
+        [ObservableProperty]
+        private string nowPlayingLabel = "ĐANG THƯỞNG THỨC";
+        [ObservableProperty]
+        private string subTitleLabel = "Thuyết minh văn hóa ẩm thực";
+
+        [ObservableProperty]
+        private string currentLangCode = "vi";
+
+        private readonly POIService _poiService;
+
+        public string POIName => POI?.DisplayName(CurrentLangCode) ?? string.Empty;
         public string GuideTitle => AudioGuide?.Title ?? string.Empty;
         public string ImageUrl => POI?.ImageUrl ?? string.Empty;
+        public List<AppLanguageDto> AvailableLanguages => POI?.AvailableLanguages ?? new();
+        public bool HasMultipleLanguages => AvailableLanguages.Count > 1;
+
+        // Xử lý URL Audio đầy đủ
+        public string AudioUrl
+        {
+            get
+            {
+                if (AudioGuide == null || string.IsNullOrWhiteSpace(AudioGuide.AudioUrl)) 
+                    return string.Empty;
+                
+                // Sử dụng AppConfig để tự động xử lý URL đầy đủ từ backend
+                return AppConfig.ResolveUrl(AudioGuide.AudioUrl);
+            }
+        }
+
+        // Các sự kiện để Code-behind điều khiển MediaElement
+        public event EventHandler? PlayRequested;
+        public event EventHandler? PauseRequested;
+        public event EventHandler<double>? SeekRequested;
 
         // Available speed options
         public List<double> SpeedOptions = new() { 0.75, 1.0, 1.25, 1.5, 2.0 };
 
-        public AudioPlayerViewModel(AudioService audio)
+        public AudioPlayerViewModel(AudioService audio, POIService poiService)
         {
             _audioService = audio;
+            _poiService = poiService;
         }
 
         partial void OnAudioGuideChanged(AudioGuideDto? value)
@@ -53,6 +84,7 @@ namespace AppUser.ViewModels
             {
                 DurationText = value.DurationDisplay;
                 OnPropertyChanged(nameof(GuideTitle));
+                OnPropertyChanged(nameof(AudioUrl));
             }
         }
 
@@ -60,28 +92,82 @@ namespace AppUser.ViewModels
         {
             OnPropertyChanged(nameof(POIName));
             OnPropertyChanged(nameof(ImageUrl));
+            OnPropertyChanged(nameof(AvailableLanguages));
+            OnPropertyChanged(nameof(HasMultipleLanguages));
+        }
+
+        [RelayCommand]
+        private async Task SwitchLanguage(AppLanguageDto lang)
+        {
+            if (lang == null || lang.Code == CurrentLangCode || !lang.HasAudio) return;
+
+            IsLoading = true;
+            try
+            {
+                PauseRequested?.Invoke(this, EventArgs.Empty);
+                
+                // Tải lại thông tin POI với ngôn ngữ mới
+                var updatedPoi = await _poiService.GetPOIByIdAsync(POI!.Id, lang.Code);
+                if (updatedPoi != null)
+                {
+                    CurrentLangCode = lang.Code;
+                    POI = updatedPoi;
+                    
+                    // Cập nhật AudioGuide mới
+                    if (updatedPoi.AudioGuides.Any())
+                    {
+                        AudioGuide = updatedPoi.AudioGuides.First();
+                        PlayRequested?.Invoke(this, EventArgs.Empty);
+                    }
+                }
+            }
+            finally
+            {
+                IsLoading = false;
+                UpdateLocalization();
+            }
+        }
+
+        private void UpdateLocalization()
+        {
+            if (CurrentLangCode == "vi")
+            {
+                NowPlayingLabel = "ĐANG THƯỞNG THỨC";
+                SubTitleLabel = "Thuyết minh văn hóa ẩm thực";
+            }
+            else if (CurrentLangCode == "zh")
+            {
+                NowPlayingLabel = "正在播放";
+                SubTitleLabel = "饮食文化语音讲解";
+            }
+            else // Default to English
+            {
+                NowPlayingLabel = "NOW PLAYING";
+                SubTitleLabel = "Culinary Culture Guide";
+            }
         }
 
         [RelayCommand]
         private void TogglePlayPause()
         {
-            IsPlaying = !IsPlaying;
-            _audioService.SetPlayState(IsPlaying);
+            if (IsPlaying)
+                PauseRequested?.Invoke(this, EventArgs.Empty);
+            else
+                PlayRequested?.Invoke(this, EventArgs.Empty);
         }
 
         [RelayCommand]
         private void SeekBackward()
         {
-            // Will trigger MediaElement seek via binding
-            var newPos = Math.Max(0, Progress - 0.05);
-            Progress = newPos;
+            var newPos = Math.Max(0, Progress - 0.05); // Lùi 5%
+            SeekRequested?.Invoke(this, newPos);
         }
 
         [RelayCommand]
         private void SeekForward()
         {
-            var newPos = Math.Min(1.0, Progress + 0.05);
-            Progress = newPos;
+            var newPos = Math.Min(1.0, Progress + 0.05); // Tiến 5%
+            SeekRequested?.Invoke(this, newPos);
         }
 
         [RelayCommand]
@@ -94,7 +180,7 @@ namespace AppUser.ViewModels
         [RelayCommand]
         private async Task GoBackAsync()
         {
-            IsPlaying = false;
+            PauseRequested?.Invoke(this, EventArgs.Empty);
             _audioService.SetPlayState(false);
             await Shell.Current.GoToAsync("..");
         }

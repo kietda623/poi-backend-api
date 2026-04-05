@@ -18,10 +18,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 
 // SERVICES
+builder.Services.AddHttpClient(); 
 builder.Services.AddScoped<IPoiService, PoiService>();
 builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddScoped<IMenuItemService, MenuItemService>();
 builder.Services.AddScoped<AzureSpeechService>();
+builder.Services.AddScoped<AzureTranslationService>();
 
 // AUTH
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

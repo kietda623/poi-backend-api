@@ -43,6 +43,19 @@ namespace AppUser.Pages
             UpdateMapData();
         }
 
+        private void MapWebView_Navigating(object sender, WebNavigatingEventArgs e)
+        {
+            if (e.Url.StartsWith("play-poi:"))
+            {
+                e.Cancel = true; 
+                var idStr = e.Url.Split(':')[1];
+                if (int.TryParse(idStr, out int poiId))
+                {
+                    _vm.PlayPOIByIdCommand.Execute(poiId);
+                }
+            }
+        }
+
         private async void UpdateMapData()
         {
             if (_vm.FilteredPOIs == null || !_vm.FilteredPOIs.Any()) return;
@@ -51,6 +64,7 @@ namespace AppUser.Pages
             {
                 var poiList = _vm.FilteredPOIs.Select(p => new
                 {
+                    Id = p.Id,
                     Lat = p.Latitude,
                     Lng = p.Longitude,
                     Name = string.IsNullOrEmpty(p.Shop?.Name) ? "POI" : p.Shop.Name.Replace("'", "\\'"),

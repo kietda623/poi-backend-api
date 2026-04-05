@@ -8,6 +8,7 @@ public class StoreModel
     public string Address { get; set; } = "";
     public string Phone { get; set; } = "";
     public string ImageUrl { get; set; } = "";
+    public string? MenuImagesUrl { get; set; }
     public string AudioUrl { get; set; } = "";
     public string Category { get; set; } = "";
     public string Status { get; set; } = "Pending"; // Pending | Active | Rejected

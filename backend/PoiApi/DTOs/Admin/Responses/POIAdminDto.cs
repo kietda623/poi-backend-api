@@ -9,4 +9,5 @@ public class POIAdminDto
     public string Location { get; set; } = String.Empty;
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
+    public string? AudioUrl { get; set; }
 }

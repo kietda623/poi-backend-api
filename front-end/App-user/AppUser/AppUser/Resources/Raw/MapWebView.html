@@ -52,9 +52,18 @@
             var bounds = [];
             data.forEach(function(poi) {
                 if(poi.Lat && poi.Lng) {
+                    var popupHtml = '<div style="font-family:\'Poppins\',sans-serif; min-width:160px; padding:4px;">' +
+                                    '<b style="font-size:15px; color:#333; display:block; margin-bottom:4px;">' + poi.Name + '</b>' +
+                                    '<div style="color:#666; font-size:12px; margin-bottom:12px;">📍 ' + poi.Address + '</div>' +
+                                    '<button onclick="window.location.href=\'play-poi:' + poi.Id + '\'" ' +
+                                    'style="width:100%; padding:10px 0; background:linear-gradient(135deg, #FF6B00 0%, #E65100 100%); color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 12px rgba(255,107,0,0.3);">' +
+                                    '<span>🎧</span> Nghe thuyết minh' +
+                                    '</button>' +
+                                    '</div>';
+
                     var m = L.marker([poi.Lat, poi.Lng], {icon: poiIcon})
                         .addTo(map)
-                        .bindPopup('<b style="font-family:sans-serif;font-size:14px;">' + poi.Name + '</b><br/><span style="color:gray;font-size:12px;">' + poi.Address + '</span>');
+                        .bindPopup(popupHtml);
                     markers.push(m);
                     bounds.push([poi.Lat, poi.Lng]);
                 }

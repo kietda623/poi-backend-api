@@ -1,58 +1,78 @@
 @inherits LayoutComponentBase
 @inject NavigationManager Nav
 @inject AuthService AuthSvc
+@inject UILanguageService Lang
+@inject AuthenticationStateProvider AuthStateProvider
+@implements IDisposable
 
 <MudLayout>
-    <MudAppBar Elevation="1" Dense="false">
+    <MudAppBar Elevation="0" Dense="false" Class="glass-effect">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit"
                        Edge="Edge.Start" OnClick="ToggleDrawer" />
-        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="ml-1">
-            <MudIcon Icon="@Icons.Material.Filled.Storefront" />
-            <MudText Typo="Typo.h6" Style="font-weight:700">
-                FoodStreet <span style="font-weight:300; opacity:.8">Seller</span>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="ml-2">
+            <div class="gradient-icon">
+                <MudIcon Icon="@Icons.Material.Filled.Storefront" Size="Size.Small" />
+            </div>
+            <MudText Typo="Typo.h6" Class="gradient-text" Style="font-weight:800; letter-spacing:-0.5px">
+                FOODSTREET
             </MudText>
         </MudStack>
         <MudSpacer />
-        <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Inherit" />
+        
+        <!-- Language Selector -->
+        <MudMenu Icon="@(Lang.CurrentLanguage == "vi" ? "🇻🇳" : Lang.CurrentLanguage == "en" ? "🇺🇸" : "🇨🇳")" 
+                 Color="Color.Inherit" Label="@(Lang.CurrentLanguage.ToUpper())" 
+                 AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="true"
+                 Class="mr-2">
+            <MudMenuItem OnClick="@(() => SetLanguage("vi"))">🇻🇳 Tiếng Việt</MudMenuItem>
+            <MudMenuItem OnClick="@(() => SetLanguage("en"))">🇺🇸 English</MudMenuItem>
+            <MudMenuItem OnClick="@(() => SetLanguage("zh"))">🇨🇳 中文 (Chinese)</MudMenuItem>
+        </MudMenu>
+
+        <MudIconButton Icon="@Icons.Material.Filled.NotificationsNone" Color="Color.Inherit" Class="mr-2" />
+        
         <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             <ActivatorContent>
-                <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" />
+                <MudAvatar Color="Color.Primary" Variant="Variant.Outlined">
+                    <MudIcon Icon="@Icons.Material.Filled.Person" />
+                </MudAvatar>
             </ActivatorContent>
             <ChildContent>
                 <MudMenuItem Href="/seller/profile" Icon="@Icons.Material.Filled.Person">
-                    Hồ sơ cá nhân
+                    @Lang.T("Profile")
                 </MudMenuItem>
                 <MudDivider />
-                <MudMenuItem Href="/auth/logout" Target="_top" Icon="@Icons.Material.Filled.Logout">
-                    Đăng xuất
+                <MudMenuItem Href="/auth/logout" Target="_top" Icon="@Icons.Material.Filled.Logout" IconColor="Color.Error">
+                    @Lang.T("Logout")
                 </MudMenuItem>
             </ChildContent>
         </MudMenu>
     </MudAppBar>
 
     <MudDrawer @bind-Open="_open" ClipMode="DrawerClipMode.Always"
-               Elevation="2" Variant="DrawerVariant.Responsive">
-        <MudDrawerHeader>
-            <MudStack Spacing="0">
-                <MudAvatar Color="Color.Primary" Size="Size.Medium">S</MudAvatar>
-                <MudText Typo="Typo.body1" Style="font-weight:600" Class="mt-1">Người bán</MudText>
-                <MudText Typo="Typo.caption" Color="Color.Secondary">seller@foodstreet.vn</MudText>
+               Elevation="0" Variant="DrawerVariant.Responsive" Class="glass-effect border-0">
+        <MudDrawerHeader Class="pa-4">
+            <MudStack Spacing="1">
+                <MudText Typo="Typo.h6" Style="font-weight:700">@Lang.T("Hello")!</MudText>
+                <MudText Typo="Typo.caption" Style="opacity:0.7">@_userEmail</MudText>
             </MudStack>
         </MudDrawerHeader>
-        <MudDivider />
-        <MudNavMenu Class="pa-2">
+        <MudNavMenu Class="pa-2 px-4">
             <MudNavLink Href="/seller/dashboard" Match="NavLinkMatch.All"
-                        Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+                        Icon="@Icons.Material.Filled.Dashboard">@Lang.T("Dashboard")</MudNavLink>
             <MudNavLink Href="/seller/mystore"
-                        Icon="@Icons.Material.Filled.Store">Gian hàng của tôi</MudNavLink>
+                        Icon="@Icons.Material.Filled.Store">@Lang.T("MyStore")</MudNavLink>
             <MudNavLink Href="/seller/stats"
-                        Icon="@Icons.Material.Filled.Analytics">Thống kê</MudNavLink>
+                        Icon="@Icons.Material.Filled.Analytics">@Lang.T("Stats")</MudNavLink>
             <MudNavLink Href="/seller/profile"
-                        Icon="@Icons.Material.Filled.ManageAccounts">Cài đặt profile</MudNavLink>
-            <MudDivider Class="my-2" />
-            <MudNavLink Href="/auth/logout" Target="_top" Icon="@Icons.Material.Filled.Logout" IconColor="Color.Error">
-                Đăng xuất
-            </MudNavLink>
+                        Icon="@Icons.Material.Filled.Settings">@Lang.T("Profile")</MudNavLink>
+            <div class="mt-auto pa-4">
+                 <MudButton FullWidth="true" Href="/auth/logout" Target="_top" 
+                           Variant="Variant.Text" Color="Color.Error" 
+                           StartIcon="@Icons.Material.Filled.Logout">
+                    @Lang.T("Logout")
+                </MudButton>
+            </div>
         </MudNavMenu>
     </MudDrawer>
 
@@ -67,11 +87,32 @@
 
 @code {
     private bool _open = true;
+    private string? _userEmail;
     private void ToggleDrawer() => _open = !_open;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Lang.OnLanguageChanged += StateHasChanged;
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            _userEmail = user.Identity.Name;
+        }
+    }
+
+    private void SetLanguage(string l)
+    {
+        Lang.SetLanguage(l);
+    }
 
     private void Logout()
     {
-        // await AuthSvc.LogoutAsync();
         Nav.NavigateTo("/auth/logout", forceLoad: true);
+    }
+
+    public void Dispose()
+    {
+        Lang.OnLanguageChanged -= StateHasChanged;
     }
 }

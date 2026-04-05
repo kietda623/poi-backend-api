@@ -1,72 +1,109 @@
-/* FoodStreet Admin - Global CSS */
+/* FoodStreet Admin - Premium Aesthetic CSS */
 
-html, body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #F5F5F5;
-    height: 100%;
-    margin: 0;
+:root {
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --primary-gradient: linear-gradient(135deg, #6366F1 0%, #A855F7 100%);
+    --secondary-gradient: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+    --accent-gradient: linear-gradient(135deg, #10B981 0%, #3B82F6 100%);
+    --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
 }
 
-/* Smooth transitions */
+html, body {
+    font-family: 'Inter', sans-serif;
+    background-color: #F8FAFC;
+    height: 100%;
+    margin: 0;
+    color: #1E293B;
+}
+
+h1, h2, h3, h4, .mud-typography-h1, .mud-typography-h2, .mud-typography-h3, .mud-typography-h4, .mud-typography-h5, .mud-typography-h6 {
+    font-family: 'Outfit', sans-serif !important;
+}
+
+/* Glassmorphism Classes */
+.glass-effect {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--card-shadow);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 16px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08) !important;
+    border-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+/* Gradient Utilities */
+.gradient-text {
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.gradient-icon {
+    background: var(--primary-gradient);
+    border-radius: 12px;
+    padding: 8px;
+    color: white !important;
+}
+
+/* Base Overrides */
+.mud-appbar.glass-effect {
+    background: rgba(255, 255, 255, 0.8) !important;
+    color: #1e293b !important;
+}
+
+.mud-drawer.glass-effect {
+    background: rgba(255, 255, 255, 0.5) !important;
+    border-right: 1px solid var(--glass-border) !important;
+}
+
 .mud-nav-link {
-    transition: background-color 0.15s ease, color 0.15s ease;
-    border-radius: 6px;
-    margin: 2px 4px;
+    border-radius: 12px !important;
+    margin: 4px 12px !important;
+    font-weight: 500;
+    transition: all 0.2s ease !important;
 }
 
 .mud-nav-link.active {
-    background-color: rgba(21, 101, 192, 0.12) !important;
-    color: #1565C0 !important;
-    font-weight: 600;
+    background: var(--primary-gradient) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3) !important;
 }
 
-/* Card hover */
-.mud-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.mud-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.12) !important;
+/* Animations */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* Table improvements */
-.mud-table-root .mud-table-head .mud-table-cell {
-    font-weight: 600;
-    background-color: #FAFAFA;
-    color: #424242;
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
 }
 
-/* Dialog */
-.mud-dialog {
-    border-radius: 12px !important;
-}
-
-/* Chip */
-.mud-chip {
-    font-weight: 500;
-}
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #f1f1f1; }
-::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
-
-/* MudBlazor drawer header dark */
-.mud-drawer-header {
-    min-height: 64px;
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { 
+    background: #CBD5E1; 
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
 }
-
-/* Upload area */
-.upload-zone {
-    border: 2px dashed #B0BEC5;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-}
-.upload-zone:hover {
-    border-color: #1565C0;
-    background: rgba(21, 101, 192, 0.04);
-}
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }

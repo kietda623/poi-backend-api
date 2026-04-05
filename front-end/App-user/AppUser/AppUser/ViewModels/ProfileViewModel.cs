@@ -60,9 +60,13 @@ namespace AppUser.ViewModels
 
         private void UpdateLanguageDisplay()
         {
-            CurrentLanguageDisplay = _audioService.CurrentLanguage == "vi"
-                ? "🇻🇳 Tiếng Việt"
-                : "🇬🇧 English";
+            CurrentLanguageDisplay = _audioService.CurrentLanguage switch
+            {
+                "vi" => "🇻🇳 Tiếng Việt",
+                "en" => "🇬🇧 English",
+                "zh" => "🇨🇳 中文",
+                _ => "🇻🇳 Tiếng Việt"
+            };
         }
 
         [RelayCommand]
@@ -89,7 +93,12 @@ namespace AppUser.ViewModels
         [RelayCommand]
         private void ToggleLanguage()
         {
-            var newLang = _audioService.CurrentLanguage == "vi" ? "en" : "vi";
+            var newLang = _audioService.CurrentLanguage switch
+            {
+                "vi" => "en",
+                "en" => "zh",
+                _ => "vi"
+            };
             _audioService.SetLanguage(newLang);
             UpdateLanguageDisplay();
         }

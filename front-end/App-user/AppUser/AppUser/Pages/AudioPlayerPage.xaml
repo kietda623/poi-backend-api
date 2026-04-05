@@ -4,71 +4,155 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:AppUser.ViewModels"
+    xmlns:models="clr-namespace:AppUser.Models"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    Shell.NavBarIsVisible="False"
-    BackgroundColor="{StaticResource PlayerBackground}">
+    x:DataType="vm:AudioPlayerViewModel"
+    Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="Auto,*,Auto">
+    <ContentPage.Resources>
+        <!-- Animations for button feedback -->
+        <Style x:Key="MediaControlButtonStyle" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="Transparent" />
+            <Setter Property="TextColor" Value="White" />
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="Scale" Value="1" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Pressed">
+                            <VisualState.Setters>
+                                <Setter Property="Scale" Value="0.85" />
+                                <Setter Property="Opacity" Value="0.7" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>
+        <Style x:Key="GlassBorder" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="#15FFFFFF" />
+            <Setter Property="StrokeThickness" Value="0" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        </Style>
+    </ContentPage.Resources>
 
-        <!-- ── TOP BAR ── -->
-        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="16,52,16,16">
-            <!-- Back -->
-            <Button Grid.Column="0"
-                    Text="↙"
-                    Command="{Binding GoBackCommand}"
-                    BackgroundColor="#30FFFFFF"
-                    TextColor="White"
-                    FontSize="20"
-                    CornerRadius="22"
-                    WidthRequest="44" HeightRequest="44"
-                    Padding="0"/>
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#0F172A" Offset="0.0" />
+            <GradientStop Color="#1E1E3F" Offset="0.5" />
+            <GradientStop Color="#020617" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
 
-            <!-- "Đang phát" label -->
-            <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center">
-                <Label Text="ĐANG PHÁT"
-                       FontFamily="PoppinsSemiBold"
-                       FontSize="11"
-                       TextColor="#80FFFFFF"
-                       HorizontalOptions="Center"
-                       CharacterSpacing="2"/>
-                <Label Text="Thuyết minh ẩm thực"
-                       Style="{StaticResource BodySmall}"
-                       TextColor="White"
-                       HorizontalOptions="Center"/>
-            </VerticalStackLayout>
+    <Grid RowDefinitions="Auto,*">
+        
+        <!-- MediaElement for playback (hidden) -->
+        <toolkit:MediaElement x:Name="MediaElement"
+                               Source="{Binding AudioUrl}"
+                               ShouldAutoPlay="True"
+                               ShouldShowPlaybackControls="False"
+                               PositionChanged="OnMediaElementPositionChanged"
+                               StateChanged="OnMediaElementStateChanged"
+                               IsVisible="False" />
 
-            <!-- Speed button -->
-            <Border Grid.Column="2"
-                    BackgroundColor="#30FFFFFF"
-                    StrokeShape="RoundRectangle 20"
-                    StrokeThickness="0"
-                    Padding="10,6">
-                <Button Text="{Binding PlaybackSpeed, StringFormat='{0}x'}"
-                        Command="{Binding CycleSpeedCommand}"
-                        BackgroundColor="Transparent"
-                        TextColor="White"
-                        FontFamily="PoppinsSemiBold"
-                        FontSize="14"
-                        Padding="0"
-                        HeightRequest="32"/>
-            </Border>
+        <!-- ── TOP BAR (Glassmorphism) ── -->
+        <Grid Grid.Row="0" RowDefinitions="Auto,Auto" Padding="16,52,16,16">
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+                <Border Grid.Column="0"
+                        Style="{StaticResource GlassBorder}"
+                        WidthRequest="48" HeightRequest="48"
+                        Padding="0">
+                    <Button Text="←"
+                            Style="{StaticResource MediaControlButtonStyle}"
+                            Command="{Binding GoBackCommand}"
+                            FontSize="22"
+                            Padding="0"/>
+                </Border>
+
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" Spacing="2">
+                    <Label Text="{Binding NowPlayingLabel}"
+                           FontFamily="PoppinsBold"
+                           FontSize="10"
+                           TextColor="#99FFFFFF"
+                           HorizontalOptions="Center"
+                           CharacterSpacing="2"/>
+                    <Label Text="{Binding POIName}"
+                           FontSize="14"
+                           FontFamily="PoppinsSemiBold"
+                           TextColor="White"
+                           HorizontalOptions="Center"
+                           Opacity="0.9"/>
+                </VerticalStackLayout>
+
+                <Border Grid.Column="2"
+                        Style="{StaticResource GlassBorder}"
+                        Padding="12,0"
+                        HeightRequest="36">
+                    <Button Text="{Binding PlaybackSpeed, StringFormat='{0}x'}"
+                            Style="{StaticResource MediaControlButtonStyle}"
+                            Command="{Binding CycleSpeedCommand}"
+                            FontFamily="PoppinsBold"
+                            FontSize="12"
+                            Padding="0"/>
+                </Border>
+            </Grid>
+
+            <!-- Language Selector -->
+            <ScrollView Grid.Row="1" 
+                        Orientation="Horizontal" 
+                        HorizontalScrollBarVisibility="Never"
+                        IsVisible="{Binding HasMultipleLanguages}"
+                        Margin="0,24,0,0">
+                <HorizontalStackLayout BindableLayout.ItemsSource="{Binding AvailableLanguages}" Spacing="10">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:AppLanguageDto">
+                            <Border StrokeShape="RoundRectangle 14"
+                                    StrokeThickness="0"
+                                    BackgroundColor="#15FFFFFF"
+                                    Padding="14,6">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AudioPlayerViewModel}}, Path=SwitchLanguageCommand}"
+                                                          CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="{Binding Name}" 
+                                       TextColor="White" 
+                                       FontSize="12"
+                                       FontFamily="PoppinsMedium"
+                                       Opacity="0.7">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Code}" Value="{Binding Source={RelativeSource AncestorType={x:Type vm:AudioPlayerViewModel}}, Path=CurrentLangCode}">
+                                            <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                                            <Setter Property="FontAttributes" Value="Bold" />
+                                            <Setter Property="Opacity" Value="1" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </HorizontalStackLayout>
+            </ScrollView>
         </Grid>
 
         <!-- ── PLAYER CENTER CONTENT ── -->
         <VerticalStackLayout Grid.Row="1"
                              HorizontalOptions="Center"
                              VerticalOptions="Center"
-                             Spacing="0"
-                             Padding="28,0">
+                             Padding="32,0">
 
-            <!-- Album Art / POI Image -->
-            <Border StrokeShape="RoundRectangle 24"
-                    StrokeThickness="0"
+            <!-- Immersive Album Art -->
+            <Border x:Name="AlbumArtBorder"
+                    StrokeShape="RoundRectangle 140"
+                    StrokeThickness="8"
+                    Stroke="#15FFFFFF"
                     WidthRequest="280" HeightRequest="280"
                     HorizontalOptions="Center"
-                    Margin="0,0,0,32">
+                    Margin="0,0,0,48">
                 <Border.Shadow>
-                    <Shadow Brush="{StaticResource Primary}" Offset="0,8" Radius="32" Opacity="0.4"/>
+                    <Shadow Brush="{StaticResource Primary}" Offset="0,15" Radius="40" Opacity="0.3"/>
                 </Border.Shadow>
                 <Image Source="{Binding ImageUrl}"
                        Aspect="AspectFill"
@@ -76,39 +160,41 @@
                        HeightRequest="280"/>
             </Border>
 
-            <!-- POI Name & Guide Title -->
-            <Label Text="{Binding POIName}"
-                   Style="{StaticResource HeadlineSmall}"
+            <!-- Guide Details -->
+            <Label Text="{Binding GuideTitle}"
+                   FontSize="26"
+                   FontFamily="PoppinsBold"
                    TextColor="White"
                    HorizontalOptions="Center"
                    HorizontalTextAlignment="Center"
-                   Margin="0,0,0,6"/>
-            <Label Text="{Binding GuideTitle}"
-                   Style="{StaticResource BodyMedium}"
-                   TextColor="#AAFFFFFF"
+                   Margin="0,0,0,10"/>
+            <Label Text="{Binding SubTitleLabel}"
+                   FontSize="15"
+                   FontFamily="PoppinsMedium"
+                   TextColor="{StaticResource Primary}"
                    HorizontalOptions="Center"
-                   HorizontalTextAlignment="Center"
-                   LineBreakMode="TailTruncation"
-                   MaxLines="2"
-                   Margin="0,0,0,32"/>
+                   Opacity="0.9"
+                   Margin="0,0,0,48"/>
 
             <!-- ── PROGRESS BAR ── -->
-            <VerticalStackLayout Spacing="6" HorizontalOptions="Fill">
+            <VerticalStackLayout Spacing="12" HorizontalOptions="Fill" Margin="0,0,0,48">
                 <Slider Value="{Binding Progress}"
                         Minimum="0" Maximum="1"
                         MinimumTrackColor="{StaticResource Primary}"
-                        MaximumTrackColor="#30FFFFFF"
+                        MaximumTrackColor="#15FFFFFF"
                         ThumbColor="White"/>
 
                 <Grid ColumnDefinitions="*,*">
                     <Label Grid.Column="0"
                            Text="{Binding PositionText}"
-                           Style="{StaticResource BodySmall}"
-                           TextColor="#AAFFFFFF"/>
+                           FontSize="13"
+                           TextColor="#99FFFFFF"
+                           FontFamily="PoppinsMedium"/>
                     <Label Grid.Column="1"
                            Text="{Binding DurationText}"
-                           Style="{StaticResource BodySmall}"
-                           TextColor="#AAFFFFFF"
+                           FontSize="13"
+                           TextColor="#99FFFFFF"
+                           FontFamily="PoppinsMedium"
                            HorizontalOptions="End"/>
                 </Grid>
             </VerticalStackLayout>
@@ -116,68 +202,48 @@
             <!-- ── CONTROLS ── -->
             <Grid ColumnDefinitions="*,Auto,*"
                   HorizontalOptions="Fill"
-                  Margin="0,24,0,0">
+                  VerticalOptions="Center">
 
-                <!-- Rewind 10s -->
                 <Button Grid.Column="0"
                         Text="⏪"
+                        Style="{StaticResource MediaControlButtonStyle}"
                         Command="{Binding SeekBackwardCommand}"
-                        BackgroundColor="Transparent"
-                        TextColor="White"
-                        FontSize="28"
-                        Padding="0"
+                        FontSize="40"
                         HorizontalOptions="Center"/>
 
-                <!-- Play/Pause (main button) -->
                 <Border Grid.Column="1"
                         BackgroundColor="White"
-                        StrokeShape="RoundRectangle 38"
+                        StrokeShape="RoundRectangle 45"
                         StrokeThickness="0"
-                        WidthRequest="76" HeightRequest="76"
-                        HorizontalOptions="Center">
+                        WidthRequest="90" HeightRequest="90">
                     <Border.Shadow>
-                        <Shadow Brush="White" Offset="0,4" Radius="16" Opacity="0.3"/>
+                        <Shadow Brush="{StaticResource Primary}" Offset="0,15" Radius="30" Opacity="0.4"/>
                     </Border.Shadow>
                     <Button x:Name="PlayPauseBtn"
+                            Style="{StaticResource MediaControlButtonStyle}"
                             Command="{Binding TogglePlayPauseCommand}"
-                            BackgroundColor="Transparent"
-                            TextColor="{StaticResource Primary}"
-                            FontSize="32"
-                            WidthRequest="76" HeightRequest="76"
-                            Padding="0"/>
+                            TextColor="#0F172A"
+                            FontSize="44"
+                            WidthRequest="90" HeightRequest="90">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding IsPlaying}" Value="True">
+                                <Setter Property="Text" Value="⏸" />
+                            </DataTrigger>
+                            <DataTrigger TargetType="Button" Binding="{Binding IsPlaying}" Value="False">
+                                <Setter Property="Text" Value="▶" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
                 </Border>
 
-                <!-- Forward 10s -->
                 <Button Grid.Column="2"
                         Text="⏩"
+                        Style="{StaticResource MediaControlButtonStyle}"
                         Command="{Binding SeekForwardCommand}"
-                        BackgroundColor="Transparent"
-                        TextColor="White"
-                        FontSize="28"
-                        Padding="0"
+                        FontSize="40"
                         HorizontalOptions="Center"/>
             </Grid>
 
         </VerticalStackLayout>
-
-        <!-- ── DESCRIPTION BOTTOM CARD ── -->
-        <Border Grid.Row="2"
-                BackgroundColor="{StaticResource PlayerSurface}"
-                StrokeShape="RoundRectangle 24,24,0,0"
-                StrokeThickness="0"
-                Padding="24,20,24,36">
-            <VerticalStackLayout Spacing="8">
-                <Label Text="Nội dung thuyết minh"
-                       Style="{StaticResource TitleMedium}"
-                       TextColor="White"/>
-                <ScrollView HeightRequest="80">
-                    <Label Text="{Binding AudioGuide.Description}"
-                           Style="{StaticResource BodySmall}"
-                           TextColor="#AAFFFFFF"
-                           LineBreakMode="WordWrap"/>
-                </ScrollView>
-            </VerticalStackLayout>
-        </Border>
-
     </Grid>
 </ContentPage>

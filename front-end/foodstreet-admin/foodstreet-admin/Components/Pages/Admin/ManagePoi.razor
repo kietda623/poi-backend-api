@@ -211,6 +211,32 @@
                                                   Placeholder="@($"Mô tả chi tiết về điểm ẩm thực này bằng {label}...")"
                                                   HelperText="Nội dung này sẽ được đọc/phát khi khách tham quan đến gần điểm này" />
                                 </MudItem>
+                                
+                                <!-- TTS Section -->
+                                <MudItem xs="12">
+                                    <MudStack Row="true" AlignItems="AlignItems.Center">
+                                        <MudButton Variant="Variant.Filled" Color="Color.Secondary"
+                                                   StartIcon="@Icons.Material.Filled.RecordVoiceOver"
+                                                   Disabled="@(string.IsNullOrWhiteSpace(t.Description) || _generatingAudio || _editingPoi == null)"
+                                                   OnClick="@(() => GenerateTts(t))">
+                                            @if (_generatingAudio) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
+                                            Tạo thuyết minh (TTS)
+                                        </MudButton>
+
+                                        @if (!string.IsNullOrEmpty(t.AudioUrl))
+                                        {
+                                            <audio @key="@t.AudioUrl" controls src="@(GetFullAudioUrl(t.AudioUrl))" style="height:36px">
+                                                Your browser does not support the audio element.
+                                            </audio>
+                                        }
+                                    </MudStack>
+                                    @if (_editingPoi == null)
+                                    {
+                                        <MudText Typo="Typo.caption" Color="Color.Info" Class="mt-1">
+                                            * Lưu POI trước khi tạo audio
+                                        </MudText>
+                                    }
+                                </MudItem>
                             </MudGrid>
                         </MudTabPanel>
                     }
@@ -288,7 +314,7 @@
 
 @code {
     // ── State ────────────────────────────────────────────────────────
-    private bool _loading = true, _saving;
+    private bool _loading = true, _saving, _generatingAudio;
     private bool _showPoiDialog, _showLinkDialog;
     private string _search = "", _filterLang = "vi";
     private string _shopSearchText = "";
@@ -361,7 +387,8 @@
             {
                 LanguageCode = code,
                 Name = dto?.Name ?? "",
-                Description = dto?.Description ?? ""
+                Description = dto?.Description ?? "",
+                AudioUrl = dto?.AudioUrl
             });
         }
         _poiForm = new PoiFormModel
@@ -446,6 +473,40 @@
         _saving = false;
     }
 
+    private async Task GenerateTts(TranslationFormModel t)
+    {
+        if (_editingPoi == null) return;
+        
+        _generatingAudio = true;
+        // Gọi API sinh audio. Kết quả trả về là { audioUrl: "..." }
+        var result = await Api.PostAsync<object, System.Text.Json.JsonElement>($"admin/pois/{_editingPoi.Id}/generate-audio?lang={t.LanguageCode}", new { });
+        
+        if (result.ValueKind != System.Text.Json.JsonValueKind.Undefined)
+        {
+            if (result.TryGetProperty("audioUrl", out var urlProp))
+            {
+                t.AudioUrl = urlProp.GetString();
+                
+                Snackbar.Add("Đã tạo audio thành công!", Severity.Success);
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            Snackbar.Add("Lỗi khi tạo audio!", Severity.Error);
+        }
+        _generatingAudio = false;
+    }
+
+    private string GetFullAudioUrl(string relativeUrl)
+    {
+        if (string.IsNullOrEmpty(relativeUrl)) return "";
+        if (relativeUrl.StartsWith("http")) return relativeUrl;
+        
+        // Cần khớp với port của Backend (5279)
+        return $"http://localhost:5279{relativeUrl}";
+    }
+
     private async Task DeletePoi(PoiViewModel poi)
     {
         var ok = await Api.DeleteAsync($"admin/pois/{poi.Id}");
@@ -500,6 +561,7 @@
         public string LanguageCode { get; set; } = "";
         public string Name { get; set; } = "";
         public string Description { get; set; } = "";
+        public string? AudioUrl { get; set; }
     }
 
     private class ShopLinkModel
@@ -517,5 +579,6 @@
         public string Description { get; set; } = "";
         public string ImageUrl { get; set; } = "";
         public string Location { get; set; } = "";
+        public string? AudioUrl { get; set; }
     }
 }

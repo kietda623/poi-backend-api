@@ -1,3 +1,4 @@
+using System.Text.Json;
 using foodstreet_admin.Models;
 
 namespace foodstreet_admin.Services;
@@ -13,12 +14,27 @@ public class StoreService
         _logger = logger;
     }
 
+    public async Task<string?> UploadMediaAsync(Stream stream, string fileName)
+    {
+        var response = await _api.PostMultipartAsync<JsonElement>("media/upload-image", stream, fileName);
+        if (response.ValueKind != JsonValueKind.Undefined && response.TryGetProperty("url", out var urlProp))
+        {
+            return urlProp.GetString();
+        }
+        return null;
+    }
 
 
-    // ── Stores ──────────────────────────────────────────────────────
 
     public async Task<List<StoreModel>> GetStoresAsync(int? sellerId = null)
     {
+        if (sellerId.HasValue)
+        {
+            // Nếu có sellerId, ưu tiên dùng API của Owner (Nếu đang ở vai trò Seller)
+            var myStores = await _api.GetAsync<List<StoreModel>>("owner/shops");
+            if (myStores != null) return myStores;
+        }
+
         var stores = await _api.GetAsync<List<StoreModel>>("admin/shops") ?? new();
         if (sellerId.HasValue)
             return stores.Where(s => s.SellerId == sellerId.Value).ToList();
@@ -27,22 +43,78 @@ public class StoreService
 
     public async Task<StoreModel?> GetStoreByIdAsync(int id)
     {
-        return null; // Tương lai có API GetStoreById thì update
+        return null;
     }
 
     public async Task<(bool Success, string Message)> CreateStoreAsync(StoreModel store)
     {
-        return (false, "Admin không hỗ trợ tạo gian hàng");
+        try
+        {
+            var response = await _api.PostAsync<object, JsonElement>("owner/shops", new
+            {
+                name = store.Name,
+                description = store.Description,
+                address = store.Address,
+                imageUrl = store.ImageUrl,
+                menuImagesUrl = store.MenuImagesUrl,
+                latitude = store.Latitude,
+                longitude = store.Longitude
+            });
+            if (response.ValueKind != JsonValueKind.Undefined)
+            {
+                return (true, "Đăng ký gian hàng thành công!");
+            }
+            _logger.LogWarning("CreateStoreAsync: API returned empty/default response");
+            return (false, "Lỗi khi đăng ký gian hàng. Vui lòng thử lại.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "CreateStoreAsync failed");
+            return (false, $"Lỗi khi đăng ký gian hàng: {ex.Message}");
+        }
     }
 
     public async Task<(bool Success, string Message)> UpdateStoreAsync(StoreModel store)
     {
-        return (false, "Chưa hỗ trợ");
+        try
+        {
+            var response = await _api.PutAsync<object, JsonElement>($"owner/shops/{store.Id}", new
+            {
+                name = store.Name,
+                description = store.Description,
+                address = store.Address,
+                imageUrl = store.ImageUrl,
+                menuImagesUrl = store.MenuImagesUrl,
+                latitude = store.Latitude,
+                longitude = store.Longitude
+            });
+            if (response.ValueKind != JsonValueKind.Undefined)
+            {
+                return (true, "Cập nhật thành công!");
+            }
+            _logger.LogWarning("UpdateStoreAsync: API returned empty/default response");
+            return (false, "Lỗi khi cập nhật gian hàng.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "UpdateStoreAsync failed");
+            return (false, $"Lỗi khi cập nhật gian hàng: {ex.Message}");
+        }
+    }
+
+    public async Task<JsonElement> GenerateTTSAsync(int storeId, string langCode = "vi")
+    {
+        return await _api.PostAsync<object, JsonElement>($"owner/shops/{storeId}/generate-tts", new { langCode });
+    }
+
+    public async Task<JsonElement> GenerateTTSWithTextAsync(int storeId, string text, string langCode = "vi")
+    {
+        return await _api.PostAsync<object, JsonElement>($"owner/shops/{storeId}/generate-tts", new { text, langCode });
     }
 
     public async Task<bool> DeleteStoreAsync(int id)
     {
-        return await _api.DeleteAsync($"admin/shops/{id}");
+        return await _api.DeleteAsync($"owner/shops/{id}");
     }
 
     public async Task<bool> ApproveStoreAsync(int id)

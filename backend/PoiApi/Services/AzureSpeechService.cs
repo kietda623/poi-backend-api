@@ -1,4 +1,4 @@
-﻿using Microsoft.CognitiveServices.Speech;
+using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 
 namespace PoiApi.Services;
@@ -15,39 +15,48 @@ public class AzureSpeechService
         IWebHostEnvironment env,
         ILogger<AzureSpeechService> logger)
     {
-        _key = config["Azure:SpeechKey"]!;
+        _key    = config["Azure:SpeechKey"]!;
         _region = config["Azure:SpeechRegion"]!;
-        _env = env;
+        _env    = env;
         _logger = logger;
     }
 
-    // Map language code → Azure voice name
     private static string GetVoiceName(string langCode) => langCode.ToLower() switch
     {
-        "vi" => "vi-VN-HoaiMyNeural",   // Vietnamese female
-        "en" => "en-US-JennyNeural",    // English female
-        "fr" => "fr-FR-DeniseNeural",   // French female
-        "ja" => "ja-JP-NanamiNeural",   // Japanese female
-        _ => "vi-VN-HoaiMyNeural"    // default Vietnamese
+        "vi" => "vi-VN-HoaiMyNeural",
+        "en" => "en-US-JennyNeural",
+        "zh" => "zh-CN-XiaoxiaoNeural",
+        _    => "en-US-JennyNeural" // Default to English for unknown
     };
 
-    public async Task<string?> GenerateAudioAsync(
-        int poiId, string langCode, string text)
+    public async Task<string?> GenerateAudioAsync(int poiId, string langCode, string text)
     {
         try
         {
-            var config = SpeechConfig.FromSubscription(_key, _region);
-            config.SpeechSynthesisVoiceName = GetVoiceName(langCode);
+            var speechConfig = SpeechConfig.FromSubscription(_key, _region);
+            speechConfig.SpeechSynthesisVoiceName = GetVoiceName(langCode);
+            speechConfig.SetSpeechSynthesisOutputFormat(
+                SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3);
 
-            // Save to wwwroot/audio/
             var audioDir = Path.Combine(_env.WebRootPath, "audio");
-            Directory.CreateDirectory(audioDir);
+            if (!Directory.Exists(audioDir)) Directory.CreateDirectory(audioDir);
 
-            var fileName = $"poi_{poiId}_{langCode}.mp3";
+            // 1. Dọn dẹp: Tìm các file cũ của POI này và Ngôn ngữ này để xóa
+            // Format cũ: poi_{id}_{lang}.mp3
+            // Format mới: poi_{id}_{lang}_*.mp3
+            var searchPattern = $"poi_{poiId}_{langCode}*.mp3";
+            var existingFiles = Directory.GetFiles(audioDir, searchPattern);
+            foreach (var file in existingFiles)
+            {
+                try { File.Delete(file); } catch { /* Ignore */ }
+            }
+
+            // 2. Tạo tên file duy nhất (Unique) để vượt qua cache trình duyệt triệt để
+            var fileName = $"poi_{poiId}_{langCode}_{Guid.NewGuid().ToString("N")[..8]}.mp3";
             var filePath = Path.Combine(audioDir, fileName);
 
             using var audioConfig = AudioConfig.FromWavFileOutput(filePath);
-            using var synthesizer = new SpeechSynthesizer(config, audioConfig);
+            using var synthesizer = new SpeechSynthesizer(speechConfig, audioConfig);
 
             var result = await synthesizer.SpeakTextAsync(text);
 
