@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodStreet PRD v2.0 — Product Requirements Document</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{--primary:#bc48a5;--primary-light:#e0bae4;--primary-dark:#84046c;--accent:#E65100;--bg:#fafafa;--surface:#fff;--text:#212121;--text-secondary:#616161;--border:#e0e0e0;--code-bg:#263238;--code-text:#eeffff;--success:#2e7d32;--warning:#f57f17;--info:#1565c0;--gold:#b8860b;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;scroll-behavior:smooth;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--primary);color:white;padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+nav .logo{font-weight:700;font-size:1.1rem;}
+nav .nav-links{display:flex;gap:.4rem;list-style:none;flex-wrap:wrap;}
+nav .nav-links a{color:rgba(255,255,255,.85);text-decoration:none;font-size:.8rem;padding:.3rem .6rem;border-radius:4px;transition:background .2s;}
+nav .nav-links a:hover{background:rgba(255,255,255,.15);color:#fff;}
+.hero{margin-top:56px;background:linear-gradient(135deg,var(--primary-dark),var(--primary),var(--primary-light));color:white;padding:4rem 2rem 3rem;text-align:center;}
+.hero h1{font-size:2.4rem;font-weight:800;margin-bottom:.5rem;letter-spacing:-1px;}
+.hero .subtitle{font-size:1.05rem;opacity:.9;max-width:720px;margin:0 auto 1.5rem;}
+.hero .badges{display:flex;justify-content:center;gap:.6rem;flex-wrap:wrap;}
+.hero .badge{background:rgba(255,255,255,.2);padding:.3rem .8rem;border-radius:20px;font-size:.8rem;backdrop-filter:blur(4px);}
+.hero .badge.new{background:rgba(255,215,0,.35);border:1px solid rgba(255,215,0,.5);}
+.section-wrap{max-width:1100px;margin:0 auto;padding:3rem 2rem;}
+.alt-bg{background:var(--surface);}
+.section-header{display:flex;align-items:center;gap:.8rem;margin-bottom:1.5rem;}
+.section-header .icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;}
+.section-header h2{font-size:1.6rem;font-weight:700;color:var(--text);}
+.section-header .section-num{font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--primary);font-weight:600;}
+h3{font-size:1.1rem;color:var(--primary-dark);margin:1.5rem 0 .8rem;}
+h4{font-size:.95rem;color:var(--accent);margin:1rem 0 .4rem;}
+p{font-size:.9rem;color:var(--text-secondary);margin-bottom:.8rem;}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem;margin:1.5rem 0;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;transition:box-shadow .2s,transform .2s;}
+.card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08);transform:translateY(-2px);}
+.card h3{font-size:1rem;margin:0 0 .4rem;color:var(--primary-dark);}
+.card p,.card li{font-size:.87rem;color:var(--text-secondary);}
+.card ul{padding-left:1.2rem;margin-top:.4rem;}
+.card li{margin-bottom:.25rem;}
+.card .card-icon{font-size:1.8rem;margin-bottom:.5rem;display:block;}
+.table-wrap{overflow-x:auto;margin:1rem 0;border-radius:8px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:.88rem;}
+th{background:var(--primary);color:white;padding:.65rem .9rem;text-align:left;font-weight:600;}
+td{padding:.55rem .9rem;border-bottom:1px solid var(--border);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#e8f0fe;}
+tr:nth-child(even) td{background:#f8f9ff;}
+tr:nth-child(even):hover td{background:#e8f0fe;}
+.code-block{background:var(--code-bg);color:var(--code-text);padding:1.2rem 1.5rem;border-radius:8px;overflow-x:auto;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:.82rem;line-height:1.7;margin:1rem 0;}
+.code-block .comment{color:#546e7a;}
+.code-block .keyword{color:#c792ea;}
+.code-block .string{color:#c3e88d;}
+.code-block .fn{color:#82aaff;}
+code{background:#eceff1;padding:.15rem .4rem;border-radius:3px;font-family:'Cascadia Code','Fira Code',monospace;font-size:.85em;}
+.flow{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:1rem 0;}
+.flow-step{background:var(--primary);color:white;padding:.4rem .9rem;border-radius:8px;font-size:.82rem;font-weight:600;white-space:nowrap;}
+.flow-step.alt{background:var(--accent);}
+.flow-step.success{background:var(--success);}
+.flow-step.warning{background:var(--warning);color:var(--text);}
+.flow-step.info{background:#01579B;}
+.flow-step.gold{background:var(--gold);color:white;}
+.flow-arrow{font-size:1.2rem;color:var(--text-secondary);}
+.timeline{position:relative;padding-left:2rem;margin:1.5rem 0;}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--primary);}
+.timeline-item{position:relative;margin-bottom:1.5rem;}
+.timeline-item::before{content:'';position:absolute;left:-2rem;top:6px;width:14px;height:14px;border-radius:50%;background:var(--primary);border:2px solid white;box-shadow:0 0 0 2px var(--primary);}
+.timeline-item h4{font-size:.95rem;color:var(--primary-dark);margin-bottom:.3rem;margin-top:0;}
+.timeline-item p{font-size:.85rem;color:var(--text-secondary);margin:0;}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin:1.5rem 0;}
+.stat-card{text-align:center;padding:1.2rem .8rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;}
+.stat-card .value{font-size:1.8rem;font-weight:800;color:var(--primary);}
+.stat-card .label{font-size:.78rem;color:var(--text-secondary);margin-top:.2rem;}
+.highlight{border-left:4px solid var(--primary);background:#e8f0fe;padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin:1rem 0;}
+.highlight.warning{border-color:var(--warning);background:#fffde7;}
+.highlight.success{border-color:var(--success);background:#e8f5e9;}
+.highlight.gold{border-color:var(--gold);background:#fff8e1;}
+.highlight p{margin:0;font-size:.88rem;}
+.highlight strong{color:var(--text);}
+.arch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8rem;margin:1.5rem 0;}
+.arch-module{border:2px solid var(--border);border-radius:10px;padding:1rem;text-align:center;transition:all .2s;}
+.arch-module:hover{border-color:var(--primary);box-shadow:0 2px 12px rgba(21,101,192,.15);}
+.arch-module.new-mod{border-color:var(--gold);background:#fffdf0;}
+.arch-module .mod-icon{font-size:1.8rem;margin-bottom:.3rem;}
+.arch-module .mod-name{font-weight:700;font-size:.9rem;color:var(--primary-dark);}
+.arch-module.new-mod .mod-name{color:var(--gold);}
+.arch-module .mod-desc{font-size:.75rem;color:var(--text-secondary);margin-top:.2rem;}
+.phase-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.5rem 0;}
+.phase-card{border-radius:12px;padding:1.3rem;border-left:5px solid var(--primary);}
+.phase-card.done{border-color:var(--success);background:#e8f5e9;}
+.phase-card.active{border-color:var(--primary);background:#e8f0fe;}
+.phase-card.next{border-color:var(--warning);background:#fffde7;}
+.phase-card.future{border-color:#9e9e9e;background:#f5f5f5;}
+.phase-card .phase-tag{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:.4rem;}
+.phase-card.done .phase-tag{color:var(--success);}
+.phase-card.active .phase-tag{color:var(--primary);}
+.phase-card.next .phase-tag{color:var(--warning);}
+.phase-card.future .phase-tag{color:#757575;}
+.phase-card h4{font-size:.95rem;color:var(--text);margin:0 0 .5rem;}
+.phase-card ul{padding-left:1.1rem;}
+.phase-card li{font-size:.82rem;color:var(--text-secondary);margin-bottom:.2rem;}
+.risk-high{color:#c62828;font-weight:700;}
+.risk-med{color:#e65100;font-weight:700;}
+.risk-low{color:var(--success);font-weight:700;}
+.tag{display:inline-block;padding:.2rem .6rem;border-radius:12px;font-size:.75rem;font-weight:600;margin:.1rem;}
+.tag-blue{background:#e3f2fd;color:#1565c0;}
+.tag-green{background:#e8f5e9;color:#2e7d32;}
+.tag-orange{background:#fff3e0;color:#e65100;}
+.tag-purple{background:#f3e5f5;color:#6a1b9a;}
+.tag-gold{background:#fff8e1;color:#b8860b;}
+.tag-new{background:#e8f5e9;color:#1b5e20;border:1px solid #a5d6a7;}
+footer{text-align:center;padding:2rem;background:var(--code-bg);color:rgba(255,255,255,.6);font-size:.8rem;}
+footer strong{color:rgba(255,255,255,.9);}
+.mermaid{display:flex;justify-content:center;background:white;padding:1.5rem;border-radius:12px;margin:1.5rem 0;border:1px solid var(--border);overflow-x:auto;}
+.pkg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.2rem;margin:1.5rem 0;}
+.pkg-card{border-radius:14px;padding:1.5rem;border:2px solid var(--border);background:var(--surface);transition:transform .2s,box-shadow .2s;}
+.pkg-card:hover{transform:translateY(-3px);box-shadow:0 6px 24px rgba(0,0,0,.1);}
+.pkg-card.basic{border-color:#90caf9;background:#f0f8ff;}
+.pkg-card.premium{border-color:var(--primary);background:#f9f0ff;}
+.pkg-card.vip{border-color:var(--gold);background:#fffdf0;}
+.pkg-card .pkg-name{font-weight:800;font-size:1.15rem;margin-bottom:.3rem;}
+.pkg-card.basic .pkg-name{color:#1565c0;}
+.pkg-card.premium .pkg-name{color:var(--primary-dark);}
+.pkg-card.vip .pkg-name{color:var(--gold);}
+.pkg-card .pkg-price{font-size:1.7rem;font-weight:800;margin:.5rem 0;}
+.pkg-card .pkg-sub{font-size:.75rem;color:var(--text-secondary);}
+.pkg-card ul{padding-left:1.2rem;margin-top:.8rem;}
+.pkg-card li{font-size:.83rem;color:var(--text-secondary);margin-bottom:.3rem;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:1.5rem 0;}
+ul.feature-list{padding-left:1.3rem;margin:.6rem 0;}
+ul.feature-list li{font-size:.88rem;color:var(--text-secondary);margin-bottom:.3rem;}
+ul.feature-list li strong{color:var(--text);}
+@media(max-width:768px){.hero h1{font-size:1.6rem;}.section-wrap{padding:2rem 1rem;}.card-grid,.pkg-grid{grid-template-columns:1fr;}nav .nav-links{display:none;}.two-col{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">🍜 FoodStreet PRD v2.0</div>
+  <ul class="nav-links">
+    <li><a href="#overview">Tổng quan</a></li>
+    <li><a href="#features">Chức năng</a></li>
+    <li><a href="#packages">Gói dịch vụ</a></li>
+    <li><a href="#class-diagram">Class Diagram</a></li>
+    <li><a href="#sequence-diagram">Sequence Diagram</a></li>
+    <li><a href="#feature-diagrams">Diagrams</a></li>
+    <li><a href="#api">API v2</a></li>
+    <li><a href="#mobile">Mobile Sync</a></li>
+    <li><a href="#architecture">Kiến trúc</a></li>
+    <li><a href="#roadmap">Lộ trình</a></li>
+    <li><a href="#risks">Rủi ro</a></li>
+  </ul>
+</nav>
+<div class="hero">
+  <h1>🍜 FoodStreet v3.0</h1>
+  <p class="subtitle">Product Requirements Document — Danh mục chức năng đầy đủ, Class Diagram & Sequence Diagram cho từng chức năng, cùng Service Packages, UsageHistory Sync và Feature Gating</p>
+  <div class="badges">
+    <span class="badge">ASP.NET Core 8</span>
+    <span class="badge">Blazor Server + MudBlazor</span>
+    <span class="badge">.NET MAUI (Android/iOS)</span>
+    <span class="badge">MySQL + EF Core</span>
+    <span class="badge">JWT Auth</span>
+    <span class="badge new">✨ Features Catalog</span>
+    <span class="badge new">✨ Class Diagrams/Feature</span>
+    <span class="badge new">✨ Sequence Diagrams/Feature</span>
+    <span class="badge">Version 3.0 — Q2 2026</span>
+  </div>
+</div>
+<section>
+  <div class="section-wrap">
+    <div class="stats-row">
+      <div class="stat-card"><div class="value">3</div><div class="label">Gói dịch vụ (Basic/Premium/VIP)</div></div>
+      <div class="stat-card"><div class="value">8</div><div class="label">Services mới / cập nhật</div></div>
+      <div class="stat-card"><div class="value">28+</div><div class="label">API Endpoints v2</div></div>
+      <div class="stat-card"><div class="value">5</div><div class="label">Ngôn ngữ hỗ trợ</div></div>
+      <div class="stat-card"><div class="value">Auto</div><div class="label">Feature Gating tự động</div></div>
+      <div class="stat-card"><div class="value">Batch</div><div class="label">UsageHistory Sync tối ưu</div></div>
+      <div class="stat-card"><div class="value">99K</div><div class="label">Gói Basic / tháng (VNĐ)</div></div>
+      <div class="stat-card"><div class="value">599K</div><div class="label">Gói VIP / tháng (VNĐ)</div></div>
+    </div>
+  </div>
+</section>
+<!-- SECTION NEW-A: FEATURES CATALOG -->
+<section id="features" class="alt-bg">
+  <div class="section-wrap">
+    <div class="section-header">
+      <div class="icon" style="background:#e8f5e9;color:#2e7d32;">📋</div>
+      <div>
+        <div class="section-num">Phần 00</div>
+        <h2>Danh Mục Chức Năng Hệ Thống</h2>
+      </div>
+    </div>
+    <p>Tổng hợp toàn bộ chức năng của FoodStreet phân theo <strong>vai trò người dùng</strong> và <strong>module</strong>. Mỗi chức năng có mã ID để tham chiếu trong diagram và tài liệu.</p>
+
+    <h3>🔐 Module 1 — Xác thực & Phân quyền (Auth)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Chức năng</th><th>Vai trò</th><th>Endpoint / UI</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr><td><code>F-A01</code></td><td>Đăng ký tài khoản Seller (Owner)</td><td>Public</td><td>POST /api/auth/register</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-A02</code></td><td>Đăng ký tài khoản User (App)</td><td>Public</td><td>POST /api/auth/register-user</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-A03</code></td><td>Đăng nhập & nhận JWT token</td><td>All</td><td>POST /api/auth/login</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-A04</code></td><td>Lấy thông tin cá nhân</td><td>All</td><td>GET /api/auth/me</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-A05</code></td><td>Cập nhật hồ sơ / đổi mật khẩu</td><td>All</td><td>PUT /api/auth/profile</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-A06</code></td><td>Cookie-auth finalize (Blazor Server)</td><td>Owner/Admin</td><td>GET /auth/finalize</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-A07</code></td><td>Đăng xuất (Cookie + Token clear)</td><td>All</td><td>GET /auth/logout</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>🏪 Module 2 — Quản lý Gian hàng (Shop/Owner)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Chức năng</th><th>Vai trò</th><th>Endpoint / UI</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr><td><code>F-S01</code></td><td>Xem danh sách gian hàng của mình</td><td>OWNER</td><td>GET /api/owner/shops</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-S02</code></td><td>Đăng ký gian hàng mới</td><td>OWNER</td><td>POST /api/owner/shops</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-S03</code></td><td>Cập nhật thông tin gian hàng</td><td>OWNER</td><td>PUT /api/owner/shops/{id}</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-S04</code></td><td>Xóa gian hàng</td><td>OWNER</td><td>DELETE /api/owner/shops/{id}</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-S05</code></td><td>Upload ảnh đại diện gian hàng</td><td>OWNER</td><td>POST /api/media/upload-image</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-S06</code></td><td>Upload nhiều ảnh menu</td><td>OWNER</td><td>POST /api/media/upload-images</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-S07</code></td><td>Tạo/dịch/phát thuyết minh TTS (1 ngôn ngữ)</td><td>OWNER</td><td>POST /api/owner/shops/{id}/generate-tts</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-S08</code></td><td>Tạo TTS đồng loạt 3 ngôn ngữ (vi/en/zh)</td><td>OWNER</td><td>POST /api/owner/shops/{id}/generate-tts-all</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-S09</code></td><td>Dịch nội dung thuyết minh thủ công</td><td>OWNER</td><td>POST /api/owner/shops/translate</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>🍽️ Module 3 — Quản lý Menu & Món ăn</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Chức năng</th><th>Vai trò</th><th>Endpoint / UI</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr><td><code>F-M01</code></td><td>Xem danh sách menu của gian hàng</td><td>OWNER</td><td>GET /api/owner/menus</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-M02</code></td><td>Tạo menu mới</td><td>OWNER</td><td>POST /api/owner/menus</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-M03</code></td><td>Cập nhật menu</td><td>OWNER</td><td>PUT /api/owner/menus/{id}</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-M04</code></td><td>Xóa menu</td><td>OWNER</td><td>DELETE /api/owner/menus/{id}</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-M05</code></td><td>Xem danh sách món ăn trong menu</td><td>OWNER/ADMIN</td><td>GET /api/admin/menus/{menuId}/items</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-M06</code></td><td>Thêm món ăn vào menu</td><td>OWNER/ADMIN</td><td>POST /api/admin/menus/{menuId}/items</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>📍 Module 4 — Quản lý POI (Admin)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Chức năng</th><th>Vai trò</th><th>Endpoint / UI</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr><td><code>F-P01</code></td><td>Xem danh sách tất cả POI</td><td>ADMIN</td><td>GET /api/admin/pois?lang=vi</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-P02</code></td><td>Xem chi tiết POI theo ID</td><td>ADMIN</td><td>GET /api/admin/pois/{id}</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-P03</code></td><td>Tạo POI mới (kèm đa ngôn ngữ)</td><td>ADMIN</td><td>POST /api/admin/pois</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-P04</code></td><td>Cập nhật POI & bản dịch</td><td>ADMIN</td><td>PUT /api/admin/pois/{id}</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-P05</code></td><td>Liên kết Shop vào POI</td><td>ADMIN</td><td>POST /api/admin/pois/{id}/shops</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-P06</code></td><td>Tạo audio TTS cho bản dịch POI</td><td>ADMIN</td><td>POST /api/admin/pois/{id}/generate-audio</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-P07</code></td><td>Lấy audio URL của POI theo ngôn ngữ</td><td>ADMIN</td><td>GET /api/admin/pois/{id}/audio</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>🛡️ Module 5 — Quản trị hệ thống (Admin)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Chức năng</th><th>Vai trò</th><th>Endpoint / UI</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr><td><code>F-AD01</code></td><td>Xem tất cả người dùng</td><td>ADMIN</td><td>GET /api/admin/users</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-AD02</code></td><td>Xem danh sách Seller</td><td>ADMIN</td><td>GET /api/admin/users/sellers</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-AD03</code></td><td>Xem danh sách Khách hàng</td><td>ADMIN</td><td>GET /api/admin/users/customers</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-AD04</code></td><td>Kích hoạt / vô hiệu hóa tài khoản</td><td>ADMIN</td><td>PATCH /api/admin/users/{id}/status</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-AD05</code></td><td>Xóa tài khoản người dùng</td><td>ADMIN</td><td>DELETE /api/admin/users/{id}</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-AD06</code></td><td>Tạo tài khoản Owner mới (Admin tạo hộ)</td><td>ADMIN</td><td>POST /api/admin/users/create-owner</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-AD07</code></td><td>Duyệt gian hàng</td><td>ADMIN</td><td>PATCH /api/admin/shops/{id}/approve</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-AD08</code></td><td>Từ chối / vô hiệu hóa gian hàng</td><td>ADMIN</td><td>PATCH /api/admin/shops/{id}/reject</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-AD09</code></td><td>Xem thống kê tổng quan (Dashboard)</td><td>ADMIN</td><td>GET /api/admin/stats</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-AD10</code></td><td>Xem thống kê doanh thu theo tháng/năm</td><td>ADMIN</td><td>GET /api/admin/stats/revenue</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-AD11</code></td><td>Quản lý danh mục gian hàng (CRUD)</td><td>ADMIN</td><td>GET/POST/PUT/DELETE /api/admin/categories</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-AD12</code></td><td>Quản lý ngôn ngữ hỗ trợ (CRUD)</td><td>ADMIN</td><td>GET/POST/PUT/DELETE /api/admin/languages</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-AD13</code></td><td>Xem lịch sử sử dụng audio</td><td>ADMIN</td><td>GET /api/admin/usage-history</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-AD14</code></td><td>Seed dữ liệu khách hàng mẫu</td><td>ADMIN</td><td>POST /api/admin/users/seed-customers</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>💎 Module 6 — Gói Dịch Vụ & Subscription</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Chức năng</th><th>Vai trò</th><th>Endpoint / UI</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr><td><code>F-SP01</code></td><td>Xem danh sách gói dịch vụ (Admin)</td><td>ADMIN</td><td>GET /api/admin/service-packages</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-SP02</code></td><td>Tạo gói dịch vụ mới</td><td>ADMIN</td><td>POST /api/admin/service-packages</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-SP03</code></td><td>Cập nhật gói dịch vụ</td><td>ADMIN</td><td>PUT /api/admin/service-packages/{id}</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-SP04</code></td><td>Xóa gói dịch vụ</td><td>ADMIN</td><td>DELETE /api/admin/service-packages/{id}</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-SP05</code></td><td>Xem tất cả subscription của Seller</td><td>ADMIN</td><td>GET /api/admin/service-packages/subscriptions</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-SP06</code></td><td>Duyệt subscription</td><td>ADMIN</td><td>PATCH /api/admin/service-packages/subscriptions/{id}/approve</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-SP07</code></td><td>Hủy subscription</td><td>ADMIN</td><td>PATCH /api/admin/service-packages/subscriptions/{id}/cancel</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-SP08</code></td><td>Xem gói dịch vụ hiện có (Owner)</td><td>OWNER</td><td>GET /api/owner/subscriptions/packages</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-SP09</code></td><td>Xem subscription hiện tại của tôi</td><td>OWNER</td><td>GET /api/owner/subscriptions/my</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-SP10</code></td><td>Đăng ký gói dịch vụ</td><td>OWNER</td><td>POST /api/owner/subscriptions</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-SP11</code></td><td>Hủy subscription của tôi</td><td>OWNER</td><td>DELETE /api/owner/subscriptions/{id}</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-SP12</code></td><td>Xem lịch sử đăng ký của tôi</td><td>OWNER</td><td>GET /api/owner/subscriptions/history</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>📱 Module 7 — App Người dùng (Mobile POI)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Chức năng</th><th>Vai trò</th><th>Endpoint / UI</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr><td><code>F-APP01</code></td><td>Xem danh sách POI gần / đang hoạt động</td><td>USER/Public</td><td>GET /api/app/pois?lang=vi</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-APP02</code></td><td>Xem chi tiết POI (tên, mô tả, audio)</td><td>USER/Public</td><td>GET /api/app/pois/{id}?lang=vi</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-APP03</code></td><td>Theo dõi lượt xem POI</td><td>USER/Public</td><td>POST /api/app/pois/{id}/view</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-APP04</code></td><td>Theo dõi lượt nghe audio (UsageHistory)</td><td>USER/Public</td><td>POST /api/app/pois/{id}/listen</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-APP05</code></td><td>Gửi đánh giá POI (sau khi đã nghe)</td><td>USER</td><td>POST /api/app/pois/{id}/reviews</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-APP06</code></td><td>Xem menu của POI theo ngôn ngữ</td><td>USER/Public</td><td>GET /api/app/pois/{poiId}/menus</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-APP07</code></td><td>Xem danh sách món trong menu</td><td>USER/Public</td><td>GET /api/app/menus/{menuId}/items</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-APP08</code></td><td>GPS Geofencing — cảnh báo POI gần</td><td>USER</td><td>Mobile (MAUI Geolocation)</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-APP09</code></td><td>Phát audio thuyết minh (MediaElement)</td><td>USER</td><td>Mobile (MAUI CommunityToolkit)</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-APP10</code></td><td>Tự động dịch nội dung sang ngôn ngữ chọn</td><td>USER/Public</td><td>Azure Translator (server-side)</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-APP11</code></td><td>Xem bản đồ POI (Leaflet / WebView)</td><td>USER</td><td>Mobile WebView + Leaflet.js</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-APP12</code></td><td>Lịch sử nghe audio</td><td>USER</td><td>Mobile (AudioService in-memory)</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>📊 Module 8 — Thống kê & Báo cáo</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Chức năng</th><th>Vai trò</th><th>Endpoint / UI</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr><td><code>F-ST01</code></td><td>Thống kê tổng quan (Admin Dashboard)</td><td>ADMIN</td><td>GET /api/admin/stats</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-ST02</code></td><td>Doanh thu theo tháng/năm/shop</td><td>ADMIN</td><td>GET /api/admin/stats/revenue</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-ST03</code></td><td>Thống kê lượt nghe/xem theo Seller</td><td>OWNER</td><td>GET /api/stats/seller/{sellerId}</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-ST04</code></td><td>Doanh thu tuần theo Seller & Shop</td><td>OWNER</td><td>GET /api/stats/seller/{sellerId}/revenue</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-ST05</code></td><td>Đánh giá gần đây của gian hàng</td><td>OWNER</td><td>GET /api/stores/{storeId}/reviews</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>🌐 Module 9 — TTS & Dịch thuật (Azure)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Chức năng</th><th>Service</th><th>Ghi chú</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr><td><code>F-TTS01</code></td><td>Sinh file audio MP3 từ văn bản (1 ngôn ngữ)</td><td>Azure Speech (TTS)</td><td>Lưu vào wwwroot/audio/</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-TTS02</code></td><td>Sinh audio đồng loạt 3 ngôn ngữ (vi/en/zh)</td><td>Azure Speech + Translator</td><td>Batch + Dịch tự động</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-TTS03</code></td><td>Dịch văn bản đơn (1 chuỗi)</td><td>Azure Translator</td><td>TranslateAsync</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-TTS04</code></td><td>Dịch hàng loạt (batch) văn bản</td><td>Azure Translator</td><td>TranslateListAsync</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-TTS05</code></td><td>Tự động dịch tên/mô tả menu cho App</td><td>Azure Translator</td><td>AppPoisController</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>📦 Module 10 — Media & File</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Chức năng</th><th>Vai trò</th><th>Endpoint</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr><td><code>F-ME01</code></td><td>Upload 1 ảnh (JPG/PNG)</td><td>OWNER</td><td>POST /api/media/upload-image</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-ME02</code></td><td>Upload nhiều ảnh cùng lúc</td><td>OWNER</td><td>POST /api/media/upload-images</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-ME03</code></td><td>Phục vụ file audio (static files)</td><td>Public</td><td>GET /audio/*.mp3</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+          <tr><td><code>F-ME04</code></td><td>Phục vụ file ảnh upload</td><td>Public</td><td>GET /uploads/images/*</td><td><span class="tag tag-green">✅ Hoàn thành</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION NEW-B: FEATURE DIAGRAMS (Class + Sequence per Feature) -->
+<section id="feature-diagrams">
+  <div class="section-wrap">
+    <div class="section-header">
+      <div class="icon" style="background:#f3e5f5;color:#6a1b9a;">🔷</div>
+      <div>
+        <div class="section-num">Phần 00-B</div>
+        <h2>Class Diagram & Sequence Diagram theo Chức năng</h2>
+      </div>
+    </div>
+    <p>Phần này cung cấp <strong>Class Diagram</strong> và <strong>Sequence Diagram</strong> chi tiết cho từng module chức năng chính của FoodStreet. Các diagram sử dụng cú pháp <strong>Mermaid</strong>.</p>
+
+    <!-- ─── FEAT 1: AUTH ─────────────────────────────────── -->
+    <h3 id="diag-auth">🔐 F-A — Xác thực & Phân quyền</h3>
+    <h4>Class Diagram</h4>
+    <div class="mermaid">
+classDiagram
+    class User {
+        +int Id
+        +string Email
+        +string PasswordHash
+        +string FullName
+        +int RoleId
+        +bool IsActive
+        +DateTime CreatedAt
+    }
+    class Role {
+        +int Id
+        +string Name
+        +ICollection~User~ Users
+    }
+    class AuthController {
+        +Login(LoginDto) IActionResult
+        +Register(RegisterDto) IActionResult
+        +RegisterUser(UserRegisterDto) IActionResult
+        +GetMe() IActionResult
+        +UpdateProfile(UpdateProfileDto) IActionResult
+    }
+    class LoginDto {
+        +string Email
+        +string Password
+    }
+    class RegisterDto {
+        +string Email
+        +string Password
+        +string Role
+    }
+    class AuthService {
+        +LoginAsync(LoginRequest) Task~Result~
+        +RegisterAsync(RegisterRequest) Task~Result~
+        +LogoutAsync() Task
+        +GetCurrentUser() UserDto
+    }
+    class TokenService {
+        +string Token
+        +SetToken(string) void
+        +ClearToken() void
+        +bool HasToken
+    }
+    User "many" --> "1" Role
+    AuthController --> LoginDto
+    AuthController --> RegisterDto
+    AuthService --> TokenService
+    </div>
+
+    <h4>Sequence Diagram — Đăng nhập (F-A03)</h4>
+    <div class="mermaid">
+sequenceDiagram
+    actor User
+    participant BlazorUI as Blazor Login Page
+    participant AuthSvc as AuthService (Blazor)
+    participant API as AuthController (Backend)
+    participant DB as MySQL Database
+    participant PendingLogin as PendingLoginService
+    participant Cookie as Cookie Auth
+
+    User->>BlazorUI: Nhập email + password → Click Đăng nhập
+    BlazorUI->>AuthSvc: LoginAsync(email, password)
+    AuthSvc->>API: POST /api/auth/login {email, password}
+    API->>DB: SELECT User WHERE Email=email
+    DB-->>API: User record
+    API->>API: BCrypt.Verify(password, passwordHash)
+    alt Mật khẩu đúng & tài khoản active
+        API-->>AuthSvc: 200 OK {token, role, userId}
+        AuthSvc->>PendingLogin: Store(userId, email, role, token)
+        PendingLogin-->>AuthSvc: pendingToken (GUID)
+        AuthSvc-->>BlazorUI: redirect = /auth/finalize?t=pendingToken
+        BlazorUI->>Cookie: GET /auth/finalize?t=pendingToken
+        Cookie->>PendingLogin: Consume(pendingToken)
+        PendingLogin-->>Cookie: userId, role, jwtToken
+        Cookie->>Cookie: SignInAsync (HttpContext)
+        Cookie-->>User: Set-Cookie + Redirect to Dashboard
+    else Sai mật khẩu hoặc tài khoản bị khóa
+        API-->>AuthSvc: 401 Unauthorized {message}
+        AuthSvc-->>BlazorUI: (false, errorMessage)
+        BlazorUI-->>User: Hiển thị lỗi
+    end
+    </div>
+
+    <!-- ─── FEAT 2: SHOP ─────────────────────────────────── -->
+    <h3 id="diag-shop">🏪 F-S — Quản lý Gian hàng</h3>
+    <h4>Class Diagram</h4>
+    <div class="mermaid">
+classDiagram
+    class Shop {
+        +int Id
+        +string Name
+        +string Description
+        +string Address
+        +int OwnerId
+        +int? PoiId
+        +int? CategoryId
+        +bool IsActive
+        +int ViewCount
+        +int ListenCount
+        +DateTime CreatedAt
+    }
+    class POI {
+        +int Id
+        +string ImageUrl
+        +string Location
+        +double Latitude
+        +double Longitude
+        +string AudioUrl
+        +string MenuImagesUrl
+    }
+    class POITranslation {
+        +int Id
+        +int POIId
+        +string LanguageCode
+        +string Name
+        +string Description
+        +string AudioUrl
+    }
+    class Category {
+        +int Id
+        +string Name
+        +string Slug
+        +bool IsActive
+    }
+    class ShopCreateDto {
+        +string Name
+        +string Description
+        +string Address
+        +string ImageUrl
+        +string Category
+        +double Latitude
+        +double Longitude
+    }
+    class OwnerShopsController {
+        +GetMyShops() IActionResult
+        +CreateShop(ShopCreateDto) IActionResult
+        +UpdateShop(id, ShopCreateDto) IActionResult
+        +DeleteShop(id) IActionResult
+        +GenerateTTS(id, TTSRequestDto) IActionResult
+        +GenerateTTSAll(id) IActionResult
+        +TranslateText(TranslateRequestDto) IActionResult
+    }
+    class AzureSpeechService {
+        +GenerateAudioAsync(poiId, langCode, text) Task~string~
+    }
+    class AzureTranslationService {
+        +TranslateAsync(text, targetLang) Task~string~
+        +TranslateListAsync(texts, targetLang) Task~List~
+    }
+    Shop "many" --> "1" User : OwnerId
+    Shop "many" --> "0..1" POI : PoiId
+    Shop "many" --> "0..1" Category : CategoryId
+    POI "1" --> "many" POITranslation
+    OwnerShopsController --> AzureSpeechService
+    OwnerShopsController --> AzureTranslationService
+    OwnerShopsController --> ShopCreateDto
+    </div>
+
+    <h4>Sequence Diagram — Tạo TTS thuyết minh 3 ngôn ngữ (F-S08)</h4>
+    <div class="mermaid">
+sequenceDiagram
+    actor Seller
+    participant UI as MyStore.razor (Blazor)
+    participant StoreService as StoreService
+    participant API as OwnerShopsController
+    participant Translator as AzureTranslationService
+    participant TTS as AzureSpeechService
+    participant DB as AppDbContext
+    participant FS as File System (/audio/)
+
+    Seller->>UI: Nhập nội dung thuyết minh (vi) → Click "Tạo cả 3 ngôn ngữ"
+    UI->>StoreService: GenerateTTSAllLanguagesAsync(storeId, viText)
+    StoreService->>API: POST /api/owner/shops/{id}/generate-tts-all {text}
+    
+    API->>DB: Lấy Shop + POI + Translations
+    DB-->>API: Shop, POI, danh sách Translations hiện có
+
+    loop Mỗi ngôn ngữ (vi, en, zh)
+        alt Ngôn ngữ != "vi"
+            API->>Translator: TranslateListAsync([name, description], lang)
+            Translator-->>API: [translatedName, translatedDescription]
+        end
+        API->>DB: Upsert POITranslation (lang)
+        API->>TTS: GenerateAudioAsync(poiId, lang, text)
+        TTS->>FS: Ghi file poi_{id}_{lang}_{uuid}.mp3
+        FS-->>TTS: filePath
+        TTS-->>API: "/audio/poi_xxx.mp3"
+        API->>DB: Cập nhật AudioUrl vào POITranslation
+    end
+
+    API-->>StoreService: {results: [{language, audioUrl, success}...]}
+    StoreService-->>UI: JsonElement results
+    UI-->>Seller: Hiển thị kết quả từng ngôn ngữ + audio player
+    </div>
+
+    <!-- ─── FEAT 3: MENU ─────────────────────────────────── -->
+    <h3 id="diag-menu">🍽️ F-M — Quản lý Menu & Món ăn</h3>
+    <h4>Class Diagram</h4>
+    <div class="mermaid">
+classDiagram
+    class Menu {
+        +int Id
+        +int ShopId
+        +string Name
+        +string Description
+        +bool IsActive
+        +int DisplayOrder
+        +DateTime CreatedAt
+    }
+    class MenuItem {
+        +int Id
+        +int MenuId
+        +string Name
+        +string Description
+        +decimal Price
+        +bool IsAvailable
+        +int DisplayOrder
+        +string ImageUrl
+        +DateTime CreatedAt
+    }
+    class OwnerMenusController {
+        +GetMyMenus() IActionResult
+        +CreateMenu(CreateMenuDto) IActionResult
+        +UpdateMenu(id, UpdateMenuDto) IActionResult
+        +DeleteMenu(id) IActionResult
+    }
+    class MenuItemsController {
+        +Get(menuId) IActionResult
+        +Create(menuId, CreateMenuItemDto) IActionResult
+    }
+    class IMenuItemService {
+        &lt;&lt;interface&gt;&gt;
+        +GetByMenuAsync(menuId) Task~List~
+        +CreateAsync(menuId, dto) Task~MenuItemAdminDto~
+    }
+    class MenuItemService {
+        +GetByMenuAsync(menuId) Task~List~
+        +CreateAsync(menuId, dto) Task~MenuItemAdminDto~
+    }
+    class CreateMenuDto {
+        +string Name
+        +string Description
+        +int DisplayOrder
+    }
+    class CreateMenuItemDto {
+        +string Name
+        +decimal Price
+    }
+    Menu "1" --> "many" MenuItem
+    Shop "1" --> "many" Menu
+    OwnerMenusController --> Menu
+    MenuItemsController --> IMenuItemService
+    MenuItemService ..|> IMenuItemService
+    MenuItemService --> MenuItem
+    </div>
+
+    <h4>Sequence Diagram — Thêm món ăn vào menu (F-M06)</h4>
+    <div class="mermaid">
+sequenceDiagram
+    actor Seller
+    participant UI as MyMenus.razor
+    participant API as MenuItemsController
+    participant Svc as MenuItemService
+    participant DB as AppDbContext
+
+    Seller->>UI: Mở menu accordion → Click "Thêm món" → Điền form → Click "Lưu"
+    UI->>API: POST /api/admin/menus/{menuId}/items {name, price}
+    API->>Svc: CreateAsync(menuId, dto)
+    Svc->>DB: AnyAsync(m.Id == menuId) -- kiểm tra menu tồn tại
+    DB-->>Svc: true
+    Svc->>DB: Add(new MenuItem{MenuId, Name, Price})
+    Svc->>DB: SaveChangesAsync()
+    DB-->>Svc: MenuItem with generated Id
+    Svc-->>API: MenuItemAdminDto {Id, Name, Price}
+    API-->>UI: 200 OK {Id, Name, Price}
+    UI->>UI: Reload items cho menu đang mở
+    UI-->>Seller: Hiển thị món mới trong danh sách
+    </div>
+
+    <!-- ─── FEAT 4: POI ADMIN ─────────────────────────────────── -->
+    <h3 id="diag-poi">📍 F-P — Quản lý POI (Admin)</h3>
+    <h4>Class Diagram</h4>
+    <div class="mermaid">
+classDiagram
+    class IPoiService {
+        &lt;&lt;interface&gt;&gt;
+        +GetAllAsync(lang) Task~List~
+        +GetByIdAsync(id, lang) Task~POIAdminDto~
+        +CreateAsync(CreatePoiDto) Task~POIAdminDto~
+        +UpdateAsync(id, CreatePoiDto) Task~POIAdminDto~
+        +LinkShopsAsync(poiId, shopIds) Task~bool~
+    }
+    class PoiService {
+        +GetAllAsync(lang) Task~List~
+        +GetByIdAsync(id, lang) Task~POIAdminDto~
+        +CreateAsync(CreatePoiDto) Task~POIAdminDto~
+        +UpdateAsync(id, CreatePoiDto) Task~POIAdminDto~
+        +LinkShopsAsync(poiId, shopIds) Task~bool~
+    }
+    class POIsController {
+        +GetAll(lang) IActionResult
+        +GetById(id, lang) IActionResult
+        +Create(CreatePoiDto) IActionResult
+        +Update(id, CreatePoiDto) IActionResult
+        +LinkShops(id, shopIds) IActionResult
+        +GenerateAudio(id, lang) IActionResult
+    }
+    class CreatePoiDto {
+        +string Location
+        +string ImageUrl
+        +double Latitude
+        +double Longitude
+        +List~CreatePoiTranslationDto~ Translations
+    }
+    class POIAdminDto {
+        +int Id
+        +string Name
+        +string Description
+        +string ImageUrl
+        +string Location
+        +double Latitude
+        +double Longitude
+        +string AudioUrl
+    }
+    POIsController --> IPoiService
+    PoiService ..|> IPoiService
+    PoiService --> POI
+    PoiService --> POITranslation
+    POIsController --> CreatePoiDto
+    POIsController --> POIAdminDto
+    </div>
+
+    <h4>Sequence Diagram — Liên kết Shop vào POI (F-P05)</h4>
+    <div class="mermaid">
+sequenceDiagram
+    actor Admin
+    participant UI as ManagePoi.razor
+    participant API as POIsController
+    participant Svc as PoiService
+    participant DB as AppDbContext
+
+    Admin->>UI: Click icon "Liên kết Shop" trên hàng POI
+    UI->>UI: Hiển thị dialog danh sách Shops (mock)
+    Admin->>UI: Chọn các Shop muốn gán → Click "Lưu liên kết"
+    UI->>API: POST /api/admin/pois/{poiId}/shops [shopId1, shopId2,...]
+    API->>Svc: LinkShopsAsync(poiId, shopIds)
+    Svc->>DB: WHERE PoiId == poiId → Set PoiId = null (reset cũ)
+    Svc->>DB: WHERE Id IN shopIds → Set PoiId = poiId (gán mới)
+    Svc->>DB: SaveChangesAsync()
+    DB-->>Svc: saved
+    Svc-->>API: true
+    API-->>UI: 200 OK {message: "Linked successfully"}
+    UI-->>Admin: Snackbar "Đã liên kết X gian hàng vào POI"
+    </div>
+
+    <!-- ─── FEAT 5: APP MOBILE ─────────────────────────────────── -->
+    <h3 id="diag-app">📱 F-APP — App Người dùng (Mobile)</h3>
+    <h4>Class Diagram</h4>
+    <div class="mermaid">
+classDiagram
+    class POIDto {
+        +int Id
+        +string ImageUrl
+        +string Location
+        +double Latitude
+        +double Longitude
+        +List~POITranslationDto~ Translations
+        +ShopDto Shop
+        +List~AudioGuideDto~ AudioGuides
+        +List~AppLanguageDto~ AvailableLanguages
+        +DisplayName(lang) string
+        +DisplayDescription(lang) string
+    }
+    class AudioGuideDto {
+        +int Id
+        +string Title
+        +string AudioUrl
+        +string LanguageCode
+        +int DurationSeconds
+        +DurationDisplay string
+    }
+    class POIService {
+        +GetAllPOIsAsync(lang) Task~List~
+        +GetFeaturedPOIsAsync(count, lang) Task~List~
+        +GetPOIByIdAsync(id, lang) Task~POIDto~
+        +TrackViewAsync(poiId) Task~bool~
+        +TrackListenAsync(poiId) Task~bool~
+        +SubmitReviewWithResultAsync(poiId, rating, comment) Task~Result~
+    }
+    class AudioService {
+        +AudioGuideDto CurrentGuide
+        +bool IsPlaying
+        +string CurrentLanguage
+        +LoadGuide(guide, poi) void
+        +SetPlayState(bool) void
+        +GetGuideForPOI(poi) AudioGuideDto
+        +GetRecentHistory() List
+    }
+    class AppPoisController {
+        +GetAll(lang) IActionResult
+        +GetDetail(id, lang) IActionResult
+        +TrackView(id) IActionResult
+        +TrackListen(id, deviceId) IActionResult
+        +SubmitReview(id, AppReviewDto) IActionResult
+    }
+    POIDto --> AudioGuideDto
+    POIService --> POIDto
+    AudioService --> AudioGuideDto
+    AppPoisController --> AzureTranslationService
+    AppPoisController --> UsageHistory
+    </div>
+
+    <h4>Sequence Diagram — Nghe thuyết minh audio & ghi lại lịch sử (F-APP04 + F-APP09)</h4>
+    <div class="mermaid">
+sequenceDiagram
+    actor User
+    participant MAUI as AudioPlayerPage (MAUI)
+    participant VM as AudioPlayerViewModel
+    participant POISvc as POIService (MAUI)
+    participant API as AppPoisController
+    participant DB as AppDbContext
+    participant AZ as AzureTranslationService
+    participant MediaEl as MediaElement (CommunityToolkit)
+
+    User->>MAUI: Mở POI Detail → Tap "Nghe thuyết minh"
+    MAUI->>VM: PlayAudioCommand
+    VM->>POISvc: GetPOIByIdAsync(poiId, "vi")
+    POISvc->>API: GET /api/app/pois/{id}?lang=vi
+    API->>DB: Lấy Shop, POI, Translations, Menus
+    DB-->>API: Shop với đầy đủ dữ liệu
+    API-->>POISvc: AppPoiDetailDto {audioUrl, name, description, menus}
+    POISvc-->>VM: POIDto với AudioGuides
+    VM->>VM: LoadGuide(guide, poi)
+    VM->>MediaEl: Source = AudioUrl (local cache hoặc URL)
+    MediaEl->>MediaEl: Download & Play MP3
+    MediaEl-->>VM: StateChanged(Playing)
+    VM->>POISvc: TrackListenAsync(poiId)
+    POISvc->>API: POST /api/app/pois/{id}/listen?deviceId=xxx
+    API->>DB: shop.ListenCount++
+    API->>DB: Add(new Order{ShopId, Amount=20000, Status=Completed})
+    API->>DB: Add(new UsageHistory{DeviceId, ShopId, ListenedAt})
+    API->>DB: SaveChangesAsync()
+    API-->>POISvc: 200 OK {success: true}
+    
+    User->>MAUI: Nghe xong → Tap "⭐ Đánh giá"
+    MAUI->>VM: ShowReviewCommand
+    VM->>VM: IsReviewDialogVisible = true
+    User->>MAUI: Chọn sao + nhập bình luận → Gửi
+    VM->>POISvc: SubmitReviewWithResultAsync(poiId, rating, comment)
+    POISvc->>API: POST /api/app/pois/{id}/reviews {rating, comment}
+    API->>DB: Kiểm tra UsageHistory (user đã nghe chưa?)
+    DB-->>API: hasListened = true
+    API->>DB: Add(new Review{ShopId, Rating, Comment})
+    API-->>POISvc: 200 OK {success: true}
+    VM-->>MAUI: IsReviewDialogVisible = false
+    MAUI-->>User: Cảm ơn đánh giá!
+    </div>
+
+    <!-- ─── FEAT 6: SERVICE PACKAGES ─────────────────────────────────── -->
+    <h3 id="diag-sp">💎 F-SP — Gói Dịch Vụ & Subscription</h3>
+    <h4>Class Diagram</h4>
+    <div class="mermaid">
+classDiagram
+    class ServicePackage {
+        +int Id
+        +string Name
+        +string Tier
+        +decimal MonthlyPrice
+        +decimal YearlyPrice
+        +string Description
+        +string Features
+        +int MaxStores
+        +bool IsActive
+        +DateTime CreatedAt
+    }
+    class Subscription {
+        +int Id
+        +int UserId
+        +int ServicePackageId
+        +string BillingCycle
+        +decimal Price
+        +DateTime StartDate
+        +DateTime EndDate
+        +string Status
+        +DateTime CreatedAt
+    }
+    class ServicePackagesController {
+        +GetAll() IActionResult
+        +GetById(id) IActionResult
+        +Create(dto) IActionResult
+        +Update(id, dto) IActionResult
+        +Delete(id) IActionResult
+        +GetSubscriptions() IActionResult
+        +ApproveSubscription(id) IActionResult
+        +CancelSubscription(id) IActionResult
+    }
+    class OwnerSubscriptionsController {
+        +GetAvailablePackages() IActionResult
+        +GetMySubscription() IActionResult
+        +GetMyHistory() IActionResult
+        +Subscribe(SubscribeDto) IActionResult
+        +CancelMySubscription(id) IActionResult
+    }
+    class SubscribeDto {
+        +int PackageId
+        +string BillingCycle
+    }
+    class ServicePackageService {
+        +GetPackagesAsync() Task~List~
+        +CreatePackageAsync(m) Task~Result~
+        +UpdatePackageAsync(m) Task~Result~
+        +DeletePackageAsync(id) Task~bool~
+        +GetSubscriptionsAsync() Task~List~
+        +ApproveSubscriptionAsync(id) Task~bool~
+        +CancelSubscriptionAsync(id) Task~bool~
+    }
+    ServicePackage "1" --> "many" Subscription
+    User "1" --> "many" Subscription
+    ServicePackagesController --> ServicePackage
+    ServicePackagesController --> Subscription
+    OwnerSubscriptionsController --> ServicePackage
+    OwnerSubscriptionsController --> SubscribeDto
+    ServicePackageService --> ServicePackagesController
+    </div>
+
+    <h4>Sequence Diagram — Đăng ký gói dịch vụ (F-SP10)</h4>
+    <div class="mermaid">
+sequenceDiagram
+    actor Seller
+    participant UI as ManageServicePackage.razor
+    participant PkgSvc as ServicePackageService
+    participant API_Admin as ServicePackagesController (Admin)
+    participant API_Owner as OwnerSubscriptionsController
+    participant DB as AppDbContext
+
+    Note over Seller,DB: Seller xem và đăng ký gói
+    Seller->>UI: Vào trang Gói dịch vụ
+    UI->>PkgSvc: GetPackagesAsync()
+    PkgSvc->>API_Admin: GET /api/admin/service-packages
+    API_Admin->>DB: SELECT ServicePackages WHERE IsActive=true
+    DB-->>API_Admin: List~ServicePackage~
+    API_Admin-->>PkgSvc: 200 OK [packages]
+    PkgSvc-->>UI: List~ServicePackageModel~
+    UI-->>Seller: Hiển thị thẻ Basic/Premium/VIP
+
+    Seller->>UI: Chọn gói Premium → Click "Đăng ký"
+    UI->>API_Owner: POST /api/owner/subscriptions {packageId, billingCycle:"Monthly"}
+    API_Owner->>DB: Tìm ServicePackage (packageId)
+    DB-->>API_Owner: ServicePackage found
+    API_Owner->>DB: Kiểm tra subscription Active/Pending của user này
+    DB-->>API_Owner: Không có
+    API_Owner->>DB: Add(new Subscription{UserId, ServicePackageId, Status="Pending",...})
+    API_Owner->>DB: SaveChanges()
+    API_Owner-->>UI: 200 OK {message: "Đăng ký thành công, chờ Admin duyệt"}
+    UI-->>Seller: Snackbar thành công
+
+    Note over UI, DB: Admin duyệt subscription
+    actor Admin
+    Admin->>UI: Vào tab "Đăng ký của Seller" → Click duyệt
+    UI->>PkgSvc: ApproveSubscriptionAsync(subId)
+    PkgSvc->>API_Admin: PATCH /api/admin/service-packages/subscriptions/{id}/approve
+    API_Admin->>DB: subscription.Status = "Active"
+    API_Admin->>DB: SaveChanges()
+    API_Admin-->>PkgSvc: 200 OK
+    UI-->>Admin: Snackbar "Đã duyệt"
+    </div>
+
+    <!-- ─── FEAT 7: STATS ─────────────────────────────────── -->
+    <h3 id="diag-stats">📊 F-ST — Thống kê & Báo cáo</h3>
+    <h4>Class Diagram</h4>
+    <div class="mermaid">
+classDiagram
+    class Order {
+        +int Id
+        +int ShopId
+        +decimal TotalAmount
+        +string Status
+        +DateTime CreatedAt
+    }
+    class UsageHistory {
+        +int Id
+        +string DeviceId
+        +int ShopId
+        +string LanguageCode
+        +DateTime ListenedAt
+        +int DurationSeconds
+    }
+    class Review {
+        +int Id
+        +int ShopId
+        +int UserId
+        +string CustomerName
+        +int Rating
+        +string Comment
+        +DateTime CreatedAt
+    }
+    class AdminStatsController {
+        +GetAdminStats() IActionResult
+        +GetRevenueStats(month, year) IActionResult
+    }
+    class SellerStatsController {
+        +GetSellerStats(sellerId, storeId) IActionResult
+        +GetStoreReviews(storeId) IActionResult
+        +GetSellerRevenue(sellerId, week, storeId) IActionResult
+    }
+    class StoreService {
+        +GetSellerStatsAsync(sellerId, storeId) Task~List~
+        +GetSellerRevenueAsync(sellerId, week, storeId) Task~SellerRevenueModel~
+        +GetAdminRevenueAsync(month, year) Task~AdminRevenueModel~
+        +GetStoreReviewsAsync(storeId, sellerId) Task~List~
+    }
+    AdminStatsController --> Order
+    AdminStatsController --> UsageHistory
+    SellerStatsController --> Shop
+    SellerStatsController --> Order
+    SellerStatsController --> Review
+    StoreService --> AdminStatsController
+    StoreService --> SellerStatsController
+    </div>
+
+    <h4>Sequence Diagram — Xem doanh thu tuần của Seller (F-ST04)</h4>
+    <div class="mermaid">
+sequenceDiagram
+    actor Seller
+    participant UI as Stats.razor (Seller)
+    participant StoreSvc as StoreService
+    participant API as SellerStatsController
+    participant DB as AppDbContext
+
+    Seller->>UI: Vào trang Thống kê → Chọn tuần
+    UI->>StoreSvc: GetSellerRevenueAsync(sellerId, weekDate, storeId?)
+    StoreSvc->>API: GET /api/stats/seller/{id}/revenue?week=2026-04-07
+    API->>API: Tính weekStart (Mon) và weekEnd (Mon+7)
+    API->>DB: SELECT Shops WHERE OwnerId=sellerId
+    DB-->>API: shopIds[]
+    API->>DB: SELECT Orders WHERE ShopId IN shopIds AND Status=Completed AND CreatedAt IN [weekStart, weekEnd)
+    DB-->>API: ordersInWeek
+    API->>API: Tính totalRevenue, dailyRevenue (7 ngày), shopRevenue
+    API-->>StoreSvc: {WeekStart, WeekEnd, TotalRevenue, DailyRevenue[], ShopRevenue[]}
+    StoreSvc-->>UI: SellerRevenueModel
+    UI-->>Seller: Bảng doanh thu theo ngày + biểu đồ progress bar theo shop
+    </div>
+
+    <!-- ─── FEAT 8: TTS ─────────────────────────────────── -->
+    <h3 id="diag-tts">🌐 F-TTS — Text-to-Speech & Dịch thuật</h3>
+    <h4>Class Diagram</h4>
+    <div class="mermaid">
+classDiagram
+    class AzureSpeechService {
+        -string _key
+        -string _region
+        -IWebHostEnvironment _env
+        -TimeSpan TtsTimeout
+        +GenerateAudioAsync(poiId, langCode, text) Task~string~
+        -GetVoiceName(langCode) string
+    }
+    class AzureTranslationService {
+        -HttpClient _httpClient
+        -TimeSpan TranslationTimeout
+        +TranslateAsync(text, targetLang) Task~string~
+        +TranslateListAsync(texts, targetLang) Task~List~
+        -PerformTranslationAsync(texts, lang, key, region) Task~List~
+        -MapLanguageCode(code) string
+    }
+    class SpeechConfig {
+        +FromSubscription(key, region) SpeechConfig
+        +SpeechSynthesisVoiceName string
+    }
+    class SpeechSynthesizer {
+        +SpeakTextAsync(text) Task~SpeechSynthesisResult~
+    }
+    class VoiceMapping {
+        vi --> vi-VN-HoaiMyNeural
+        en --> en-US-JennyNeural
+        zh --> zh-CN-XiaoxiaoNeural
+    }
+    AzureSpeechService --> SpeechConfig
+    AzureSpeechService --> SpeechSynthesizer
+    AzureSpeechService --> VoiceMapping
+    AzureTranslationService --> HttpClient
+    </div>
+
+    <h4>Sequence Diagram — Sinh audio TTS (F-TTS01)</h4>
+    <div class="mermaid">
+sequenceDiagram
+    participant Caller as OwnerShopsController / POIsController
+    participant TTS as AzureSpeechService
+    participant AzureAPI as Azure Cognitive Speech API
+    participant FS as FileSystem (wwwroot/audio/)
+
+    Caller->>TTS: GenerateAudioAsync(poiId, "en", "Shop name. Description...")
+    TTS->>TTS: GetVoiceName("en") → "en-US-JennyNeural"
+    TTS->>TTS: Xóa file âm thanh cũ poi_{id}_en_*.mp3
+    TTS->>TTS: Tạo fileName: poi_{id}_en_{uuid8}.mp3
+    TTS->>AzureAPI: SpeechSynthesizer.SpeakTextAsync(text)
+    Note over TTS,AzureAPI: Timeout: 45 giây
+    alt Synthesis thành công
+        AzureAPI-->>TTS: SpeechSynthesisResult (AudioData bytes)
+        TTS->>FS: WriteAllBytesAsync(filePath, audioData)
+        FS-->>TTS: OK
+        TTS-->>Caller: "/audio/poi_x_en_abc123.mp3"
+    else TTS Timeout hoặc lỗi
+        AzureAPI-->>TTS: Canceled / Exception
+        TTS-->>Caller: null
+    end
+    </div>
+
+    <!-- ─── FEAT 9: GPS + MAP ─────────────────────────────────── -->
+    <h3 id="diag-gps">📡 F-APP08 — GPS Geofencing & Bản đồ</h3>
+    <h4>Class Diagram</h4>
+    <div class="mermaid">
+classDiagram
+    class POIListViewModel {
+        +ObservableCollection~POIDto~ FilteredPOIs
+        +string SearchQuery
+        +bool IsLoading
+        +bool IsMapView
+        +Location UserLocation
+        +string CurrentLanguage
+        +InitializeAsync() Task
+        +StartLocationTracking() void
+        +CheckProximityAsync() Task
+        -HashSet~int~ _notifiedPoiIds
+        -IDispatcherTimer _locationTimer
+    }
+    class POIListPage {
+        -POIListViewModel _vm
+        +LoadMapHtml() void
+        +UpdateMapData() void
+        -MapWebView WebView
+    }
+    class Geolocation {
+        +GetLocationAsync() Task~Location~
+        +GetLastKnownLocationAsync() Task~Location~
+    }
+    class Location {
+        +double Latitude
+        +double Longitude
+        +CalculateDistance(lat1,lon1,lat2,lon2,unit) double
+    }
+    class IDispatcherTimer {
+        +Interval TimeSpan
+        +Start() void
+        +Stop() void
+        +Tick event
+    }
+    POIListViewModel --> Geolocation
+    POIListViewModel --> IDispatcherTimer
+    POIListPage --> POIListViewModel
+    POIListPage --> Location
+    </div>
+
+    <h4>Sequence Diagram — Phát hiện POI gần & cảnh báo người dùng (F-APP08)</h4>
+    <div class="mermaid">
+sequenceDiagram
+    participant Timer as DispatcherTimer (10s interval)
+    participant VM as POIListViewModel
+    participant Geo as Geolocation API
+    participant Shell as Shell (MAUI)
+    actor User
+
+    loop Mỗi 10 giây
+        Timer->>VM: Tick event → CheckProximityAsync()
+        VM->>Geo: GetLocationAsync(Medium, 5s)
+        Geo-->>VM: Location {lat, lng}
+        VM->>VM: Duyệt _allPOIs (có Lat/Lng, chưa thông báo)
+        VM->>VM: CalculateDistance(userLat, userLng, poi.Lat, poi.Lng) → meters
+        alt Có POI trong vòng 100m & chưa từng thông báo
+            VM->>VM: _notifiedPoiIds.Add(nearestPoi.Id)
+            VM->>Shell: DisplayAlert("POI gần bạn!", "Bạn cách ~X m từ {shop.Name}")
+            Shell-->>User: Alert: "Nghe ngay" / "Bỏ qua"
+            alt User chọn "Nghe ngay"
+                User->>Shell: Confirm
+                VM->>VM: NavigateToPOIAsync(nearestPoi)
+                Shell-->>User: Mở màn hình POI Detail
+            end
+        end
+    end
+    </div>
+
+  </div>
+</section>
+
+<!-- SECTION 1: OVERVIEW -->
+
+<section id="overview" class="alt-bg">
+  <div class="section-wrap">
+    <div class="section-header">
+      <div class="icon" style="background:#e8f0fe;color:var(--primary);">🚀</div>
+      <div>
+        <div class="section-num">Phần 01</div>
+        <h2>Tổng Quan v2.0 — Thương mại hóa FoodStreet</h2>
+      </div>
+    </div>
+    <p><strong>FoodStreet v2.0</strong> nâng cấp từ nền tảng quản lý gian hàng ẩm thực + thuyết minh GPS sang một <strong>hệ sinh thái có mô hình kinh doanh rõ ràng</strong> thông qua các Gói Dịch Vụ (Service Packages). Seller lựa chọn gói phù hợp, hệ thống tự động cấp phép các tính năng tương ứng, đồng thời tối ưu hóa việc đồng bộ lịch sử sử dụng từ Mobile App lên server.</p>
+    <div class="highlight gold">
+      <p><strong>Mục tiêu chiến lược v2.0:</strong> Chuyển đổi mô hình từ miễn phí (v1.0) sang <strong>Freemium → Premium</strong>, tạo nguồn doanh thu bền vững qua subscription hàng tháng/năm. Tự động hóa toàn bộ quy trình phân quyền tính năng.</p>
+    </div>
+    <h3>🎯 Ba mục tiêu cốt lõi v2.0</h3>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-icon">💰</span>
+        <h3>Thương mại hóa (Monetization)</h3>
+        <p>Ra mắt 3 gói dịch vụ: <strong>Basic (99K/tháng)</strong>, <strong>Premium (299K/tháng)</strong> và <strong>VIP (599K/tháng)</strong>. Seller tự đăng ký và nâng cấp qua Seller Portal.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🔐</span>
+        <h3>Feature Gating tự động</h3>
+        <p>Hệ thống tự động kiểm tra <code>Subscription</code> hiện hành của Seller và cấp/chặn quyền truy cập tính năng theo gói đã mua mà không cần can thiệp của Admin.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">📊</span>
+        <h3>UsageHistory Sync v2</h3>
+        <p>Mobile App gửi lịch sử nghe <strong>theo batch</strong> thay vì từng request, giảm tải API, hỗ trợ offline-first. Backend deduplicate và lưu tối ưu hơn.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🌐</span>
+        <h3>Đa ngôn ngữ mở rộng</h3>
+        <p><code>LanguageService</code> quản lý ngôn ngữ POI từ database. <code>UiLanguageService</code> dịch giao diện Seller Portal sang ngôn ngữ người dùng chọn.</p>
+      </div>
+    </div>
+    <h3>📋 So sánh v1.0 vs v2.0</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Khía cạnh</th><th>v1.0</th><th>v2.0</th></tr></thead>
+        <tbody>
+          <tr><td>Mô hình doanh thu</td><td>Miễn phí hoàn toàn</td><td><strong>Freemium — 3 gói subscription</strong></td></tr>
+          <tr><td>Phân quyền tính năng</td><td>Thủ công (Admin cấp)</td><td><strong>Tự động theo ServicePackage</strong></td></tr>
+          <tr><td>UsageHistory sync</td><td>Từng request riêng lẻ</td><td><strong>Batch sync, offline-first, deduplicate</strong></td></tr>
+          <tr><td>Gian hàng tối đa</td><td>Không giới hạn</td><td><strong>Theo gói (1/3/5 shops)</strong></td></tr>
+          <tr><td>Badge trên app</td><td>Không có</td><td><strong>Basic / Premium / VIP badge</strong></td></tr>
+          <tr><td>Ưu tiên đề xuất</td><td>Không có</td><td><strong>Priority score theo tier</strong></td></tr>
+          <tr><td>Thống kê nâng cao</td><td>Chỉ Admin xem</td><td><strong>Seller xem theo gói Premium+</strong></td></tr>
+          <tr><td>Hỗ trợ</td><td>Email chung</td><td><strong>Email / Ưu tiên / Riêng 24/7 theo tier</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: SERVICE PACKAGES -->
+<section id="packages">
+  <div class="section-wrap">
+    <div class="section-header">
+      <div class="icon" style="background:#fff8e1;color:var(--gold);">📦</div>
+      <div>
+        <div class="section-num">Phần 02</div>
+        <h2>Service Packages — Gói Dịch Vụ</h2>
+      </div>
+    </div>
+    <p>Ba gói dịch vụ được thiết kế để phục vụ các nhóm Seller từ nhỏ đến lớn. Toàn bộ thông tin gói lưu trong bảng <code>ServicePackages</code> và subscription trong bảng <code>Subscriptions</code>, cho phép Admin thay đổi giá/tính năng mà không cần deploy lại.</p>
+    <div class="pkg-grid">
+      <div class="pkg-card basic">
+        <div class="pkg-name">🔷 Basic</div>
+        <div class="pkg-price">99.000 ₫</div>
+        <div class="pkg-sub">/ tháng &nbsp;|&nbsp; 990.000 ₫ / năm</div>
+        <ul>
+          <li>✅ Hiển thị trên bản đồ</li>
+          <li>✅ Tối đa 1 gian hàng</li>
+          <li>✅ 1 Menu, không giới hạn món</li>
+          <li>✅ Hỗ trợ qua email</li>
+          <li>❌ Badge trên app</li>
+          <li>❌ Ưu tiên đề xuất</li>
+          <li>❌ Thống kê nâng cao</li>
+        </ul>
+      </div>
+      <div class="pkg-card premium">
+        <div class="pkg-name">⭐ Premium</div>
+        <div class="pkg-price">299.000 ₫</div>
+        <div class="pkg-sub">/ tháng &nbsp;|&nbsp; 2.990.000 ₫ / năm</div>
+        <ul>
+          <li>✅ Tất cả tính năng Basic</li>
+          <li>✅ Tối đa 3 gian hàng</li>
+          <li>✅ Badge "Premium" trên app</li>
+          <li>✅ Ưu tiên đề xuất (score +50)</li>
+          <li>✅ Thống kê nâng cao</li>
+          <li>✅ Hỗ trợ ưu tiên</li>
+          <li>❌ Quảng cáo banner</li>
+        </ul>
+      </div>
+      <div class="pkg-card vip">
+        <div class="pkg-name">👑 VIP</div>
+        <div class="pkg-price">599.000 ₫</div>
+        <div class="pkg-sub">/ tháng &nbsp;|&nbsp; 5.990.000 ₫ / năm</div>
+        <ul>
+          <li>✅ Tất cả tính năng Premium</li>
+          <li>✅ Tối đa 5 gian hàng</li>
+          <li>✅ Badge "VIP" trên app</li>
+          <li>✅ Top đề xuất (score +100)</li>
+          <li>✅ Thống kê chi tiết</li>
+          <li>✅ Quảng cáo trên banner</li>
+          <li>✅ Hỗ trợ riêng 24/7</li>
+        </ul>
+      </div>
+    </div>
+    <h3>🔑 Feature Gating — Phân quyền tự động</h3>
+    <p>Mỗi khi Seller gọi API hoặc truy cập Seller Portal, hệ thống kiểm tra <code>Subscription</code> hiện hành (Status = "Active" và EndDate &gt; now). Nếu không có subscription hợp lệ, Seller sẽ bị giới hạn về tính năng tương đương gói Free (chỉ xem, không thêm/sửa gian hàng mới).</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tính năng</th><th>Free (hết hạn)</th><th>Basic</th><th>Premium</th><th>VIP</th></tr></thead>
+        <tbody>
+          <tr><td>Xem gian hàng</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+          <tr><td>Tạo/sửa gian hàng</td><td>❌</td><td>✅ (max 1)</td><td>✅ (max 3)</td><td>✅ (max 5)</td></tr>
+          <tr><td>Upload audio</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+          <tr><td>Badge trên app</td><td>❌</td><td>❌</td><td>⭐ Premium</td><td>👑 VIP</td></tr>
+          <tr><td>Priority score</td><td>0</td><td>0</td><td>+50</td><td>+100</td></tr>
+          <tr><td>Thống kê nâng cao</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+          <tr><td>Quảng cáo banner</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: CLASS DIAGRAM -->
+<section id="class-diagram" class="alt-bg">
+  <div class="section-wrap">
+    <div class="section-header">
+      <div class="icon" style="background:#f3e5f5;color:#6a1b9a;">🗂️</div>
+      <div>
+        <div class="section-num">Phần 03</div>
+        <h2>Class Diagram — Backend &amp; Service Layer</h2>
+      </div>
+    </div>
+    <p>Sơ đồ dưới thể hiện mối quan hệ giữa các <strong>Service classes</strong> trong tầng dịch vụ và các <strong>Model entities</strong> tương ứng trong database. Các service được tách biệt theo trách nhiệm (Single Responsibility), giao tiếp qua interface để dễ test và thay thế implementation.</p>
+    <div class="highlight">
+      <p><strong>Chú thích:</strong> <span class="tag tag-gold">NEW</span> = Mới thêm trong v2.0 &nbsp;|&nbsp; <span class="tag tag-purple">UPDATED</span> = Cập nhật từ v1.0</p>
+    </div>
+    <pre class="mermaid">
+classDiagram
+    class ApiService {
+        &lt;&lt;abstract&gt;&gt;
+        #HttpClient _http
+        #string _baseUrl
+        #GetAsync(string endpoint) Task~T~
+        #PostAsync(string endpoint, T body) Task~R~
+        #PutAsync(string endpoint, T body) Task~R~
+        #DeleteAsync(string endpoint) Task~bool~
+        #GetAuthHeader() AuthenticationHeaderValue
+    }
+
+    class AuthService {
+        -IHttpClientFactory _factory
+        -AuthStateProvider _authState
+        +LoginAsync(LoginDto dto) Task~TokenResult~
+        +RegisterAsync(RegisterDto dto) Task~bool~
+        +LogoutAsync() Task
+        +GetCurrentUserAsync() Task~UserInfo~
+        +GetRoleAsync() Task~string~
+        +IsInRole(string role) bool
+    }
+
+    class ServicePackagesService {
+        &lt;&lt;NEW v2.0&gt;&gt;
+        -HttpClient _http
+        +GetAllPackagesAsync() Task~List~ServicePackageDto~~
+        +GetPackageByIdAsync(int id) Task~ServicePackageDto~
+        +SubscribeAsync(SubscribeDto dto) Task~SubscriptionResult~
+        +GetMySubscriptionAsync() Task~SubscriptionDto~
+        +CancelSubscriptionAsync(int subId) Task~bool~
+        +CheckFeatureAccessAsync(string feature) Task~bool~
+    }
+
+    class UsageHistoryService {
+        &lt;&lt;NEW v2.0&gt;&gt;
+        -HttpClient _http
+        -ISyncQueue _queue
+        +RecordLocalAsync(UsageHistoryDto dto) Task
+        +SyncBatchAsync(List~UsageHistoryDto~ batch) Task~SyncResult~
+        +GetHistoryByShopAsync(int shopId) Task~List~UsageHistoryDto~~
+        +GetMyHistoryAsync(string deviceId) Task~List~UsageHistoryDto~~
+        +DeduplicateAsync(List~UsageHistoryDto~ items) List~UsageHistoryDto~
+    }
+
+    class LanguageService {
+        &lt;&lt;UPDATED v2.0&gt;&gt;
+        -AppDbContext _db
+        +GetAllLanguagesAsync() Task~List~Language~~
+        +GetActiveLanguagesAsync() Task~List~Language~~
+        +AddLanguageAsync(Language lang) Task~Language~
+        +UpdateLanguageAsync(Language lang) Task~bool~
+    }
+
+    class UiLanguageService {
+        &lt;&lt;NEW v2.0&gt;&gt;
+        -IStringLocalizer _localizer
+        -string _currentLang
+        +SetLanguage(string langCode) void
+        +GetCurrentLanguage() string
+        +Translate(string key) string
+        +GetSupportedUiLanguages() List~string~
+    }
+
+    class StoreService {
+        &lt;&lt;UPDATED v2.0&gt;&gt;
+        -HttpClient _http
+        -ServicePackagesService _pkgSvc
+        +GetMyShopsAsync() Task~List~ShopDto~~
+        +CreateShopAsync(ShopDto dto) Task~ShopDto~
+        +UpdateShopAsync(int id, ShopDto dto) Task~bool~
+        +DeleteShopAsync(int id) Task~bool~
+        +CanCreateNewShop() Task~bool~
+    }
+
+    class CategoryService {
+        -HttpClient _http
+        +GetCategoriesAsync() Task~List~CategoryDto~~
+        +CreateCategoryAsync(CategoryDto dto) Task~CategoryDto~
+        +UpdateCategoryAsync(int id, CategoryDto dto) Task~bool~
+        +DeleteCategoryAsync(int id) Task~bool~
+    }
+
+    class ServicePackage {
+        +int Id
+        +string Name
+        +string Tier
+        +decimal MonthlyPrice
+        +decimal YearlyPrice
+        +string Description
+        +string Features
+        +int MaxStores
+        +bool IsActive
+        +DateTime CreatedAt
+        +ICollection~Subscription~ Subscriptions
+    }
+
+    class Subscription {
+        +int Id
+        +int UserId
+        +int ServicePackageId
+        +string BillingCycle
+        +decimal Price
+        +DateTime StartDate
+        +DateTime EndDate
+        +string Status
+        +DateTime CreatedAt
+    }
+
+    class UsageHistory {
+        +int Id
+        +string DeviceId
+        +int ShopId
+        +string LanguageCode
+        +DateTime ListenedAt
+        +int DurationSeconds
+    }
+
+    class Language {
+        +int Id
+        +string Code
+        +string Name
+        +bool IsActive
+    }
+
+    ApiService &lt;|-- AuthService : extends
+    ApiService &lt;|-- ServicePackagesService : extends
+    ApiService &lt;|-- UsageHistoryService : extends
+    ApiService &lt;|-- StoreService : extends
+    ApiService &lt;|-- CategoryService : extends
+
+    ServicePackagesService ..&gt; ServicePackage : manages
+    ServicePackagesService ..&gt; Subscription : manages
+    UsageHistoryService ..&gt; UsageHistory : syncs
+    LanguageService ..&gt; Language : manages
+    StoreService ..&gt; ServicePackagesService : depends on
+    </pre>
+  </div>
+</section>
+
+<!-- SECTION 4: SEQUENCE DIAGRAM -->
+<section id="sequence-diagram">
+  <div class="section-wrap">
+    <div class="section-header">
+      <div class="icon" style="background:#e8f5e9;color:var(--success);">🔄</div>
+      <div>
+        <div class="section-num">Phần 04</div>
+        <h2>Sequence Diagram — Luồng Đăng Ký Gói Dịch Vụ</h2>
+      </div>
+    </div>
+    <p>Sơ đồ trình tự mô tả toàn bộ luồng khi một <strong>Seller chọn và kích hoạt một Gói Dịch Vụ</strong>. Hệ thống kiểm tra điều kiện hợp lệ, lưu subscription, ghi UsageHistory nội bộ và cập nhật phân quyền tính năng cho gian hàng ngay lập tức.</p>
+    <pre class="mermaid">
+sequenceDiagram
+    actor Seller
+    participant Portal as Seller Portal (Blazor)
+    participant API as Backend API (ASP.NET Core)
+    participant DB as Database (MySQL)
+
+    Seller->>Portal: Mở trang "Gói Dịch Vụ"
+    Portal->>API: GET /api/owner/subscriptions/packages
+    API->>DB: SELECT * FROM ServicePackages WHERE IsActive=1
+    DB-->>API: List&lt;ServicePackage&gt;
+    API-->>Portal: 200 OK + danh sách gói
+    Portal-->>Seller: Hiển thị 3 gói (Basic/Premium/VIP)
+
+    Seller->>Portal: Chọn gói Premium + BillingCycle=Monthly
+    Portal->>API: GET /api/owner/subscriptions/my
+    API->>DB: SELECT * FROM Subscriptions WHERE UserId=? AND Status='Active'
+    DB-->>API: Subscription hiện tại (nếu có)
+    API-->>Portal: SubscriptionDto
+
+    alt Đã có gói hiện tại
+        Portal-->>Seller: Hiển thị hộp thoại "Nâng cấp / Hủy gói cũ?"
+        Seller->>Portal: Xác nhận nâng cấp
+    else Chưa có gói
+        Portal-->>Seller: Hiển thị nút "Đăng ký ngay"
+    end
+
+    Seller->>Portal: Nhấn xác nhận đăng ký
+    Portal->>API: POST /api/owner/subscriptions {PackageId:2, BillingCycle:"Monthly"}
+    API->>API: Validate: JWT hợp lệ, role=OWNER
+    API->>DB: SELECT COUNT(*) Shops WHERE OwnerId=?
+    DB-->>API: currentShopCount
+
+    alt shopCount <= maxStores của gói mới
+        API->>DB: UPDATE Subscriptions SET Status='Cancelled' WHERE UserId=? AND Status='Active'
+        API->>DB: INSERT INTO Subscriptions (UserId, PackageId, StartDate, EndDate, Status='Active', Price)
+        DB-->>API: subscriptionId
+        API->>DB: INSERT INTO UsageHistories (DeviceId='system', ShopId=0, LanguageCode='sys', DurationSeconds=0, Note='pkg_subscribed')
+        DB-->>API: OK
+        API-->>Portal: 200 OK + SubscriptionResult {success:true, tier:"Premium", endDate}
+        Portal-->>Seller: ✅ "Đăng ký thành công! Tính năng Premium đã được kích hoạt."
+        Portal->>Portal: Reload trang + cập nhật UI (hiện badge, mở menu thống kê)
+    else Vượt quá giới hạn gian hàng
+        API-->>Portal: 400 BadRequest {message:"Số gian hàng hiện tại vượt quá giới hạn gói"}
+        Portal-->>Seller: ❌ Thông báo lỗi + gợi ý xóa bớt gian hàng hoặc chọn gói cao hơn
+    end
+
+    Note over Portal,API: Sau khi đăng ký thành công, mọi API call đều kiểm tra Subscription
+    Seller->>Portal: Truy cập tính năng "Thống kê nâng cao"
+    Portal->>API: GET /api/owner/shops/stats (Header: Authorization Bearer)
+    API->>DB: SELECT s.Status FROM Subscriptions s WHERE s.UserId=? AND s.Status='Active' AND s.EndDate > NOW()
+    DB-->>API: tier = "Premium"
+    API->>API: CheckFeatureAccess("AdvancedStats", tier) → true
+    API->>DB: SELECT usage stats...
+    DB-->>API: StatsDto
+    API-->>Portal: 200 OK + StatsDto
+    Portal-->>Seller: Hiển thị Dashboard thống kê nâng cao
+    </pre>
+  </div>
+</section>
+
+<!-- SECTION 5: API v2 -->
+<section id="api" class="alt-bg">
+  <div class="section-wrap">
+    <div class="section-header">
+      <div class="icon" style="background:#e3f2fd;color:var(--info);">⚡</div>
+      <div>
+        <div class="section-num">Phần 05</div>
+        <h2>Backend API v2 — Endpoint mới &amp; cập nhật</h2>
+      </div>
+    </div>
+    <h3>📌 Nhóm Subscriptions (Mới hoàn toàn)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Auth</th><th>Mô tả</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag tag-blue">GET</span></td><td><code>/api/admin/service-packages</code></td><td>ADMIN</td><td>Lấy danh sách gói dịch vụ</td></tr>
+          <tr><td><span class="tag tag-blue">GET</span></td><td><code>/api/admin/service-packages/{id}</code></td><td>ADMIN</td><td>Chi tiết một gói</td></tr>
+          <tr><td><span class="tag tag-green">POST</span></td><td><code>/api/owner/subscriptions</code></td><td>OWNER</td><td>Đăng ký / nâng cấp gói dịch vụ</td></tr>
+          <tr><td><span class="tag tag-blue">GET</span></td><td><code>/api/owner/subscriptions/my</code></td><td>OWNER</td><td>Lấy subscription hiện hành của Seller</td></tr>
+          <tr><td><span class="tag tag-orange">DELETE</span></td><td><code>/api/owner/subscriptions/{id}</code></td><td>OWNER</td><td>Hủy subscription (chờ hết kỳ)</td></tr>
+          <tr><td><span class="tag tag-blue">GET</span></td><td><code>/api/admin/service-packages/subscriptions</code></td><td>ADMIN</td><td>Admin xem tất cả subscriptions</td></tr>
+          <tr><td><span class="tag tag-orange">PATCH</span></td><td><code>/api/admin/service-packages/subscriptions/{id}/approve</code></td><td>ADMIN</td><td>Admin duyệt đăng ký (Pending -> Active)</td></tr>
+          <tr><td><span class="tag tag-orange">PATCH</span></td><td><code>/api/admin/service-packages/subscriptions/{id}/cancel</code></td><td>ADMIN</td><td>Admin hủy đăng ký</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>📌 Nhóm UsageHistory (Cập nhật v2)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Auth</th><th>Mô tả</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag tag-green">POST</span></td><td><code>/api/usage-history/batch</code></td><td>USER/Any</td><td><strong>[NEW]</strong> Gửi batch nhiều bản ghi cùng lúc từ Mobile</td></tr>
+          <tr><td><span class="tag tag-blue">GET</span></td><td><code>/api/usage-history/shop/{shopId}</code></td><td>OWNER</td><td>Lịch sử nghe theo gian hàng (Premium+)</td></tr>
+          <tr><td><span class="tag tag-blue">GET</span></td><td><code>/api/usage-history/device/{deviceId}</code></td><td>USER</td><td>Lịch sử nghe của thiết bị/user</td></tr>
+          <tr><td><span class="tag tag-blue">GET</span></td><td><code>/api/admin/usage-history/stats</code></td><td>ADMIN</td><td>Thống kê tổng hợp toàn hệ thống</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>📌 Nhóm Languages &amp; Categories (Cập nhật v2)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Auth</th><th>Mô tả</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag tag-blue">GET</span></td><td><code>/api/languages</code></td><td>Public</td><td>Danh sách ngôn ngữ active</td></tr>
+          <tr><td><span class="tag tag-green">POST</span></td><td><code>/api/admin/languages</code></td><td>ADMIN</td><td>Thêm ngôn ngữ mới</td></tr>
+          <tr><td><span class="tag tag-orange">PUT</span></td><td><code>/api/admin/languages/{id}</code></td><td>ADMIN</td><td>Cập nhật ngôn ngữ</td></tr>
+          <tr><td><span class="tag tag-blue">GET</span></td><td><code>/api/categories</code></td><td>Public</td><td>Danh sách danh mục món ăn</td></tr>
+          <tr><td><span class="tag tag-green">POST</span></td><td><code>/api/admin/categories</code></td><td>ADMIN</td><td>Tạo danh mục mới</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>📌 Batch Sync API — Chi tiết kỹ thuật</h3>
+    <p>Endpoint <code>POST /api/usage-history/batch</code> nhận mảng các bản ghi và thực hiện upsert thông minh:</p>
+    <div class="code-block">
+<span class="comment">// Request body</span>
+[
+  {
+    <span class="string">"deviceId"</span>: <span class="string">"device-uuid-1234"</span>,
+    <span class="string">"shopId"</span>: 42,
+    <span class="string">"languageCode"</span>: <span class="string">"vi"</span>,
+    <span class="string">"listenedAt"</span>: <span class="string">"2026-04-08T03:15:00Z"</span>,
+    <span class="string">"durationSeconds"</span>: 95
+  },
+  ...
+]
+
+<span class="comment">// Response</span>
+{
+  <span class="string">"inserted"</span>: 12,
+  <span class="string">"duplicatesSkipped"</span>: 3,
+  <span class="string">"errors"</span>: 0,
+  <span class="string">"serverTimestamp"</span>: <span class="string">"2026-04-08T10:00:05Z"</span>
+}
+    </div>
+    <p>Deduplication dựa trên composite key <code>(DeviceId, ShopId, ListenedAt)</code> — trong vòng 10 giây được xem là cùng sự kiện, tránh trùng lặp khi Mobile retry.</p>
+  </div>
+</section>
+
+<!-- SECTION 6: MOBILE SYNC v2 -->
+<section id="mobile">
+  <div class="section-wrap">
+    <div class="section-header">
+      <div class="icon" style="background:#fff3e0;color:var(--accent);">📱</div>
+      <div>
+        <div class="section-num">Phần 06</div>
+        <h2>Mobile App — UsageHistory Sync v2</h2>
+      </div>
+    </div>
+    <p>Cập nhật kiến trúc đồng bộ lịch sử trong .NET MAUI app. Thay vì gọi API ngay sau mỗi sự kiện nghe, Mobile lưu local và đồng bộ batch định kỳ, giúp tiết kiệm pin và băng thông.</p>
+    <h3>🔄 Luồng Sync mới (Offline-first Batch)</h3>
+    <div class="timeline">
+      <div class="timeline-item">
+        <h4>Bước 1 — Ghi Local (ngay lập tức)</h4>
+        <p>Sau khi kích hoạt thuyết minh, <code>UsageHistoryService</code> ghi bản ghi vào <strong>SQLite local</strong> với trường <code>IsSynced = false</code>. Không cần mạng, không block UI.</p>
+      </div>
+      <div class="timeline-item">
+        <h4>Bước 2 — Queue &amp; Accumulate</h4>
+        <p>Các bản ghi chưa đồng bộ tích lũy trong SQLite. Background Worker kiểm tra hàng đợi mỗi <strong>5 phút</strong> hoặc khi kết nối mạng được phục hồi.</p>
+      </div>
+      <div class="timeline-item">
+        <h4>Bước 3 — Batch Upload</h4>
+        <p>Gom tối đa <strong>100 bản ghi</strong> gửi một request lên <code>POST /api/usage-history/batch</code>. Nếu thành công (HTTP 200), đánh dấu <code>IsSynced = true</code> và ghi <code>SyncedAt</code>.</p>
+      </div>
+      <div class="timeline-item">
+        <h4>Bước 4 — Retry Strategy</h4>
+        <p>Nếu request thất bại: exponential backoff (5s → 30s → 2min). Sau 3 lần thất bại, bỏ qua batch hiện tại, thử lại ở chu kỳ tiếp theo. Bản ghi vẫn giữ nguyên trong SQLite.</p>
+      </div>
+      <div class="timeline-item">
+        <h4>Bước 5 — Cleanup</h4>
+        <p>Bản ghi đã sync &gt; 30 ngày tự động xóa khỏi SQLite để tiết kiệm bộ nhớ thiết bị.</p>
+      </div>
+    </div>
+    <h3>📐 Schema SQLite Local (v2)</h3>
+    <div class="code-block">
+<span class="comment">// Entity trong MAUI SQLite</span>
+<span class="keyword">public class</span> <span class="fn">LocalUsageHistory</span>
+{
+    [PrimaryKey, AutoIncrement]
+    <span class="keyword">public int</span> LocalId { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+    <span class="keyword">public string</span> DeviceId { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+    <span class="keyword">public int</span> ShopId { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+    <span class="keyword">public string</span> LanguageCode { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+    <span class="keyword">public DateTime</span> ListenedAt { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+    <span class="keyword">public int</span> DurationSeconds { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+    <span class="keyword">public bool</span> IsSynced { <span class="keyword">get</span>; <span class="keyword">set</span>; } = <span class="keyword">false</span>;
+    <span class="keyword">public DateTime?</span> SyncedAt { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+}
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7: UPDATED ARCHITECTURE -->
+<section id="architecture" class="alt-bg">
+  <div class="section-wrap">
+    <div class="section-header">
+      <div class="icon" style="background:#e8f5e9;color:var(--success);">⚙️</div>
+      <div>
+        <div class="section-num">Phần 07</div>
+        <h2>Kiến Trúc Cập Nhật v2.0</h2>
+      </div>
+    </div>
+    <p>v2.0 bổ sung thêm 2 module vào kiến trúc: <strong>Service Package Engine</strong> và <strong>Batch Sync Layer</strong>. Các thành phần cũ giữ nguyên và tương thích ngược.</p>
+    <div class="arch-grid">
+      <div class="arch-module"><div class="mod-icon">💻</div><div class="mod-name">Seller Portal</div><div class="mod-desc">Blazor Server + MudBlazor — Quản lý gói, gian hàng, menu, thống kê</div></div>
+      <div class="arch-module"><div class="mod-icon">🛡️</div><div class="mod-name">Admin Portal</div><div class="mod-desc">Kiểm duyệt nội dung, quản lý gói dịch vụ, xem usage toàn hệ thống</div></div>
+      <div class="arch-module"><div class="mod-icon">📱</div><div class="mod-name">Mobile App</div><div class="mod-desc">.NET MAUI — GPS/Geofence, TTS, SQLite offline + Batch Sync v2</div></div>
+      <div class="arch-module"><div class="mod-icon">🔧</div><div class="mod-name">Backend API</div><div class="mod-desc">ASP.NET Core 8 — REST API v2, Feature Gating middleware, JWT</div></div>
+      <div class="arch-module new-mod"><div class="mod-icon">📦</div><div class="mod-name">✨ Package Engine</div><div class="mod-desc">ServicePackage + Subscription CRUD, Feature gate check, tier resolver</div></div>
+      <div class="arch-module new-mod"><div class="mod-icon">📊</div><div class="mod-name">✨ Batch Sync Layer</div><div class="mod-desc">Nhận batch UsageHistory từ Mobile, deduplicate, upsert tối ưu</div></div>
+      <div class="arch-module"><div class="mod-icon">🗄️</div><div class="mod-name">Database</div><div class="mod-desc">MySQL 8 — Thêm bảng ServicePackages, Subscriptions, Languages, Categories</div></div>
+      <div class="arch-module"><div class="mod-icon">🌐</div><div class="mod-name">Lang Engine</div><div class="mod-desc">LanguageService (DB-driven POI lang) + UiLanguageService (UI localization)</div></div>
+    </div>
+    <h3>🗃️ Schema Database cập nhật v2.0</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Entity</th><th>Các trường chính</th><th>Mới trong v2?</th></tr></thead>
+        <tbody>
+          <tr><td><strong>ServicePackage</strong></td><td>Id, Name, Tier (Basic/Premium/VIP), MonthlyPrice, YearlyPrice, Features, MaxStores, IsActive</td><td><span class="tag tag-new">NEW</span></td></tr>
+          <tr><td><strong>Subscription</strong></td><td>Id, UserId, ServicePackageId, BillingCycle, Price, StartDate, EndDate, Status (Pending/Active/Expired/Cancelled)</td><td><span class="tag tag-new">NEW</span></td></tr>
+          <tr><td><strong>UsageHistory</strong></td><td>Id, DeviceId, ShopId, LanguageCode, ListenedAt, DurationSeconds</td><td><span class="tag tag-new">NEW</span></td></tr>
+          <tr><td><strong>Language</strong></td><td>Id, Code (vi/en/ko/zh/ja), Name, IsActive</td><td><span class="tag tag-new">NEW</span></td></tr>
+          <tr><td><strong>Category</strong></td><td>Id, Name, Slug, Description, IsActive</td><td><span class="tag tag-new">NEW</span></td></tr>
+          <tr><td><strong>POI / POITranslation</strong></td><td>Như v1.0, thêm FK tới Language</td><td><span class="tag tag-purple">UPD</span></td></tr>
+          <tr><td><strong>Shop</strong></td><td>Thêm field: Tier (cache từ Subscription), PriorityScore, BadgeType</td><td><span class="tag tag-purple">UPD</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 8: ROADMAP -->
+<section id="roadmap">
+  <div class="section-wrap">
+    <div class="section-header">
+      <div class="icon" style="background:#f3e5f5;color:#6a1b9a;">🗺️</div>
+      <div>
+        <div class="section-num">Phần 08</div>
+        <h2>Lộ Trình Phát Triển v2.0</h2>
+      </div>
+    </div>
+    <div class="phase-grid">
+      <div class="phase-card done">
+        <div class="phase-tag">✅ Đã hoàn thành (v1.0)</div>
+        <h4>Phase 1 — Nền tảng</h4>
+        <ul>
+          <li>Backend API cơ bản (Auth, Shop, Menu)</li>
+          <li>Seller Portal Blazor (CRUD gian hàng, menu)</li>
+          <li>Mobile GPS + Geofence + TTS</li>
+          <li>Offline SQLite + Audio cache</li>
+        </ul>
+      </div>
+      <div class="phase-card active">
+        <div class="phase-tag">🔄 Đang triển khai (v2.0 — Sprint 1)</div>
+        <h4>Phase 2 — Service Packages</h4>
+        <ul>
+          <li>Model ServicePackage + Subscription</li>
+          <li>SubscriptionsController CRUD</li>
+          <li>ServicePackagesService (Mobile layer)</li>
+          <li>UI Seller Portal: trang chọn gói</li>
+          <li>Feature Gating middleware</li>
+        </ul>
+      </div>
+      <div class="phase-card next">
+        <div class="phase-tag">⏳ Tiếp theo (v2.0 — Sprint 2)</div>
+        <h4>Phase 3 — Sync &amp; Analytics</h4>
+        <ul>
+          <li>UsageHistory Batch API</li>
+          <li>Mobile Batch Sync Worker</li>
+          <li>Dashboard thống kê cho Seller Premium+</li>
+          <li>LanguageService + UiLanguageService</li>
+          <li>CategoryService</li>
+        </ul>
+      </div>
+      <div class="phase-card future">
+        <div class="phase-tag">🔮 Tương lai (v2.1+)</div>
+        <h4>Phase 4 — Monetization+</h4>
+        <ul>
+          <li>Tích hợp cổng thanh toán (VNPay/Stripe)</li>
+          <li>Tự động gia hạn subscription</li>
+          <li>Banner quảng cáo cho VIP</li>
+          <li>Push notification khi gói sắp hết hạn</li>
+          <li>Hệ thống voucher &amp; referral</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 9: RISKS -->
+<section id="risks" class="alt-bg">
+  <div class="section-wrap">
+    <div class="section-header">
+      <div class="icon" style="background:#ffebee;color:#c62828;">⚠️</div>
+      <div>
+        <div class="section-num">Phần 09</div>
+        <h2>Rủi Ro &amp; Biện Pháp Giảm Thiểu</h2>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Rủi ro</th><th>Mức độ</th><th>Tác động</th><th>Biện pháp</th></tr></thead>
+        <tbody>
+          <tr><td>Seller bypass feature gate bằng API trực tiếp</td><td><span class="risk-high">Cao</span></td><td>Mất doanh thu</td><td>Middleware kiểm tra subscription mọi request; rate limiting theo tier</td></tr>
+          <tr><td>Mobile gửi batch trùng lặp (retry storm)</td><td><span class="risk-med">Trung bình</span></td><td>DB bloat</td><td>Deduplication composite key (DeviceId+ShopId+ListenedAt±10s) tại server</td></tr>
+          <tr><td>Subscription hết hạn trong khi đang dùng tính năng</td><td><span class="risk-med">Trung bình</span></td><td>UX xấu</td><td>Gửi email cảnh báo 7 ngày, 3 ngày trước; grace period 24h sau khi hết hạn</td></tr>
+          <tr><td>Giá gói thay đổi ảnh hưởng subscription cũ</td><td><span class="risk-low">Thấp</span></td><td>Billing conflict</td><td>Lưu Price tại thời điểm đăng ký vào bảng Subscription (immutable)</td></tr>
+          <tr><td>Mobile sync background bị kill bởi OS</td><td><span class="risk-med">Trung bình</span></td><td>Data loss</td><td>WorkManager (Android) / BGTaskScheduler (iOS) + persistent SQLite queue</td></tr>
+          <tr><td>Blazor Server không scale khi nhiều Seller online</td><td><span class="risk-low">Thấp</span></td><td>Performance</td><td>SignalR circuit limit; xem xét migrate sang Blazor WebAssembly ở v3.0</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p><strong>FoodStreet PRD v3.0</strong> — Cập nhật: Tháng 4 năm 2026</p>
+  <p>Blazor Server &nbsp;|&nbsp; .NET MAUI &nbsp;|&nbsp; ASP.NET Core 8 &nbsp;|&nbsp; MySQL 8 &nbsp;|&nbsp; EF Core &nbsp;|&nbsp; JWT</p>
+  <p style="margin-top:.5rem;font-size:.75rem;">Bổ sung từ <strong>v2.0</strong>: Danh mục chức năng đầy đủ (10 module, 60+ chức năng) · Class Diagram theo module · Sequence Diagram theo chức năng (9 chức năng chính)</p>
+</footer>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+</script>
+</body>
+</html>
