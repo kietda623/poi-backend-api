@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AppUser.Models;
 using AppUser.Services;
@@ -11,6 +11,7 @@ namespace AppUser.ViewModels
         private readonly POIService _poiService;
         private readonly AuthService _authService;
         private readonly AudioService _audioService;
+        private readonly SubscriptionService _subscriptionService;
 
         [ObservableProperty]
         private ObservableCollection<POIDto> featuredPOIs = new();
@@ -27,18 +28,49 @@ namespace AppUser.ViewModels
         [ObservableProperty]
         private string currentLanguage = "vi";
 
-        public HomeViewModel(POIService poi, AuthService auth, AudioService audio)
+        [ObservableProperty]
+        private string pageTitle = "Khám phá ẩm thực";
+
+        [ObservableProperty]
+        private string searchPlaceholder = "Tìm điểm ẩm thực...";
+
+        [ObservableProperty]
+        private string featuredSectionTitle = "✨ Điểm ẩm thực nổi bật";
+
+        [ObservableProperty]
+        private string seeAllText = "Xem tất cả";
+
+        [ObservableProperty]
+        private string discoverMoreTitle = "🗺️ Khám phá thêm";
+
+        [ObservableProperty]
+        private string listenNowText = "Nghe ngay";
+
+        [ObservableProperty]
+        private string noAudioTitle = "Không có audio";
+
+        [ObservableProperty]
+        private string noAudioMessage = "Điểm ẩm thực này chưa có thuyết minh audio.";
+
+        [ObservableProperty]
+        private string okText = "OK";
+
+        public HomeViewModel(POIService poi, AuthService auth, AudioService audio, SubscriptionService subscriptionService)
         {
             _poiService = poi;
             _authService = auth;
             _audioService = audio;
+            _subscriptionService = subscriptionService;
+            CurrentLanguage = _audioService.CurrentLanguage;
+            _audioService.LanguageChanged += OnLanguageChanged;
+            UpdateGreeting();
+            UpdateLocalizedTexts();
         }
 
         public async Task InitializeAsync()
         {
             if (_authService.IsLoggedIn)
             {
-                // Keep local user state in sync with backend (admin can disable accounts).
                 var (success, _) = await _authService.RefreshMeAsync();
                 if (!success)
                 {
@@ -48,7 +80,9 @@ namespace AppUser.ViewModels
                 }
             }
 
+            CurrentLanguage = _audioService.CurrentLanguage;
             UpdateGreeting();
+            UpdateLocalizedTexts();
             UserEmail = _authService.CurrentUser?.Email ?? string.Empty;
             await LoadFeaturedPOIsAsync();
         }
@@ -62,7 +96,9 @@ namespace AppUser.ViewModels
                 var pois = await _poiService.GetFeaturedPOIsAsync(5, CurrentLanguage);
                 FeaturedPOIs.Clear();
                 foreach (var p in pois)
+                {
                     FeaturedPOIs.Add(p);
+                }
             }
             finally
             {
@@ -88,11 +124,27 @@ namespace AppUser.ViewModels
         {
             if (poi == null) return;
 
-            // Fetch full detail to get audio URL
+            if (!_authService.IsLoggedIn)
+            {
+                await Shell.Current.DisplayAlert("Dang nhap", "Ban can dang nhap de dang ky goi nghe thuyet minh.", OkText);
+                await Shell.Current.GoToAsync("//login");
+                return;
+            }
+
+            if (!await _subscriptionService.CanAccessAudioAsync())
+            {
+                var goToPackages = await Shell.Current.DisplayAlert("Can goi audio", "Ban can goi audio dang hoat dong de nghe thuyet minh.", "Dang ky goi", "De sau");
+                if (goToPackages)
+                {
+                    await Shell.Current.GoToAsync("subscriptionPackages");
+                }
+                return;
+            }
+
             var fullPoi = await _poiService.GetPOIByIdAsync(poi.Id, CurrentLanguage);
             if (fullPoi == null || !fullPoi.AudioGuides.Any())
             {
-                await Shell.Current.DisplayAlert("Không có audio", "Điểm ẩm thực này chưa có thuyết minh audio.", "OK");
+                await Shell.Current.DisplayAlert(NoAudioTitle, NoAudioMessage, OkText);
                 return;
             }
 
@@ -116,9 +168,10 @@ namespace AppUser.ViewModels
                 "en" => "zh",
                 _ => "vi"
             };
-            
+
             _audioService.SetLanguage(CurrentLanguage);
             UpdateGreeting();
+            UpdateLocalizedTexts();
             await LoadFeaturedPOIsAsync();
         }
 
@@ -143,7 +196,7 @@ namespace AppUser.ViewModels
                     _ => "Good Evening!"
                 };
             }
-            else if (CurrentLanguage == "zh")
+            else
             {
                 GreetingText = hour switch
                 {
@@ -152,6 +205,54 @@ namespace AppUser.ViewModels
                     _ => "晚上好!"
                 };
             }
+        }
+
+        private void UpdateLocalizedTexts()
+        {
+            switch (CurrentLanguage)
+            {
+                case "en":
+                    PageTitle = "Explore Cuisine";
+                    SearchPlaceholder = "Find food spots...";
+                    FeaturedSectionTitle = "✨ Featured Food Spots";
+                    SeeAllText = "See all";
+                    DiscoverMoreTitle = "🗺️ Discover more";
+                    ListenNowText = "Listen now";
+                    NoAudioTitle = "No audio";
+                    NoAudioMessage = "This food spot does not have an audio guide yet.";
+                    OkText = "OK";
+                    break;
+                case "zh":
+                    PageTitle = "探索美食";
+                    SearchPlaceholder = "查找美食地点...";
+                    FeaturedSectionTitle = "✨ 热门美食地点";
+                    SeeAllText = "查看全部";
+                    DiscoverMoreTitle = "🗺️ 发现更多";
+                    ListenNowText = "立即收听";
+                    NoAudioTitle = "暂无音频";
+                    NoAudioMessage = "该美食地点暂时还没有语音讲解。";
+                    OkText = "确定";
+                    break;
+                default:
+                    PageTitle = "Khám phá ẩm thực";
+                    SearchPlaceholder = "Tìm điểm ẩm thực...";
+                    FeaturedSectionTitle = "✨ Điểm ẩm thực nổi bật";
+                    SeeAllText = "Xem tất cả";
+                    DiscoverMoreTitle = "🗺️ Khám phá thêm";
+                    ListenNowText = "Nghe ngay";
+                    NoAudioTitle = "Không có audio";
+                    NoAudioMessage = "Điểm ẩm thực này chưa có thuyết minh audio.";
+                    OkText = "OK";
+                    break;
+            }
+        }
+
+        private void OnLanguageChanged(object? sender, string language)
+        {
+            CurrentLanguage = language;
+            UpdateGreeting();
+            UpdateLocalizedTexts();
+            MainThread.BeginInvokeOnMainThread(async () => await LoadFeaturedPOIsAsync());
         }
     }
 }

@@ -10,6 +10,8 @@ namespace AppUser.ViewModels
     {
         private readonly AudioService _audioService;
         private readonly POIService _poiService;
+        private readonly AuthService _authService;
+        private readonly SubscriptionService _subscriptionService;
         private bool _isResolvingAudio;
         private int? _lastTrackedViewPoiId;
 
@@ -43,10 +45,12 @@ namespace AppUser.ViewModels
         public string DisplayName => POI?.DisplayName(CurrentLanguage) ?? string.Empty;
         public string DisplayDescription => POI?.DisplayDescription(CurrentLanguage) ?? string.Empty;
 
-        public POIDetailViewModel(AudioService audio, POIService poiService)
+        public POIDetailViewModel(AudioService audio, POIService poiService, AuthService authService, SubscriptionService subscriptionService)
         {
             _audioService = audio;
             _poiService = poiService;
+            _authService = authService;
+            _subscriptionService = subscriptionService;
             CurrentLanguage = "vi";
             _audioService.SetLanguage("vi");
             UpdateLocalization();
@@ -117,6 +121,23 @@ namespace AppUser.ViewModels
         private async Task PlayAudioAsync()
         {
             if (POI == null) return;
+
+            if (!_authService.IsLoggedIn)
+            {
+                await Shell.Current.DisplayAlert("Dang nhap", "Ban can dang nhap de dang ky goi nghe thuyet minh.", "OK");
+                await Shell.Current.GoToAsync("//login");
+                return;
+            }
+
+            if (!await _subscriptionService.CanAccessAudioAsync())
+            {
+                var goToPackages = await Shell.Current.DisplayAlert("Can goi audio", "Ban can goi audio dang hoat dong de nghe thuyet minh.", "Dang ky goi", "De sau");
+                if (goToPackages)
+                {
+                    await Shell.Current.GoToAsync("subscriptionPackages");
+                }
+                return;
+            }
 
             var guide = CurrentAudioGuide;
             if (guide == null)

@@ -23,6 +23,7 @@ namespace AppUser.Services
         {
             try
             {
+                ApplyAuthorizationHeaderIfAvailable();
                 var response = await _http.GetFromJsonAsync<List<AppPoiListDto>>($"app/pois?lang={lang}");
                 if (response == null) return new();
 
@@ -45,6 +46,7 @@ namespace AppUser.Services
         {
             try
             {
+                ApplyAuthorizationHeaderIfAvailable();
                 var response = await _http.GetFromJsonAsync<AppPoiDetailDto>($"app/pois/{id}?lang={lang}");
                 if (response == null) return null;
 
@@ -61,6 +63,7 @@ namespace AppUser.Services
         {
             try
             {
+                ApplyAuthorizationHeaderIfAvailable();
                 var response = await _http.GetFromJsonAsync<List<AppPoiListDto>>($"app/pois?lang={lang}&search={query}");
                 if (response == null) return new();
 
@@ -77,6 +80,7 @@ namespace AppUser.Services
         {
             try
             {
+                ApplyAuthorizationHeaderIfAvailable();
                 var response = await _http.PostAsync($"app/pois/{poiId}/view", null);
                 return response.IsSuccessStatusCode;
             }

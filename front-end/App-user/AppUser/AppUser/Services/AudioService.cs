@@ -8,6 +8,7 @@ namespace AppUser.Services
     /// </summary>
     public class AudioService
     {
+        public event EventHandler<string>? LanguageChanged;
         // ─── Playback State ───────────────────────────────────────────────────
         public AudioGuideDto? CurrentGuide { get; private set; }
         public bool IsPlaying { get; private set; }
@@ -40,7 +41,21 @@ namespace AppUser.Services
         public void SetPlayState(bool isPlaying) => IsPlaying = isPlaying;
 
         /// <summary>Switch language for audio guides</summary>
-        public void SetLanguage(string langCode) => CurrentLanguage = langCode;
+        public void SetLanguage(string langCode)
+        {
+            if (string.IsNullOrWhiteSpace(langCode))
+            {
+                langCode = "vi";
+            }
+
+            if (CurrentLanguage == langCode)
+            {
+                return;
+            }
+
+            CurrentLanguage = langCode;
+            LanguageChanged?.Invoke(this, CurrentLanguage);
+        }
 
         /// <summary>Get audio guide for a POI in current language</summary>
         public AudioGuideDto? GetGuideForPOI(POIDto poi)

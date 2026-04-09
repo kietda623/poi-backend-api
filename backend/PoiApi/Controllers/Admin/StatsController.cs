@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PoiApi.Data;
 using PoiApi.Models;
+using PoiApi.Services;
 
 namespace PoiApi.Controllers.Admin
 {
@@ -19,103 +20,71 @@ namespace PoiApi.Controllers.Admin
         }
 
         [HttpGet]
-        public IActionResult GetAdminStats()
-        {
-            var totalStores = _context.Shops.Count();
-            var pendingStores = _context.Shops.Count(s => !s.IsActive);
-
-            // Total customers that have role == USER
-            var customerRole = _context.Roles.FirstOrDefault(r => r.Name == RoleConstants.User);
-            var totalCustomers = customerRole != null ? _context.Users.Count(u => u.RoleId == customerRole.Id) : 0;
-
-            var totalListens = _context.UsageHistories.Count();
-
-            // Real revenue from Orders table
-            var revenue = _context.Orders
-                .Where(o => o.Status == "Completed")
-                .Sum(o => (decimal?)o.TotalAmount) ?? 0;
-
-            var topStores = _context.Shops
-                .Select(s => new {
-                    s.Name,
-                    Category = "Chưa rõ",
-                    Listens = 0
-                })
-                .Take(5)
-                .ToList();
-
-            var langStats = _context.Languages
-                .Select(l => new {
-                    Language = l.Name,
-                    Listens = 0,
-                    Percent = 0.0
-                })
-                .ToList();
-
-            var monthlyOverview = new List<object>
-            {
-                new { Month = "Tháng hiện tại", NewStores = totalStores, NewCustomers = totalCustomers, TotalListens = totalListens, Revenue = revenue, Growth = 0.0 }
-            };
-
-            return Ok(new
-            {
-                TotalStores = totalStores,
-                PendingStores = pendingStores,
-                TotalCustomers = totalCustomers,
-                TotalListens = totalListens,
-                TotalRevenue = revenue,
-                TopStores = topStores,
-                LangStats = langStats,
-                MonthlyOverview = monthlyOverview
-            });
-        }
-
-        /// <summary>
-        /// Revenue statistics filtered by month and/or year.
-        /// GET /api/admin/stats/revenue?year=2026 → full year grouped by month
-        /// GET /api/admin/stats/revenue?month=4&year=2026 → single month grouped by shop
-        /// </summary>
-        [HttpGet("revenue")]
-        public IActionResult GetRevenueStats([FromQuery] int? month, [FromQuery] int? year)
+        public IActionResult GetAdminStats([FromQuery] int? month, [FromQuery] int? year)
         {
             var currentYear = year ?? DateTime.UtcNow.Year;
 
-            var ordersQuery = _context.Orders
-                .Include(o => o.Shop)
-                .Where(o => o.Status == "Completed")
-                .Where(o => o.CreatedAt.Year == currentYear);
+            var subscriptionRevenueQuery = _context.Subscriptions
+                .Include(s => s.User)
+                .Include(s => s.ServicePackage)
+                .Where(s => s.PaymentStatus == SubscriptionConstants.PaymentPaid)
+                .Where(s => (s.ActivatedAt ?? s.CreatedAt).Year == currentYear);
+
+            var listensQuery = _context.UsageHistories
+                .Include(u => u.Shop)
+                .Where(u => u.ListenedAt.Year == currentYear);
 
             if (month.HasValue)
             {
-                ordersQuery = ordersQuery.Where(o => o.CreatedAt.Month == month.Value);
+                subscriptionRevenueQuery = subscriptionRevenueQuery.Where(s => (s.ActivatedAt ?? s.CreatedAt).Month == month.Value);
+                listensQuery = listensQuery.Where(u => u.ListenedAt.Month == month.Value);
             }
 
-            // Total revenue
-            var totalRevenue = ordersQuery.Sum(o => (decimal?)o.TotalAmount) ?? 0;
+            var totalRevenue = subscriptionRevenueQuery.Sum(s => (decimal?)s.Price) ?? 0m;
+            var totalListens = listensQuery.Count();
 
-            // Revenue by shop
-            var revenueByShop = ordersQuery
-                .GroupBy(o => new { o.ShopId, o.Shop.Name })
+            var revenueByMonth = subscriptionRevenueQuery
+                .GroupBy(s => (s.ActivatedAt ?? s.CreatedAt).Month)
                 .Select(g => new
                 {
-                    ShopId = g.Key.ShopId,
-                    ShopName = g.Key.Name,
-                    Revenue = g.Sum(o => o.TotalAmount),
+                    Month = g.Key,
+                    Revenue = g.Sum(s => s.Price),
+                    SubscriptionCount = g.Count()
+                })
+                .OrderBy(x => x.Month)
+                .ToList();
+
+            var revenueByShop = subscriptionRevenueQuery
+                .GroupBy(s => new { s.UserId, SellerName = s.User.FullName, s.User.Email })
+                .Select(g => new
+                {
+                    ShopId = g.Key.UserId,
+                    ShopName = string.IsNullOrWhiteSpace(g.Key.SellerName) ? g.Key.Email : g.Key.SellerName,
+                    Revenue = g.Sum(s => s.Price),
                     OrderCount = g.Count()
                 })
                 .OrderByDescending(x => x.Revenue)
                 .ToList();
 
-            // Revenue by month (when filtering by year only)
-            var revenueByMonth = ordersQuery
-                .GroupBy(o => o.CreatedAt.Month)
+            var listensByMonth = listensQuery
+                .GroupBy(u => u.ListenedAt.Month)
                 .Select(g => new
                 {
                     Month = g.Key,
-                    Revenue = g.Sum(o => o.TotalAmount),
-                    OrderCount = g.Count()
+                    Listens = g.Count()
                 })
                 .OrderBy(x => x.Month)
+                .ToList();
+
+            var listensByShop = listensQuery
+                .GroupBy(u => new { u.ShopId, ShopName = u.Shop != null ? u.Shop.Name : "Unknown Shop" })
+                .Select(g => new
+                {
+                    ShopId = g.Key.ShopId,
+                    ShopName = g.Key.ShopName,
+                    Listens = g.Count()
+                })
+                .OrderByDescending(x => x.Listens)
                 .ToList();
 
             return Ok(new
@@ -123,9 +92,18 @@ namespace PoiApi.Controllers.Admin
                 Year = currentYear,
                 Month = month,
                 TotalRevenue = totalRevenue,
+                TotalListens = totalListens,
+                RevenueByMonth = revenueByMonth,
                 RevenueByShop = revenueByShop,
-                RevenueByMonth = revenueByMonth
+                ListensByMonth = listensByMonth,
+                ListensByShop = listensByShop
             });
+        }
+
+        [HttpGet("revenue")]
+        public IActionResult GetRevenueStats([FromQuery] int? month, [FromQuery] int? year)
+        {
+            return GetAdminStats(month, year);
         }
     }
 }

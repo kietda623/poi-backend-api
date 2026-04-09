@@ -10,6 +10,8 @@ namespace AppUser.ViewModels
     {
         private readonly POIService _poiService;
         private readonly AudioService _audioService;
+        private readonly AuthService _authService;
+        private readonly SubscriptionService _subscriptionService;
         private List<POIDto> _allPOIs = new();
         
         private IDispatcherTimer? _locationTimer;
@@ -36,10 +38,12 @@ namespace AppUser.ViewModels
         [ObservableProperty]
         private string currentLanguage = "vi";
 
-        public POIListViewModel(POIService poi, AudioService audio)
+        public POIListViewModel(POIService poi, AudioService audio, AuthService authService, SubscriptionService subscriptionService)
         {
             _poiService = poi;
             _audioService = audio;
+            _authService = authService;
+            _subscriptionService = subscriptionService;
             CurrentLanguage = _audioService.CurrentLanguage;
         }
 
@@ -198,6 +202,23 @@ namespace AppUser.ViewModels
         private async Task PlayAudioDirect(POIDto poi)
         {
             if (poi == null) return;
+
+            if (!_authService.IsLoggedIn)
+            {
+                await Shell.Current.DisplayAlert("Dang nhap", "Ban can dang nhap de dang ky goi nghe thuyet minh.", "OK");
+                await Shell.Current.GoToAsync("//login");
+                return;
+            }
+
+            if (!await _subscriptionService.CanAccessAudioAsync())
+            {
+                var goToPackages = await Shell.Current.DisplayAlert("Can goi audio", "Ban can goi audio dang hoat dong de nghe thuyet minh.", "Dang ky goi", "De sau");
+                if (goToPackages)
+                {
+                    await Shell.Current.GoToAsync("subscriptionPackages");
+                }
+                return;
+            }
 
             // Fetch full detail to get audio URL
             var fullPoi = await _poiService.GetPOIByIdAsync(poi.Id, CurrentLanguage);

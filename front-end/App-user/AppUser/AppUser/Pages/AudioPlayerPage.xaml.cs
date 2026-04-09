@@ -10,6 +10,7 @@ namespace AppUser.Pages
         private static readonly HttpClient _httpClient = new();
         private bool _isLoadingSource;
         private string _currentUrl = string.Empty;
+        private bool _completionReviewTriggered;
 
         public AudioPlayerPage(AudioPlayerViewModel vm)
         {
@@ -30,6 +31,16 @@ namespace AppUser.Pages
 
             // Then load and play audio if available
             _ = LoadAndPlayAudioAsync();
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            if (_vm.GoBackCommand.CanExecute(null))
+            {
+                _vm.GoBackCommand.Execute(null);
+            }
+
+            return true;
         }
 
         protected override void OnDisappearing()
@@ -60,6 +71,7 @@ namespace AppUser.Pages
             try
             {
                 _isLoadingSource = true;
+                _completionReviewTriggered = false;
                 FallbackAudioContainer.IsVisible = false;
 
                 // Download to cache then play local file for better reliability across platforms.
@@ -101,6 +113,7 @@ namespace AppUser.Pages
         private void OnSourceChanged(object? sender, EventArgs e)
         {
             // When source changes (e.g. language switch), reload
+            _completionReviewTriggered = false;
             _ = LoadAndPlayAudioAsync();
         }
 
@@ -146,6 +159,18 @@ namespace AppUser.Pages
         private void OnMediaElementPositionChanged(object? sender, MediaPositionChangedEventArgs e)
         {
             _vm.UpdateProgress(e.Position, MediaElement.Duration);
+
+            if (_completionReviewTriggered)
+            {
+                return;
+            }
+
+            var duration = MediaElement.Duration;
+            if (duration > TimeSpan.Zero && e.Position >= duration.Subtract(TimeSpan.FromMilliseconds(800)))
+            {
+                _completionReviewTriggered = true;
+                MainThread.BeginInvokeOnMainThread(_vm.PromptReviewAfterCompletion);
+            }
         }
 
         private bool _isAnimating = false;

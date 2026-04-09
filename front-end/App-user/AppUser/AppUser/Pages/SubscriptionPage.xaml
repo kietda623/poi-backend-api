@@ -1,0 +1,199 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="AppUser.Pages.SubscriptionPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:model="clr-namespace:AppUser.Models"
+    x:Name="PageRoot"
+    Title="{Binding Title}"
+    BackgroundColor="{StaticResource Background}">
+
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout Padding="20" Spacing="16">
+                <Label Text="{Binding PageHeading}"
+                       FontFamily="PoppinsBold"
+                       FontSize="24"
+                       TextColor="{StaticResource TextPrimary}" />
+
+                <Border StrokeThickness="0"
+                        BackgroundColor="#EEF2FF"
+                        Padding="14"
+                        StrokeShape="RoundRectangle 18"
+                        IsVisible="{Binding StatusMessage, Converter={StaticResource StringNotEmptyConverter}}">
+                    <Label Text="{Binding StatusMessage}"
+                           TextColor="{StaticResource Primary}" />
+                </Border>
+
+                <Border StrokeThickness="0"
+                        BackgroundColor="{StaticResource Surface}"
+                        Padding="16"
+                        StrokeShape="RoundRectangle 18">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{Binding CurrentPackageHeading}"
+                               FontFamily="PoppinsBold"
+                               FontSize="18"
+                               TextColor="{StaticResource TextPrimary}" />
+
+                        <VerticalStackLayout Spacing="8"
+                                             IsVisible="{Binding Current.HasSubscription}">
+                            <Label Text="{Binding Current.Subscription.PackageName}"
+                                   FontFamily="PoppinsSemiBold"
+                                   FontSize="17"
+                                   TextColor="{StaticResource TextPrimary}" />
+                            <Label Text="{Binding CurrentStatusDisplay}"
+                                   TextColor="{StaticResource Primary}" />
+                            <Label Text="{Binding CurrentExpiryDisplay}"
+                                   TextColor="{StaticResource TextSecondary}" />
+                            <Grid ColumnDefinitions="*,*"
+                                  ColumnSpacing="10"
+                                  RowDefinitions="Auto,Auto"
+                                  RowSpacing="10">
+                                <Button Grid.ColumnSpan="2"
+                                        Text="{Binding ContinuePaymentText}"
+                                        Style="{StaticResource PrimaryButton}"
+                                        Command="{Binding ContinuePaymentCommand}"
+                                        IsVisible="{Binding Current.Subscription.CheckoutUrl, Converter={StaticResource StringNotEmptyConverter}}" />
+                                <Button Grid.Row="1"
+                                        Text="{Binding PaymentCompletedText}"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Command="{Binding SyncPaymentCommand}" />
+                                <Button Grid.Row="1"
+                                        Grid.Column="1"
+                                        Text="{Binding CancelPackageText}"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Command="{Binding CancelCurrentCommand}" />
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="8"
+                                             IsVisible="{Binding Current.HasSubscription, Converter={StaticResource BoolInverterConverter}}">
+                            <Label Text="{Binding NoActivePackageText}"
+                                   TextColor="{StaticResource TextSecondary}" />
+                            <Button Text="{Binding ReloadText}"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Command="{Binding ReloadCommand}" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="{Binding ChoosePackageHeading}"
+                       FontFamily="PoppinsBold"
+                       FontSize="18"
+                       TextColor="{StaticResource TextPrimary}" />
+
+                <Label Text="{Binding EmptyPackagesText}"
+                       TextColor="{StaticResource TextSecondary}"
+                       IsVisible="{Binding Packages.Count, Converter={StaticResource IntIsZeroConverter}}" />
+
+                <VerticalStackLayout Spacing="14"
+                                     BindableLayout.ItemsSource="{Binding Packages}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="model:AppServicePackageDto">
+                            <Border StrokeThickness="0"
+                                    BackgroundColor="{StaticResource Surface}"
+                                    Padding="16"
+                                    StrokeShape="RoundRectangle 18">
+                                <VerticalStackLayout Spacing="12">
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Label Text="{Binding Name}"
+                                               FontFamily="PoppinsBold"
+                                               FontSize="18"
+                                               TextColor="{StaticResource TextPrimary}" />
+                                        <Border BackgroundColor="{StaticResource Primary}"
+                                                StrokeThickness="0"
+                                                Padding="10,4"
+                                                StrokeShape="RoundRectangle 999">
+                                            <Label Text="{Binding Tier}"
+                                                   FontSize="12"
+                                                   TextColor="White" />
+                                        </Border>
+                                    </HorizontalStackLayout>
+
+                                    <Label Text="{Binding Description}"
+                                           TextColor="{StaticResource TextSecondary}" />
+
+                                    <Border BackgroundColor="#F8FAFC"
+                                            Padding="12"
+                                            Stroke="{StaticResource Border}"
+                                            StrokeShape="RoundRectangle 14">
+                                        <VerticalStackLayout Spacing="4">
+                                            <Label Text="{Binding DisplayLabel}"
+                                                   FontFamily="PoppinsSemiBold"
+                                                   TextColor="{StaticResource TextSecondary}" />
+                                            <Label Text="{Binding DisplayPrice, StringFormat='{0:N0} d'}"
+                                                   FontFamily="PoppinsBold"
+                                                   FontSize="18"
+                                                   TextColor="{StaticResource TextPrimary}" />
+                                        </VerticalStackLayout>
+                                    </Border>
+
+                                    <VerticalStackLayout Spacing="6"
+                                                         BindableLayout.ItemsSource="{Binding Features}">
+                                        <BindableLayout.ItemTemplate>
+                                            <DataTemplate>
+                                                <Label Text="{Binding StringFormat='- {0}'}"
+                                                       TextColor="{StaticResource TextSecondary}" />
+                                            </DataTemplate>
+                                        </BindableLayout.ItemTemplate>
+                                    </VerticalStackLayout>
+
+                                    <Button Text="{Binding DisplayLabel, StringFormat='Dang ky {0}'}"
+                                            Style="{StaticResource PrimaryButton}"
+                                            Command="{Binding Source={x:Reference PageRoot}, Path=BindingContext.SubscribeMonthlyCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid IsVisible="{Binding IsQrVisible}"
+              BackgroundColor="#990F172A"
+              InputTransparent="False"
+              Padding="24"
+              ZIndex="10">
+            <Border BackgroundColor="White"
+                    Padding="20"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 24"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    MaximumWidthRequest="420">
+                <VerticalStackLayout Spacing="16">
+                    <Label Text="{Binding QrDialogTitle}"
+                           FontFamily="PoppinsBold"
+                           FontSize="22"
+                           HorizontalTextAlignment="Center"
+                           TextColor="{StaticResource TextPrimary}" />
+                    <Label Text="{Binding PendingCheckoutTitle}"
+                           HorizontalTextAlignment="Center"
+                           TextColor="{StaticResource TextSecondary}" />
+                    <Image Source="{Binding QrImageUrl}"
+                           HeightRequest="280"
+                           WidthRequest="280"
+                           HorizontalOptions="Center" />
+                    <Label Text="{Binding QrDialogHint}"
+                           HorizontalTextAlignment="Center"
+                           TextColor="{StaticResource TextSecondary}" />
+                    <Button Text="{Binding OpenPayOsText}"
+                            Style="{StaticResource PrimaryButton}"
+                            Command="{Binding ContinuePaymentCommand}" />
+                    <Grid ColumnDefinitions="*,*"
+                          ColumnSpacing="10">
+                        <Button Grid.Column="0"
+                                Text="{Binding PaymentCompletedText}"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding SyncPaymentCommand}" />
+                        <Button Grid.Column="1"
+                                Text="{Binding CloseQrText}"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding CloseQrCommand}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>

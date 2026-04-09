@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PoiApi.Data;
@@ -19,12 +19,14 @@ namespace PoiApi.Controllers.Owner
         private readonly AppDbContext _context;
         private readonly AzureSpeechService _tts;
         private readonly AzureTranslationService _translator;
+        private readonly SubscriptionAccessService _subscriptionAccessService;
 
-        public ShopsController(AppDbContext context, AzureSpeechService tts, AzureTranslationService translator)
+        public ShopsController(AppDbContext context, AzureSpeechService tts, AzureTranslationService translator, SubscriptionAccessService subscriptionAccessService)
         {
             _context = context;
             _tts = tts;
             _translator = translator;
+            _subscriptionAccessService = subscriptionAccessService;
         }
 
         private int GetCurrentUserId()
@@ -32,6 +34,11 @@ namespace PoiApi.Controllers.Owner
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             int.TryParse(userIdString, out var userId);
             return userId;
+        }
+
+        private async Task<Subscription?> GetActiveSellerSubscriptionAsync(int ownerId)
+        {
+            return await _subscriptionAccessService.GetActiveSubscriptionAsync(ownerId, RoleConstants.Owner);
         }
 
         private async Task<int?> ResolveOrCreateCategoryIdAsync(string? categoryValue)
@@ -113,7 +120,7 @@ namespace PoiApi.Controllers.Owner
                 string name = s.Name;
                 string description = s.Description ?? "";
 
-                // Nếu yêu cầu không phải Tiếng Việt, thử tìm bản dịch hoặc dịch tự động
+                // Náº¿u yÃªu cáº§u khÃ´ng pháº£i Tiáº¿ng Viá»‡t, thá»­ tÃ¬m báº£n dá»‹ch hoáº·c dá»‹ch tá»± Ä‘á»™ng
                 if (lang != "vi")
                 {
                     var trans = s.Poi?.Translations.FirstOrDefault(t => t.LanguageCode == lang);
@@ -124,7 +131,7 @@ namespace PoiApi.Controllers.Owner
                     }
                     else
                     {
-                        // Dịch tự động nếu chưa có bản dịch trong DB
+                        // Dá»‹ch tá»± Ä‘á»™ng náº¿u chÆ°a cÃ³ báº£n dá»‹ch trong DB
                         name = await _translator.TranslateAsync(s.Name, lang) ?? s.Name;
                         description = await _translator.TranslateAsync(s.Description ?? "", lang) ?? (s.Description ?? "");
                     }
@@ -145,7 +152,7 @@ namespace PoiApi.Controllers.Owner
                     AudioUrls = s.Poi != null 
                                 ? s.Poi.Translations.Where(t => !string.IsNullOrEmpty(t.AudioUrl)).ToDictionary(t => t.LanguageCode, t => t.AudioUrl) 
                                 : new Dictionary<string, string>(),
-                    Category = s.Category != null ? s.Category.Name : "Mặc định",
+                    Category = s.Category != null ? s.Category.Name : "Máº·c Ä‘á»‹nh",
                     Status = s.IsActive ? "Active" : "Pending",
                     SellerId = s.OwnerId,
                     s.CreatedAt,
@@ -161,10 +168,21 @@ namespace PoiApi.Controllers.Owner
         public async Task<IActionResult> CreateShop([FromBody] ShopCreateDto dto)
         {
             var ownerId = GetCurrentUserId();
+            var activeSubscription = await GetActiveSellerSubscriptionAsync(ownerId);
+            if (activeSubscription?.ServicePackage == null)
+            {
+                return BadRequest(new { message = "Ban can dang ky goi seller truoc khi tao gian hang." });
+            }
+
+            var currentStores = await _context.Shops.CountAsync(s => s.OwnerId == ownerId);
+            if (currentStores >= activeSubscription.ServicePackage.MaxStores)
+            {
+                return BadRequest(new { message = $"Goi hien tai chi cho phep toi da {activeSubscription.ServicePackage.MaxStores} gian hang." });
+            }
 
             var categoryId = await ResolveOrCreateCategoryIdAsync(dto.Category);
 
-            // 1. Tạo POI tương ứng cho Shop
+            // 1. Táº¡o POI tÆ°Æ¡ng á»©ng cho Shop
             var poi = new POI
             {
                 Latitude = dto.Latitude,
@@ -185,7 +203,7 @@ namespace PoiApi.Controllers.Owner
             _context.POIs.Add(poi);
             await _context.SaveChangesAsync();
 
-            // 2. Tạo Shop liên kết với POI
+            // 2. Táº¡o Shop liÃªn káº¿t vá»›i POI
             var shop = new Shop
             {
                 Name = dto.Name,
@@ -194,13 +212,13 @@ namespace PoiApi.Controllers.Owner
                 OwnerId = ownerId,
                 PoiId = poi.Id,
                 CategoryId = categoryId,
-                IsActive = true // Mặc định cho phép hoạt động (Hoặc để Admin duyệt)
+                IsActive = true // Máº·c Ä‘á»‹nh cho phÃ©p hoáº¡t Ä‘á»™ng (Hoáº·c Ä‘á»ƒ Admin duyá»‡t)
             };
 
             _context.Shops.Add(shop);
             await _context.SaveChangesAsync();
 
-            return Ok(new { id = shop.Id, message = "Đăng ký gian hàng thành công" });
+            return Ok(new { id = shop.Id, message = "ÄÄƒng kÃ½ gian hÃ ng thÃ nh cÃ´ng" });
         }
 
         [HttpPut("{id}")]
@@ -213,7 +231,7 @@ namespace PoiApi.Controllers.Owner
                     .ThenInclude(p => p.Translations)
                 .FirstOrDefaultAsync(s => s.Id == id && s.OwnerId == ownerId);
 
-            if (shop == null) return NotFound("Gian hàng không tồn tại hoặc không thuộc quyền sở hữu");
+            if (shop == null) return NotFound("Gian hÃ ng khÃ´ng tá»“n táº¡i hoáº·c khÃ´ng thuá»™c quyá»n sá»Ÿ há»¯u");
 
             shop.Name = dto.Name;
             shop.Description = dto.Description;
@@ -237,7 +255,7 @@ namespace PoiApi.Controllers.Owner
             }
 
             await _context.SaveChangesAsync();
-            return Ok(new { message = "Cập nhật gian hàng thành công" });
+            return Ok(new { message = "Cáº­p nháº­t gian hÃ ng thÃ nh cÃ´ng" });
         }
 
         [HttpDelete("{id}")]
@@ -249,7 +267,7 @@ namespace PoiApi.Controllers.Owner
                     .ThenInclude(p => p.Translations)
                 .FirstOrDefaultAsync(s => s.Id == id && s.OwnerId == ownerId);
 
-            if (shop == null) return NotFound("Gian hàng không tồn tại hoặc không thuộc quyền sở hữu");
+            if (shop == null) return NotFound("Gian hÃ ng khÃ´ng tá»“n táº¡i hoáº·c khÃ´ng thuá»™c quyá»n sá»Ÿ há»¯u");
 
             // Remove related POI translations and POI if exists
             if (shop.Poi != null)
@@ -268,16 +286,19 @@ namespace PoiApi.Controllers.Owner
     public async Task<IActionResult> GenerateTTS(int id, [FromBody] TTSRequestDto? dto = null)
     {
         var ownerId = GetCurrentUserId();
+        var activeSubscription = await GetActiveSellerSubscriptionAsync(ownerId);
+        if (activeSubscription == null)
+            return BadRequest(new { message = "Ban can co goi seller dang hoat dong de tao audio thuyet minh." });
         var shop = await _context.Shops
             .Include(s => s.Poi)
                 .ThenInclude(p => p.Translations)
             .FirstOrDefaultAsync(s => s.Id == id && s.OwnerId == ownerId);
 
-        if (shop == null || shop.Poi == null) return NotFound("Gian hàng không tồn tại");
+        if (shop == null || shop.Poi == null) return NotFound("Gian hÃ ng khÃ´ng tá»“n táº¡i");
 
         var langCode = string.IsNullOrWhiteSpace(dto?.LangCode) ? "vi" : dto.LangCode.ToLower();
 
-        // Tìm bản dịch tương ứng hoặc tạo mới nếu chưa có
+        // TÃ¬m báº£n dá»‹ch tÆ°Æ¡ng á»©ng hoáº·c táº¡o má»›i náº¿u chÆ°a cÃ³
         var translation = shop.Poi.Translations.FirstOrDefault(t => t.LanguageCode == langCode);
         
         bool isNew = false;
@@ -293,17 +314,17 @@ namespace PoiApi.Controllers.Owner
             };
         }
 
-        // TỰ ĐỘNG DỊCH nếu ngôn ngữ không phải Tiếng Việt và không có Text thủ công
+        // Tá»° Äá»˜NG Dá»ŠCH náº¿u ngÃ´n ngá»¯ khÃ´ng pháº£i Tiáº¿ng Viá»‡t vÃ  khÃ´ng cÃ³ Text thá»§ cÃ´ng
         if (langCode != "vi" && string.IsNullOrWhiteSpace(dto?.Text))
         {
-            // Dịch Tên (Tùy chọn, ở đây dịch luôn cho đồng bộ)
+            // Dá»‹ch TÃªn (TÃ¹y chá»n, á»Ÿ Ä‘Ã¢y dá»‹ch luÃ´n cho Ä‘á»“ng bá»™)
             translation.Name = await _translator.TranslateAsync(shop.Name, langCode) ?? shop.Name;
-            // Dịch Mô tả
+            // Dá»‹ch MÃ´ táº£
             translation.Description = await _translator.TranslateAsync(shop.Description ?? "", langCode) ?? (shop.Description ?? "");
         }
         else if (!string.IsNullOrWhiteSpace(dto?.Text))
         {
-            // Nếu có Text thủ công từ Seller, cập nhật vào mô tả bản dịch luôn
+            // Náº¿u cÃ³ Text thá»§ cÃ´ng tá»« Seller, cáº­p nháº­t vÃ o mÃ´ táº£ báº£n dá»‹ch luÃ´n
             translation.Description = dto.Text;
         }
 
@@ -312,7 +333,7 @@ namespace PoiApi.Controllers.Owner
 
         await _context.SaveChangesAsync();
 
-        // Chuẩn bị văn bản để nói (đã được dịch hoặc do user nhập)
+        // Chuáº©n bá»‹ vÄƒn báº£n Ä‘á»ƒ nÃ³i (Ä‘Ã£ Ä‘Æ°á»£c dá»‹ch hoáº·c do user nháº­p)
         var textToSpeak = $"{translation.Name}. {translation.Description}";
         
         var audioUrl = await _tts.GenerateAudioAsync(shop.Poi.Id, langCode, textToSpeak);
@@ -330,7 +351,7 @@ namespace PoiApi.Controllers.Owner
     [HttpPost("translate")]
     public async Task<IActionResult> TranslateText([FromBody] TranslateRequestDto dto)
     {
-        if (string.IsNullOrWhiteSpace(dto.Text)) return BadRequest("Nội dung không được để trống");
+        if (string.IsNullOrWhiteSpace(dto.Text)) return BadRequest("Ná»™i dung khÃ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng");
         
         var translated = await _translator.TranslateAsync(dto.Text, dto.TargetLang);
         return Ok(new { translatedText = translated ?? dto.Text });
@@ -344,12 +365,15 @@ namespace PoiApi.Controllers.Owner
     public async Task<IActionResult> GenerateTTSAll(int id, [FromBody] TTSRequestDto? dto = null)
     {
         var ownerId = GetCurrentUserId();
+        var activeSubscription = await GetActiveSellerSubscriptionAsync(ownerId);
+        if (activeSubscription == null)
+            return BadRequest(new { message = "Ban can co goi seller dang hoat dong de tao audio thuyet minh." });
         var shop = await _context.Shops
             .Include(s => s.Poi)
                 .ThenInclude(p => p.Translations)
             .FirstOrDefaultAsync(s => s.Id == id && s.OwnerId == ownerId);
 
-        if (shop == null || shop.Poi == null) return NotFound("Gian hàng không tồn tại");
+        if (shop == null || shop.Poi == null) return NotFound("Gian hÃ ng khÃ´ng tá»“n táº¡i");
 
         var poi = shop.Poi;
         var languages = new[] { "vi", "en", "zh" };
@@ -400,7 +424,7 @@ namespace PoiApi.Controllers.Owner
                 };
             }
 
-            // Step 3: Dịch nếu cần
+            // Step 3: Dá»‹ch náº¿u cáº§n
             if (lang != "vi")
             {
                 // Translate both fields in one request to reduce latency.
@@ -415,7 +439,7 @@ namespace PoiApi.Controllers.Owner
             if (isNew) _context.POITranslations.Add(translation);
             await _context.SaveChangesAsync();
 
-            // Step 4: Tạo audio từ nội dung đã dịch
+            // Step 4: Táº¡o audio tá»« ná»™i dung Ä‘Ã£ dá»‹ch
             var textToSpeak = $"{translation.Name}. {translation.Description}";
             var audioUrl = await _tts.GenerateAudioAsync(poi.Id, lang, textToSpeak);
 
@@ -450,17 +474,19 @@ namespace PoiApi.Controllers.Owner
 
         return Ok(new
         {
-            message = "Đã tạo audio thuyết minh cho 3 ngôn ngữ",
+            message = "ÄÃ£ táº¡o audio thuyáº¿t minh cho 3 ngÃ´n ngá»¯",
             results
         });
     }
 
     private static string GetLangDisplayName(string code) => code.ToLower() switch
     {
-        "vi" => "Tiếng Việt",
+        "vi" => "Tiáº¿ng Viá»‡t",
         "en" => "English",
-        "zh" => "中文 (Chinese)",
+        "zh" => "ä¸­æ–‡ (Chinese)",
         _ => code.ToUpper()
     };
     }
 }
+
+

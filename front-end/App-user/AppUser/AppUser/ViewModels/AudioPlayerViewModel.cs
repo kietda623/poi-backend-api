@@ -53,14 +53,23 @@ namespace AppUser.ViewModels
         private string reviewComment = string.Empty;
 
         private bool _hasTrackedListen = false;
+        private bool _reviewPromptShown = false;
+        private bool _navigateBackAfterReview = false;
+        private int? _loadedPoiId;
 
         private readonly POIService _poiService;
 
         public string POIName => POI?.DisplayName(CurrentLangCode) ?? string.Empty;
         public string GuideTitle => AudioGuide?.Title ?? string.Empty;
         public string ImageUrl => POI?.ImageUrl ?? string.Empty;
-        public List<AppLanguageDto> AvailableLanguages => POI?.AvailableLanguages ?? new();
+        public List<AppLanguageDto> AvailableLanguages => BuildLanguageOptions();
         public bool HasMultipleLanguages => AvailableLanguages.Count > 1;
+        public bool CanPlayVietnamese => true;
+        public bool CanPlayEnglish => true;
+        public bool CanPlayChinese => true;
+        public bool IsVietnameseSelected => CurrentLangCode == "vi";
+        public bool IsEnglishSelected => CurrentLangCode == "en";
+        public bool IsChineseSelected => CurrentLangCode == "zh";
 
         // Audio URL resolved to absolute URL for playback
         public string AudioUrl
@@ -89,6 +98,14 @@ namespace AppUser.ViewModels
             _poiService = poiService;
         }
 
+        partial void OnCurrentLangCodeChanged(string value)
+        {
+            OnPropertyChanged(nameof(POIName));
+            OnPropertyChanged(nameof(IsVietnameseSelected));
+            OnPropertyChanged(nameof(IsEnglishSelected));
+            OnPropertyChanged(nameof(IsChineseSelected));
+        }
+
         partial void OnAudioGuideChanged(AudioGuideDto? value)
         {
             if (value != null)
@@ -105,13 +122,23 @@ namespace AppUser.ViewModels
 
         partial void OnPOIChanged(POIDto? value)
         {
-            _hasTrackedListen = false; // Reset when POI changes
+            var isDifferentPoi = value?.Id != _loadedPoiId;
+            if (isDifferentPoi)
+            {
+                _hasTrackedListen = false;
+                _reviewPromptShown = false;
+                _navigateBackAfterReview = false;
+            }
+
+            _loadedPoiId = value?.Id;
+
             if (value != null && value.AudioGuides.Any())
             {
                 var guideByLang = value.AudioGuides.FirstOrDefault(g => g.LanguageCode == CurrentLangCode)
                     ?? value.AudioGuides.FirstOrDefault();
                 if (guideByLang != null)
                 {
+                    CurrentLangCode = guideByLang.LanguageCode;
                     AudioGuide = guideByLang;
                 }
             }
@@ -124,7 +151,7 @@ namespace AppUser.ViewModels
         [RelayCommand]
         private async Task SwitchLanguage(AppLanguageDto lang)
         {
-            if (lang == null || lang.Code == CurrentLangCode || !lang.HasAudio) return;
+            if (lang == null || lang.Code == CurrentLangCode) return;
 
             IsLoading = true;
             try
@@ -140,7 +167,8 @@ namespace AppUser.ViewModels
                     
                     if (updatedPoi.AudioGuides.Any())
                     {
-                        AudioGuide = updatedPoi.AudioGuides.First();
+                        AudioGuide = updatedPoi.AudioGuides.FirstOrDefault(g => g.LanguageCode == lang.Code)
+                            ?? updatedPoi.AudioGuides.First();
                     }
                 }
             }
@@ -149,6 +177,23 @@ namespace AppUser.ViewModels
                 IsLoading = false;
                 UpdateLocalization();
             }
+        }
+
+        [RelayCommand]
+        private Task SwitchLanguageByCode(string langCode)
+        {
+            var language = AvailableLanguages.FirstOrDefault(x => x.Code == langCode);
+            if (language == null)
+            {
+                language = new AppLanguageDto
+                {
+                    Code = langCode,
+                    Name = langCode.ToUpperInvariant(),
+                    HasAudio = true
+                };
+            }
+
+            return SwitchLanguage(language);
         }
 
         private void UpdateLocalization()
@@ -214,6 +259,13 @@ namespace AppUser.ViewModels
         {
             PauseRequested?.Invoke(this, EventArgs.Empty);
             _audioService.SetPlayState(false);
+            if (ShouldPromptForReview())
+            {
+                _navigateBackAfterReview = true;
+                IsReviewDialogVisible = true;
+                return;
+            }
+
             await Shell.Current.GoToAsync("..");
         }
 
@@ -231,13 +283,21 @@ namespace AppUser.ViewModels
         [RelayCommand]
         private void ShowReview()
         {
+            _navigateBackAfterReview = false;
             IsReviewDialogVisible = true;
         }
 
         [RelayCommand]
-        private void CancelReview()
+        private async Task CancelReview()
         {
             IsReviewDialogVisible = false;
+            _reviewPromptShown = true;
+
+            if (_navigateBackAfterReview)
+            {
+                _navigateBackAfterReview = false;
+                await Shell.Current.GoToAsync("..");
+            }
         }
 
         [RelayCommand]
@@ -253,6 +313,52 @@ namespace AppUser.ViewModels
                 }
             }
             IsReviewDialogVisible = false;
+            _reviewPromptShown = true;
+
+            if (_navigateBackAfterReview)
+            {
+                _navigateBackAfterReview = false;
+                await Shell.Current.GoToAsync("..");
+            }
+        }
+
+        public void PromptReviewAfterCompletion()
+        {
+            if (!ShouldPromptForReview())
+            {
+                return;
+            }
+
+            _navigateBackAfterReview = false;
+            _reviewPromptShown = true;
+            IsReviewDialogVisible = true;
+        }
+
+        private bool ShouldPromptForReview()
+        {
+            return _hasTrackedListen && !_reviewPromptShown && POI != null;
+        }
+
+        private List<AppLanguageDto> BuildLanguageOptions()
+        {
+            var source = POI?.AvailableLanguages ?? new List<AppLanguageDto>();
+            return new List<AppLanguageDto>
+            {
+                BuildLanguageOption("vi", "Tiếng Việt", source),
+                BuildLanguageOption("en", "English", source),
+                BuildLanguageOption("zh", "中文", source)
+            };
+        }
+
+        private static AppLanguageDto BuildLanguageOption(string code, string fallbackName, List<AppLanguageDto> source)
+        {
+            var existing = source.FirstOrDefault(x => x.Code == code);
+            return new AppLanguageDto
+            {
+                Code = code,
+                Name = existing?.Name ?? fallbackName,
+                HasAudio = existing?.HasAudio ?? false
+            };
         }
     }
 }

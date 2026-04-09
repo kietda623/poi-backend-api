@@ -25,6 +25,9 @@ builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddScoped<IMenuItemService, MenuItemService>();
 builder.Services.AddScoped<AzureSpeechService>();
 builder.Services.AddScoped<AzureTranslationService>();
+builder.Services.AddScoped<SubscriptionAccessService>();
+builder.Services.AddScoped<PayOsService>();
+builder.Services.Configure<PayOsOptions>(builder.Configuration.GetSection("PayOS"));
 
 // AUTH
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -81,11 +84,14 @@ if (app.Environment.IsDevelopment())
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await context.Database.MigrateAsync();
+    await DatabaseSchemaBootstrapper.EnsureServicePackageSchemaAsync(context);
     if (!context.Roles.Any(r => r.Name == "ADMIN"))
         context.Roles.Add(new Role { Name = "ADMIN" });
     if (!context.Roles.Any(r => r.Name == "OWNER"))
         context.Roles.Add(new Role { Name = "OWNER" });
     context.SaveChanges();
+    await DefaultServicePackageCatalog.SyncAsync(context);
 }
 
 app.UseAuthentication();

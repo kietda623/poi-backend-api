@@ -12,13 +12,14 @@ namespace PoiApi.Controllers.Admin
     public class ShopsController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public ShopsController(AppDbContext context)
+        public ShopsController(AppDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
-        // GET: api/admin/shops
         [HttpGet]
         public IActionResult GetAllShops([FromQuery] int? ownerId)
         {
@@ -34,70 +35,173 @@ namespace PoiApi.Controllers.Admin
                 query = query.Where(s => s.OwnerId == ownerId.Value);
             }
 
-            var shops = query
+            var shopEntities = query
                 .OrderByDescending(s => s.CreatedAt)
-                .Select(s => new
+                .ToList();
+
+            var shops = shopEntities
+                .Select(s =>
                 {
-                    s.Id,
-                    s.Name,
-                    s.Description,
-                    s.Address,
-                    Phone = "", // Add as needed if User table eventually gets Phone
-                    ImageUrl = s.Poi != null ? s.Poi.ImageUrl : "",
-                    AudioUrl = "", // Schema does not have AudioUrl yet
-                    Category = s.Category != null ? s.Category.Name : "Mặc định",
-                    Status = s.IsActive ? "Active" : "Pending", // Tạm dùng IsActive
-                    SellerId = s.OwnerId,
-                    SellerName = s.Owner.FullName,
-                    s.CreatedAt,
-                    Latitude = 0.0,
-                    Longitude = 0.0,
-                    TotalListens = 0,
-                    TotalViews = 0,
-                    Rating = 0.0
+                    var audioUrls = s.Poi?.Translations?
+                        .Where(t => !string.IsNullOrWhiteSpace(t.AudioUrl))
+                        .GroupBy(t => t.LanguageCode)
+                        .ToDictionary(g => g.Key, g => ToAbsoluteAudioUrl(g.First().AudioUrl))
+                        ?? new Dictionary<string, string>();
+
+                    return new
+                    {
+                        s.Id,
+                        s.Name,
+                        s.Description,
+                        s.Address,
+                        Phone = "",
+                        ImageUrl = s.Poi != null ? s.Poi.ImageUrl : "",
+                        AudioUrl = audioUrls.Values.FirstOrDefault() ?? "",
+                        AudioUrls = audioUrls,
+                        AudioTranslations = s.Poi?.Translations?
+                            .OrderBy(t => t.LanguageCode)
+                            .Select(t => new AudioTranslationDto
+                            {
+                                LanguageCode = t.LanguageCode,
+                                Name = t.Name,
+                                Description = t.Description,
+                                AudioUrl = ToAbsoluteAudioUrl(t.AudioUrl)
+                            })
+                            .ToList() ?? new List<AudioTranslationDto>(),
+                        Category = s.Category != null ? s.Category.Name : "Mac dinh",
+                        Status = s.IsActive ? "Active" : "Pending",
+                        SellerId = s.OwnerId,
+                        SellerName = s.Owner.FullName,
+                        s.CreatedAt,
+                        Latitude = s.Poi != null ? s.Poi.Latitude : 0.0,
+                        Longitude = s.Poi != null ? s.Poi.Longitude : 0.0,
+                        TotalListens = _context.UsageHistories.Count(u => u.ShopId == s.Id),
+                        TotalViews = s.ViewCount,
+                        Rating = 0.0
+                    };
                 })
                 .ToList();
 
             return Ok(shops);
         }
 
-        // PATCH: api/admin/shops/{id}/approve
+        [HttpDelete("{id}/audio/{languageCode}")]
+        public IActionResult DeleteShopAudio(int id, string languageCode)
+        {
+            var shop = _context.Shops
+                .Include(s => s.Poi)
+                    .ThenInclude(p => p.Translations)
+                .FirstOrDefault(s => s.Id == id);
+
+            if (shop == null)
+            {
+                return NotFound("Gian hang khong ton tai");
+            }
+
+            var translation = shop.Poi?.Translations?
+                .FirstOrDefault(t => t.LanguageCode.ToLower() == languageCode.ToLower());
+
+            if (translation == null)
+            {
+                return NotFound("Khong tim thay ban thuyet minh theo ngon ngu nay");
+            }
+
+            if (!string.IsNullOrWhiteSpace(translation.AudioUrl))
+            {
+                DeleteAudioFile(translation.AudioUrl);
+                translation.AudioUrl = null;
+                _context.SaveChanges();
+            }
+
+            return Ok(new { message = "Da xoa file audio" });
+        }
+
         [HttpPatch("{id}/approve")]
         public IActionResult ApproveShop(int id)
         {
             var shop = _context.Shops.Find(id);
-            if (shop == null) return NotFound("Gian hàng không tồn tại");
+            if (shop == null) return NotFound("Gian hang khong ton tai");
 
             shop.IsActive = true;
             _context.SaveChanges();
 
-            return Ok(new { message = "Gian hàng đã được duyệt" });
+            return Ok(new { message = "Gian hang da duoc duyet" });
         }
 
-        // PATCH: api/admin/shops/{id}/reject
         [HttpPatch("{id}/reject")]
         public IActionResult RejectShop(int id)
         {
             var shop = _context.Shops.Find(id);
-            if (shop == null) return NotFound("Gian hàng không tồn tại");
+            if (shop == null) return NotFound("Gian hang khong ton tai");
 
             shop.IsActive = false;
             _context.SaveChanges();
 
-            return Ok(new { message = "Gian hàng đã bị từ chối/vô hiệu hóa" });
+            return Ok(new { message = "Gian hang da bi tu choi/vo hieu hoa" });
         }
 
-        // DELETE: api/admin/shops/{id}
         [HttpDelete("{id}")]
         public IActionResult DeleteShop(int id)
         {
             var shop = _context.Shops.Find(id);
-            if (shop == null) return NotFound("Gian hàng không tồn tại");
+            if (shop == null) return NotFound("Gian hang khong ton tai");
 
             _context.Shops.Remove(shop);
             _context.SaveChanges();
 
             return NoContent();
+        }
+
+        private void DeleteAudioFile(string audioUrl)
+        {
+            var sanitizedPath = audioUrl.Split('?', '#')[0].Trim();
+            if (string.IsNullOrWhiteSpace(sanitizedPath))
+            {
+                return;
+            }
+
+            if (Uri.TryCreate(sanitizedPath, UriKind.Absolute, out var absoluteUri))
+            {
+                sanitizedPath = absoluteUri.AbsolutePath;
+            }
+
+            sanitizedPath = sanitizedPath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+            var webRootPath = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            var fullWebRootPath = Path.GetFullPath(webRootPath);
+            var fullAudioPath = Path.GetFullPath(Path.Combine(fullWebRootPath, sanitizedPath));
+
+            if (!fullAudioPath.StartsWith(fullWebRootPath, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            if (System.IO.File.Exists(fullAudioPath))
+            {
+                System.IO.File.Delete(fullAudioPath);
+            }
+        }
+
+        private string ToAbsoluteAudioUrl(string? audioUrl)
+        {
+            if (string.IsNullOrWhiteSpace(audioUrl))
+            {
+                return string.Empty;
+            }
+
+            if (Uri.TryCreate(audioUrl, UriKind.Absolute, out _))
+            {
+                return audioUrl;
+            }
+
+            return $"{Request.Scheme}://{Request.Host}/{audioUrl.TrimStart('/')}";
+        }
+
+        private sealed class AudioTranslationDto
+        {
+            public string LanguageCode { get; set; } = string.Empty;
+            public string Name { get; set; } = string.Empty;
+            public string Description { get; set; } = string.Empty;
+            public string AudioUrl { get; set; } = string.Empty;
         }
     }
 }

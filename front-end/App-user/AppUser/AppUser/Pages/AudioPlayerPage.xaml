@@ -105,40 +105,77 @@
             </Grid>
 
             <!-- Language Selector -->
-            <ScrollView Grid.Row="1" 
-                        Orientation="Horizontal" 
-                        HorizontalScrollBarVisibility="Never"
-                        IsVisible="{Binding HasMultipleLanguages}"
-                        Margin="0,24,0,0">
-                <HorizontalStackLayout BindableLayout.ItemsSource="{Binding AvailableLanguages}" Spacing="10">
-                    <BindableLayout.ItemTemplate>
-                        <DataTemplate x:DataType="models:AppLanguageDto">
-                            <Border StrokeShape="RoundRectangle 14"
-                                    StrokeThickness="0"
-                                    BackgroundColor="#15FFFFFF"
-                                    Padding="14,6">
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AudioPlayerViewModel}}, Path=SwitchLanguageCommand}"
-                                                          CommandParameter="{Binding .}"/>
-                                </Border.GestureRecognizers>
-                                <Label Text="{Binding Name}" 
-                                       TextColor="White" 
-                                       FontSize="12"
-                                       FontFamily="PoppinsMedium"
-                                       Opacity="0.7">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding Code}" Value="{Binding Source={RelativeSource AncestorType={x:Type vm:AudioPlayerViewModel}}, Path=CurrentLangCode}">
-                                            <Setter Property="TextColor" Value="{StaticResource Primary}" />
-                                            <Setter Property="FontAttributes" Value="Bold" />
-                                            <Setter Property="Opacity" Value="1" />
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                            </Border>
-                        </DataTemplate>
-                    </BindableLayout.ItemTemplate>
-                </HorizontalStackLayout>
-            </ScrollView>
+            <HorizontalStackLayout Grid.Row="1"
+                                   HorizontalOptions="Center"
+                                   Spacing="10"
+                                   IsVisible="{Binding HasMultipleLanguages}"
+                                   Margin="0,24,0,0">
+                <Button Text="Tiếng Việt"
+                        Command="{Binding SwitchLanguageByCodeCommand}"
+                        CommandParameter="vi"
+                        FontFamily="PoppinsMedium"
+                        FontSize="12"
+                        Padding="16,8"
+                        CornerRadius="14"
+                        BackgroundColor="#15FFFFFF"
+                        TextColor="White"
+                        Opacity="1"
+                        IsEnabled="{Binding CanPlayVietnamese}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding IsVietnameseSelected}" Value="True">
+                            <Setter Property="BackgroundColor" Value="#2E6BFF" />
+                            <Setter Property="TextColor" Value="White" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Button" Binding="{Binding CanPlayVietnamese}" Value="False">
+                            <Setter Property="Opacity" Value="0.45" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <Button Text="English"
+                        Command="{Binding SwitchLanguageByCodeCommand}"
+                        CommandParameter="en"
+                        FontFamily="PoppinsMedium"
+                        FontSize="12"
+                        Padding="16,8"
+                        CornerRadius="14"
+                        BackgroundColor="#15FFFFFF"
+                        TextColor="White"
+                        Opacity="1"
+                        IsEnabled="{Binding CanPlayEnglish}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding IsEnglishSelected}" Value="True">
+                            <Setter Property="BackgroundColor" Value="#2E6BFF" />
+                            <Setter Property="TextColor" Value="White" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Button" Binding="{Binding CanPlayEnglish}" Value="False">
+                            <Setter Property="Opacity" Value="0.45" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <Button Text="中文"
+                        Command="{Binding SwitchLanguageByCodeCommand}"
+                        CommandParameter="zh"
+                        FontFamily="PoppinsMedium"
+                        FontSize="12"
+                        Padding="16,8"
+                        CornerRadius="14"
+                        BackgroundColor="#15FFFFFF"
+                        TextColor="White"
+                        Opacity="1"
+                        IsEnabled="{Binding CanPlayChinese}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding IsChineseSelected}" Value="True">
+                            <Setter Property="BackgroundColor" Value="#2E6BFF" />
+                            <Setter Property="TextColor" Value="White" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Button" Binding="{Binding CanPlayChinese}" Value="False">
+                            <Setter Property="Opacity" Value="0.45" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+            </HorizontalStackLayout>
         </Grid>
 
         <!-- ── PLAYER CENTER CONTENT ── -->

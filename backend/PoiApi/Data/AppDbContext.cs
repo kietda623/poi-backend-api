@@ -10,19 +10,14 @@ namespace PoiApi.Data
 
         public DbSet<User> Users => Set<User>();
         public DbSet<Role> Roles => Set<Role>();
-
         public DbSet<POI> POIs => Set<POI>();
         public DbSet<POITranslation> POITranslations => Set<POITranslation>();
-
         public DbSet<Shop> Shops { get; set; }
         public DbSet<Review> Reviews => Set<Review>();
-
         public DbSet<Menu> Menus => Set<Menu>();
         public DbSet<MenuItem> MenuItems => Set<MenuItem>();
-
         public DbSet<ServicePackage> ServicePackages => Set<ServicePackage>();
         public DbSet<Subscription> Subscriptions => Set<Subscription>();
-
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<Language> Languages => Set<Language>();
         public DbSet<UsageHistory> UsageHistories => Set<UsageHistory>();
@@ -62,14 +57,12 @@ namespace PoiApi.Data
                 .HasForeignKey(s => s.OwnerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // ── Shop <-> Category (optional) ─────────────────────────
             modelBuilder.Entity<Shop>()
                 .HasOne(s => s.Category)
                 .WithMany()
                 .HasForeignKey(s => s.CategoryId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // ── ServicePackage ──────────────────────────────────────
             modelBuilder.Entity<Subscription>()
                 .HasOne(s => s.User)
                 .WithMany()
@@ -86,32 +79,26 @@ namespace PoiApi.Data
             modelBuilder.Entity<ServicePackage>().Property(p => p.YearlyPrice).HasColumnType("decimal(18,2)");
             modelBuilder.Entity<Subscription>().Property(s => s.Price).HasColumnType("decimal(18,2)");
 
-            // ── UsageHistory ────────────────────────────────────────
             modelBuilder.Entity<UsageHistory>()
                 .HasOne(uh => uh.Shop)
                 .WithMany()
                 .HasForeignKey(uh => uh.ShopId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // ── Language unique index ───────────────────────────────
             modelBuilder.Entity<Language>()
                 .HasIndex(l => l.Code)
                 .IsUnique();
 
-            // ── Order relation ───────────────────────────────────────
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.Shop)
                 .WithMany()
                 .HasForeignKey(o => o.ShopId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-
-            // ── Category unique index ───────────────────────────────
             modelBuilder.Entity<Category>()
                 .HasIndex(c => c.Slug)
                 .IsUnique();
 
-            // ── Seed data ───────────────────────────────────────────
             modelBuilder.Entity<Role>().HasData(
                 new Role { Id = -1, Name = RoleConstants.Admin },
                 new Role { Id = -2, Name = RoleConstants.Owner },
@@ -121,29 +108,92 @@ namespace PoiApi.Data
             modelBuilder.Entity<ServicePackage>().HasData(
                 new ServicePackage
                 {
-                    Id = 1, Name = "Gói Cơ bản", Tier = "Basic",
-                    MonthlyPrice = 99_000, YearlyPrice = 990_000,
-                    Description = "Gói dành cho gian hàng mới bắt đầu",
-                    Features = "Hiển thị trên bản đồ|1 gian hàng|Hỗ trợ qua email",
-                    MaxStores = 1, IsActive = true,
+                    Id = 1,
+                    Name = "Basic",
+                    Tier = "Basic",
+                    Audience = RoleConstants.Owner,
+                    MonthlyPrice = 99000,
+                    YearlyPrice = 990000,
+                    Description = "Gói khởi đầu cho shop kinh doanh nhỏ.",
+                    Features = "Hiển thị trên bản đồ|Tối đa 1 gian hàng|1 Menu, không giới hạn món|Hỗ trợ qua email|!Badge trên app|!Ưu tiên đề xuất|!Thống kê nâng cao",
+                    MaxStores = 1,
+                    AllowAudioAccess = false,
+                    IsActive = true,
                     CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
                 },
                 new ServicePackage
                 {
-                    Id = 2, Name = "Gói Nâng cao", Tier = "Premium",
-                    MonthlyPrice = 299_000, YearlyPrice = 2_990_000,
-                    Description = "Ưu tiên đề xuất và badge Premium trên app",
-                    Features = "Ưu tiên đề xuất|Badge Premium|3 gian hàng|Hỗ trợ ưu tiên|Thống kê nâng cao",
-                    MaxStores = 3, IsActive = true,
+                    Id = 2,
+                    Name = "Premium",
+                    Tier = "Premium",
+                    Audience = RoleConstants.Owner,
+                    MonthlyPrice = 299000,
+                    YearlyPrice = 2990000,
+                    Description = "Dành cho shop muốn tăng độ nhận diện và hiệu quả.",
+                    Features = "Tất cả tính năng Basic|Tối đa 3 gian hàng|Badge \"Premium\" trên app|Ưu tiên đề xuất (score +50)|Thống kê nâng cao|Hỗ trợ ưu tiên|!Quảng cáo banner",
+                    MaxStores = 3,
+                    AllowAudioAccess = false,
+                    IsActive = true,
                     CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
                 },
                 new ServicePackage
                 {
-                    Id = 3, Name = "Gói VIP", Tier = "VIP",
-                    MonthlyPrice = 599_000, YearlyPrice = 5_990_000,
-                    Description = "Top đề xuất, badge VIP và hỗ trợ riêng 24/7",
-                    Features = "Top đề xuất trên app|Badge VIP|5 gian hàng|Hỗ trợ riêng 24/7|Thống kê chi tiết|Quảng cáo trên banner",
-                    MaxStores = 5, IsActive = true,
+                    Id = 3,
+                    Name = "VIP",
+                    Tier = "VIP",
+                    Audience = RoleConstants.Owner,
+                    MonthlyPrice = 599000,
+                    YearlyPrice = 5990000,
+                    Description = "Đặc quyền cao cấp nhất cho doanh nghiệp lớn.",
+                    Features = "Tất cả tính năng Premium|Tối đa 5 gian hàng|Badge \"VIP\" trên app|Top đề xuất (score +100)|Thống kê chi tiết|Quảng cáo trên banner|Hỗ trợ riêng 24/7",
+                    MaxStores = 5,
+                    AllowAudioAccess = false,
+                    IsActive = true,
+                    CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                },
+                new ServicePackage
+                {
+                    Id = 4,
+                    Name = "Audio Starter",
+                    Tier = "Basic",
+                    Audience = RoleConstants.User,
+                    MonthlyPrice = 49000,
+                    YearlyPrice = 490000,
+                    Description = "Goi nghe thuyet minh co ban danh cho nguoi dung app.",
+                    Features = "Nghe thuyet minh 3 ngon ngu|Ho tro review sau khi nghe|Su dung tren toan bo app",
+                    MaxStores = 0,
+                    AllowAudioAccess = true,
+                    IsActive = true,
+                    CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                },
+                new ServicePackage
+                {
+                    Id = 5,
+                    Name = "Audio Plus",
+                    Tier = "Premium",
+                    Audience = RoleConstants.User,
+                    MonthlyPrice = 99000,
+                    YearlyPrice = 990000,
+                    Description = "Goi audio uu tien danh cho nguoi nghe thuong xuyen.",
+                    Features = "Nghe thuyet minh 3 ngon ngu|Uu tien audio moi|Khong gioi han luot nghe trong goi con han",
+                    MaxStores = 0,
+                    AllowAudioAccess = true,
+                    IsActive = true,
+                    CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                },
+                new ServicePackage
+                {
+                    Id = 6,
+                    Name = "Audio Premium",
+                    Tier = "VIP",
+                    Audience = RoleConstants.User,
+                    MonthlyPrice = 199000,
+                    YearlyPrice = 1990000,
+                    Description = "Goi audio cao cap cho nguoi dung trung thanh.",
+                    Features = "Nghe thuyet minh 3 ngon ngu|Truy cap tat ca diem audio|Ho tro uu tien",
+                    MaxStores = 0,
+                    AllowAudioAccess = true,
+                    IsActive = true,
                     CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
                 }
             );

@@ -1,13 +1,12 @@
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using PoiApi.Data;
 using PoiApi.DTOs.App;
-using Microsoft.EntityFrameworkCore;
-using PoiApi.Services;
 using PoiApi.Models;
-using System.Collections.Generic;
+using PoiApi.Services;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/app/pois")]
@@ -16,25 +15,24 @@ public class AppPoisController : ControllerBase
     private readonly AppDbContext _context;
     private readonly IMapper _mapper;
     private readonly AzureTranslationService _translator;
-    private readonly IConfiguration _configuration;
+    private readonly SubscriptionAccessService _subscriptionAccessService;
 
     public AppPoisController(
         AppDbContext context,
         IMapper mapper,
         AzureTranslationService translator,
-        IConfiguration configuration)
+        SubscriptionAccessService subscriptionAccessService)
     {
         _context = context;
         _mapper = mapper;
         _translator = translator;
-        _configuration = configuration;
+        _subscriptionAccessService = subscriptionAccessService;
     }
 
-    // 🔹 LIST (Home screen)
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] string lang = "vi")
     {
-        // 1. Chỉ lấy những gian hàng đang hoạt động
+        var canAccessAudio = await CanCurrentUserAccessAudioAsync();
         var shops = await _context.Shops
             .Include(s => s.Poi)
                 .ThenInclude(p => p.Translations)
@@ -48,19 +46,21 @@ public class AppPoisController : ControllerBase
         foreach (var s in shops)
         {
             var p = s.Poi!;
-            var t = p.Translations.FirstOrDefault(x => x.LanguageCode == lang);
-            
-            if (t != null)
+            var translation = p.Translations.FirstOrDefault(x => x.LanguageCode == lang);
+
+            if (translation != null)
             {
                 resultList.Add(new AppPoiListDto
                 {
                     Id = p.Id,
-                    ImageUrl = p.ImageUrl ?? "",
-                    Location = p.Location ?? "",
+                    ImageUrl = p.ImageUrl ?? string.Empty,
+                    Location = p.Location ?? string.Empty,
                     Latitude = p.Latitude,
                     Longitude = p.Longitude,
-                    AudioUrl = t.AudioUrl ?? p.Translations.FirstOrDefault(x => x.LanguageCode == "vi")?.AudioUrl ?? "",
-                    Name = t.Name
+                    AudioUrl = canAccessAudio
+                        ? (translation.AudioUrl ?? p.Translations.FirstOrDefault(x => x.LanguageCode == "vi")?.AudioUrl ?? string.Empty)
+                        : string.Empty,
+                    Name = translation.Name
                 });
             }
             else if (lang == "vi")
@@ -68,44 +68,49 @@ public class AppPoisController : ControllerBase
                 resultList.Add(new AppPoiListDto
                 {
                     Id = p.Id,
-                    ImageUrl = p.ImageUrl ?? "",
-                    Location = p.Location ?? "",
+                    ImageUrl = p.ImageUrl ?? string.Empty,
+                    Location = p.Location ?? string.Empty,
                     Latitude = p.Latitude,
                     Longitude = p.Longitude,
-                    AudioUrl = p.Translations.FirstOrDefault(x => x.LanguageCode == "vi")?.AudioUrl ?? "",
+                    AudioUrl = canAccessAudio
+                        ? (p.Translations.FirstOrDefault(x => x.LanguageCode == "vi")?.AudioUrl ?? string.Empty)
+                        : string.Empty,
                     Name = s.Name
                 });
             }
             else
             {
-                // Cần dịch tự động
                 shopsNeedTranslation.Add(new Tuple<int, string>(p.Id, s.Name));
                 namesToTranslate.Add(s.Name);
-                
+
                 resultList.Add(new AppPoiListDto
                 {
                     Id = p.Id,
-                    ImageUrl = p.ImageUrl ?? "",
-                    Location = p.Location ?? "",
+                    ImageUrl = p.ImageUrl ?? string.Empty,
+                    Location = p.Location ?? string.Empty,
                     Latitude = p.Latitude,
                     Longitude = p.Longitude,
-                    AudioUrl = p.Translations.FirstOrDefault(x => x.LanguageCode == "vi")?.AudioUrl ?? "",
-                    Name = s.Name // Tạm thời để tên gốc, sẽ update sau batch translate
+                    AudioUrl = canAccessAudio
+                        ? (p.Translations.FirstOrDefault(x => x.LanguageCode == "vi")?.AudioUrl ?? string.Empty)
+                        : string.Empty,
+                    Name = s.Name
                 });
             }
         }
 
-        // BATCH TRANSLATE if needed
         if (lang != "vi" && namesToTranslate.Any())
         {
             var translatedNames = await _translator.TranslateListAsync(namesToTranslate, lang);
             if (translatedNames != null && translatedNames.Count == namesToTranslate.Count)
             {
-                for (int i = 0; i < shopsNeedTranslation.Count; i++)
+                for (var i = 0; i < shopsNeedTranslation.Count; i++)
                 {
                     var id = shopsNeedTranslation[i].Item1;
                     var item = resultList.FirstOrDefault(x => x.Id == id);
-                    if (item != null) item.Name = translatedNames[i];
+                    if (item != null)
+                    {
+                        item.Name = translatedNames[i];
+                    }
                 }
             }
         }
@@ -113,12 +118,10 @@ public class AppPoisController : ControllerBase
         return Ok(resultList);
     }
 
-    // 🔹 DETAIL (POI detail screen)
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetDetail(
-        int id,
-        [FromQuery] string lang = "vi")
+    public async Task<IActionResult> GetDetail(int id, [FromQuery] string lang = "vi")
     {
+        var canAccessAudio = await CanCurrentUserAccessAudioAsync();
         var shop = await _context.Shops
             .Include(s => s.Poi)
                 .ThenInclude(p => p.Translations)
@@ -126,63 +129,67 @@ public class AppPoisController : ControllerBase
                 .ThenInclude(m => m.MenuItems)
             .FirstOrDefaultAsync(s => s.PoiId == id && s.IsActive);
 
-        if (shop == null || shop.Poi == null) return NotFound();
-
-        var p = shop.Poi;
-        POITranslation t;
-        var requestedTrans = p.Translations.FirstOrDefault(x => x.LanguageCode == lang);
-        var viTrans = p.Translations.FirstOrDefault(x => x.LanguageCode == "vi");
-        string sourceName = viTrans?.Name ?? shop.Name;
-        string sourceDesc = viTrans?.Description ?? shop.Description ?? "";
-
-        // Nếu đã có bản dịch nhưng tên vẫn giống hệt tiếng Việt (có thể do lỗi dịch trước đó)
-        // và ngôn ngữ yêu cầu không phải là tiếng Việt, thì thử dịch lại on-the-fly.
-        if (requestedTrans != null && lang != "vi" && requestedTrans.Name == sourceName)
+        if (shop == null || shop.Poi == null)
         {
-            t = new POITranslation
+            return NotFound();
+        }
+
+        var poi = shop.Poi;
+        var requestedTranslation = poi.Translations.FirstOrDefault(x => x.LanguageCode == lang);
+        var vietnameseTranslation = poi.Translations.FirstOrDefault(x => x.LanguageCode == "vi");
+        var sourceName = vietnameseTranslation?.Name ?? shop.Name;
+        var sourceDescription = vietnameseTranslation?.Description ?? shop.Description ?? string.Empty;
+
+        POITranslation translation;
+        if (requestedTranslation != null && lang != "vi" && requestedTranslation.Name == sourceName)
+        {
+            translation = new POITranslation
             {
                 LanguageCode = lang,
                 Name = await _translator.TranslateAsync(sourceName, lang) ?? sourceName,
-                Description = await _translator.TranslateAsync(sourceDesc, lang) ?? sourceDesc,
-                AudioUrl = requestedTrans.AudioUrl // Giữ lại AudioUrl cũ
+                Description = await _translator.TranslateAsync(sourceDescription, lang) ?? sourceDescription,
+                AudioUrl = requestedTranslation.AudioUrl
             };
         }
-        else if (requestedTrans != null)
+        else if (requestedTranslation != null)
         {
-            t = requestedTrans;
+            translation = requestedTranslation;
+        }
+        else if (lang == "vi")
+        {
+            translation = new POITranslation
+            {
+                LanguageCode = "vi",
+                Name = sourceName,
+                Description = sourceDescription
+            };
         }
         else
         {
-            // Missing translation -> Auto-translate
-            if (lang == "vi")
+            translation = new POITranslation
             {
-                t = new POITranslation { Name = sourceName, Description = sourceDesc, LanguageCode = "vi" };
-            }
-            else
-            {
-                t = new POITranslation
-                {
-                    LanguageCode = lang,
-                    Name = await _translator.TranslateAsync(sourceName, lang) ?? sourceName,
-                    Description = await _translator.TranslateAsync(sourceDesc, lang) ?? sourceDesc,
-                    AudioUrl = ""
-                };
-            }
+                LanguageCode = lang,
+                Name = await _translator.TranslateAsync(sourceName, lang) ?? sourceName,
+                Description = await _translator.TranslateAsync(sourceDescription, lang) ?? sourceDescription,
+                AudioUrl = string.Empty
+            };
         }
 
         var dto = new AppPoiDetailDto
         {
-            Id = p.Id,
-            ImageUrl = p.ImageUrl ?? "",
-            Location = p.Location ?? "",
-            Latitude = p.Latitude,
-            Longitude = p.Longitude,
-            AudioUrl = t.AudioUrl
-                ?? viTrans?.AudioUrl
-                ?? p.Translations.FirstOrDefault(x => x.LanguageCode == "vi")?.AudioUrl
-                ?? "",
-            Name = t.Name,
-            Description = t.Description ?? "",
+            Id = poi.Id,
+            ImageUrl = poi.ImageUrl ?? string.Empty,
+            Location = poi.Location ?? string.Empty,
+            Latitude = poi.Latitude,
+            Longitude = poi.Longitude,
+            AudioUrl = canAccessAudio
+                ? (translation.AudioUrl
+                    ?? vietnameseTranslation?.AudioUrl
+                    ?? poi.Translations.FirstOrDefault(x => x.LanguageCode == "vi")?.AudioUrl
+                    ?? string.Empty)
+                : string.Empty,
+            Name = translation.Name,
+            Description = translation.Description ?? string.Empty,
             Menus = shop.Menus?.Select(m => new AppMenuDto
             {
                 Id = m.Id,
@@ -193,20 +200,19 @@ public class AppPoisController : ControllerBase
                     Name = i.Name,
                     Price = i.Price
                 }).ToList()
-            }).ToList() ?? new(),
+            }).ToList() ?? new List<AppMenuDto>(),
             AvailableLanguages = new[] { "vi", "en", "zh" }.Select(code =>
             {
-                var tr = p.Translations.FirstOrDefault(x => x.LanguageCode == code);
+                var tr = poi.Translations.FirstOrDefault(x => x.LanguageCode == code);
                 return new AppLanguageDto
                 {
                     Code = code,
                     Name = GetLanguageName(code),
-                    HasAudio = tr != null && !string.IsNullOrEmpty(tr.AudioUrl)
+                    HasAudio = canAccessAudio && tr != null && !string.IsNullOrEmpty(tr.AudioUrl)
                 };
             }).ToList()
         };
 
-        // AUTO-TRANSLATE Menu and Items if not Vietnamese
         if (lang != "vi" && dto.Menus.Any())
         {
             var textsToTranslate = new List<string>();
@@ -222,7 +228,7 @@ public class AppPoisController : ControllerBase
             var translatedTexts = await _translator.TranslateListAsync(textsToTranslate, lang);
             if (translatedTexts != null && translatedTexts.Count == textsToTranslate.Count)
             {
-                int index = 0;
+                var index = 0;
                 foreach (var menu in dto.Menus)
                 {
                     menu.Name = translatedTexts[index++];
@@ -237,12 +243,14 @@ public class AppPoisController : ControllerBase
         return Ok(dto);
     }
 
-    // 🔹 TRACK VIEW
     [HttpPost("{id}/view")]
     public async Task<IActionResult> TrackView(int id)
     {
         var shop = await _context.Shops.FirstOrDefaultAsync(s => s.PoiId == id && s.IsActive);
-        if (shop == null) return NotFound();
+        if (shop == null)
+        {
+            return NotFound();
+        }
 
         shop.ViewCount++;
         await _context.SaveChangesAsync();
@@ -250,30 +258,27 @@ public class AppPoisController : ControllerBase
         return Ok(new { success = true });
     }
 
-    // 🔹 TRACK LISTEN & REVENUE
+    [Authorize(Roles = RoleConstants.User)]
     [HttpPost("{id}/listen")]
     public async Task<IActionResult> TrackListen(int id, [FromQuery] string deviceId = "anonymous")
     {
         var shop = await _context.Shops.FirstOrDefaultAsync(s => s.PoiId == id && s.IsActive);
-        if (shop == null) return NotFound();
+        if (shop == null)
+        {
+            return NotFound();
+        }
+
+        var userIdValue = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!int.TryParse(userIdValue, out var userId) || !await _subscriptionAccessService.HasAudioAccessAsync(userId))
+        {
+            return StatusCode(403, new { success = false, message = "You need an active audio subscription to listen to narration." });
+        }
 
         shop.ListenCount++;
         shop.ViewCount++;
-
-        var revenuePerListen = _configuration.GetValue<decimal?>("BusinessRules:RevenuePerListenVnd") ?? 20000m;
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var usageDeviceId = !string.IsNullOrWhiteSpace(userId)
-            ? $"user:{userId}"
+        var usageDeviceId = !string.IsNullOrWhiteSpace(userIdValue)
+            ? $"user:{userIdValue}"
             : deviceId;
-
-        var order = new Order
-        {
-            ShopId = shop.Id,
-            TotalAmount = revenuePerListen,
-            Status = "Completed",
-            CreatedAt = DateTime.UtcNow
-        };
-        _context.Orders.Add(order);
 
         var usage = new UsageHistory
         {
@@ -285,29 +290,30 @@ public class AppPoisController : ControllerBase
         _context.UsageHistories.Add(usage);
 
         await _context.SaveChangesAsync();
-
         return Ok(new { success = true, shop.ListenCount });
     }
 
-    // 🔹 SUBMIT REVIEW
     [Authorize]
     [HttpPost("{id}/reviews")]
     public async Task<IActionResult> SubmitReview(int id, [FromBody] AppReviewDto dto)
     {
         var shop = await _context.Shops.FirstOrDefaultAsync(s => s.PoiId == id && s.IsActive);
-        if (shop == null) return NotFound();
+        if (shop == null)
+        {
+            return NotFound();
+        }
 
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrWhiteSpace(userId))
         {
-            return Unauthorized(new { success = false, message = "Bạn cần đăng nhập để gửi đánh giá." });
+            return Unauthorized(new { success = false, message = "You need to sign in before submitting a review." });
         }
 
         var hasListened = await _context.UsageHistories
             .AnyAsync(x => x.ShopId == shop.Id && x.DeviceId == $"user:{userId}");
         if (!hasListened)
         {
-            return StatusCode(403, new { success = false, message = "Bạn cần nghe POI trước khi gửi đánh giá." });
+            return StatusCode(403, new { success = false, message = "You need to listen to the POI before submitting a review." });
         }
 
         var review = new Review
@@ -315,7 +321,7 @@ public class AppPoisController : ControllerBase
             ShopId = shop.Id,
             Rating = dto.Rating,
             Comment = dto.Comment,
-            CustomerName = dto.CustomerName ?? "Khách hàng",
+            CustomerName = dto.CustomerName ?? "Khach hang",
             CreatedAt = DateTime.UtcNow
         };
 
@@ -325,11 +331,22 @@ public class AppPoisController : ControllerBase
         return Ok(new { success = true });
     }
 
-    private string GetLanguageName(string code) => code.ToLower() switch
+    private async Task<bool> CanCurrentUserAccessAudioAsync()
     {
-        "vi" => "Tiếng Việt",
+        var userIdValue = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!int.TryParse(userIdValue, out var userId))
+        {
+            return false;
+        }
+
+        return await _subscriptionAccessService.HasAudioAccessAsync(userId);
+    }
+
+    private static string GetLanguageName(string code) => code.ToLower() switch
+    {
+        "vi" => "Tieng Viet",
         "en" => "English",
-        "zh" => "中文 (Chinese)",
-        _ => code.ToUpper()
+        "zh" => "Chinese",
+        _ => code.ToUpperInvariant()
     };
 }

@@ -29,6 +29,8 @@ namespace AppUser
             builder.Services.AddSingleton<AuthService>();
             builder.Services.AddSingleton<POIService>();
             builder.Services.AddSingleton<AudioService>();
+            builder.Services.AddSingleton<SubscriptionService>();
+            builder.Services.AddSingleton<AppShell>();
 
             // Register ViewModels
             builder.Services.AddTransient<LoginViewModel>();
@@ -36,6 +38,7 @@ namespace AppUser
             builder.Services.AddTransient<POIListViewModel>();
             builder.Services.AddTransient<POIDetailViewModel>();
             builder.Services.AddTransient<AudioPlayerViewModel>();
+            builder.Services.AddTransient<SubscriptionViewModel>();
             builder.Services.AddTransient<ProfileViewModel>();
             builder.Services.AddTransient<RegisterViewModel>();
             builder.Services.AddTransient<EditProfileViewModel>();
@@ -46,6 +49,7 @@ namespace AppUser
             builder.Services.AddTransient<Pages.POIListPage>();
             builder.Services.AddTransient<Pages.POIDetailPage>();
             builder.Services.AddTransient<Pages.AudioPlayerPage>();
+            builder.Services.AddTransient<Pages.SubscriptionPage>();
             builder.Services.AddTransient<Pages.ProfilePage>();
             builder.Services.AddTransient<Pages.RegisterPage>();
             builder.Services.AddTransient<Pages.EditProfilePage>();

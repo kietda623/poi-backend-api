@@ -1,0 +1,520 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using AppUser.Models;
+using AppUser.Services;
+using Microsoft.Maui.ApplicationModel;
+
+namespace AppUser.ViewModels;
+
+public partial class SubscriptionViewModel : ObservableObject
+{
+    private readonly SubscriptionService _subscriptionService;
+    private readonly AudioService _audioService;
+
+    [ObservableProperty]
+    private bool isLoading;
+
+    [ObservableProperty]
+    private List<AppServicePackageDto> packages = new();
+
+    [ObservableProperty]
+    private AppSubscriptionEnvelopeDto current = new();
+
+    [ObservableProperty]
+    private string title = "Goi audio";
+
+    [ObservableProperty]
+    private string pageHeading = "Goi nghe thuyet minh";
+
+    [ObservableProperty]
+    private string currentPackageHeading = "Goi hien tai";
+
+    [ObservableProperty]
+    private string noActivePackageText = "Ban chua co goi audio nao dang hoat dong.";
+
+    [ObservableProperty]
+    private string reloadText = "Kiem tra lai";
+
+    [ObservableProperty]
+    private string continuePaymentText = "Tiep tuc thanh toan";
+
+    [ObservableProperty]
+    private string paymentCompletedText = "Toi da thanh toan";
+
+    [ObservableProperty]
+    private string cancelPackageText = "Huy goi";
+
+    [ObservableProperty]
+    private string choosePackageHeading = "Chon goi phu hop";
+
+    [ObservableProperty]
+    private string emptyPackagesText = "Hien tai chua co goi nao kha dung.";
+
+    [ObservableProperty]
+    private string qrDialogTitle = "Thanh toan goi audio";
+
+    [ObservableProperty]
+    private string qrDialogHint = "Quet ma QR de thanh toan. Sau khi thanh toan xong, bam 'Toi da thanh toan' de cap nhat trang thai goi.";
+
+    [ObservableProperty]
+    private string openPayOsText = "Mo cong PayOS";
+
+    [ObservableProperty]
+    private string closeQrText = "Dong QR";
+
+    [ObservableProperty]
+    private string expiresOnFormat = "Het han: {0:dd/MM/yyyy}";
+
+    public string CurrentStatusDisplay => Current.Subscription == null
+        ? string.Empty
+        : LocalizeStatus(Current.Subscription.Status);
+
+    public string CurrentExpiryDisplay => Current.Subscription == null
+        ? string.Empty
+        : string.Format(ExpiresOnFormat, Current.Subscription.EndDate);
+
+    [ObservableProperty]
+    private string? statusMessage;
+
+    [ObservableProperty]
+    private AppCheckoutSubscriptionResultDto? pendingCheckout;
+
+    [ObservableProperty]
+    private bool isQrVisible;
+
+    [ObservableProperty]
+    private string qrImageUrl = string.Empty;
+
+    [ObservableProperty]
+    private string pendingCheckoutTitle = string.Empty;
+
+    [ObservableProperty]
+    private string pendingPackageTier = string.Empty;
+
+    [ObservableProperty]
+    private string pendingBillingCycle = string.Empty;
+
+    public SubscriptionViewModel(SubscriptionService subscriptionService, AudioService audioService)
+    {
+        _subscriptionService = subscriptionService;
+        _audioService = audioService;
+        _audioService.LanguageChanged += OnLanguageChanged;
+        UpdateLocalizedTexts();
+    }
+
+    public async Task InitializeAsync()
+    {
+        await ReloadAsync();
+    }
+
+    [RelayCommand]
+    private async Task ReloadAsync()
+    {
+        try
+        {
+            IsLoading = true;
+            StatusMessage = null;
+            var fetchedPackages = await _subscriptionService.GetUserPackagesAsync();
+            var fetchedCurrent = await _subscriptionService.GetMySubscriptionAsync();
+            Packages = LocalizePackages(fetchedPackages);
+            Current = LocalizeEnvelope(fetchedCurrent);
+            NormalizeCurrentSubscription();
+        }
+        catch (Exception ex)
+        {
+            Packages = new();
+            Current = new();
+            StatusMessage = ex.Message;
+            await Shell.Current.DisplayAlert("Loi", ex.Message, "OK");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task SubscribeMonthlyAsync(AppServicePackageDto package)
+    {
+        await SubscribeAsync(package, "Monthly");
+    }
+
+    [RelayCommand]
+    private async Task SubscribeYearlyAsync(AppServicePackageDto package)
+    {
+        await SubscribeAsync(package, "Yearly");
+    }
+
+    [RelayCommand]
+    private async Task ContinuePaymentAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(PendingCheckout?.CheckoutUrl))
+        {
+            await Browser.Default.OpenAsync(PendingCheckout.CheckoutUrl, BrowserLaunchMode.SystemPreferred);
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(Current.Subscription?.CheckoutUrl))
+        {
+            await Browser.Default.OpenAsync(Current.Subscription.CheckoutUrl, BrowserLaunchMode.SystemPreferred);
+        }
+    }
+
+    [RelayCommand]
+    private async Task SyncPaymentAsync()
+    {
+        if (Current.Subscription == null) return;
+
+        try
+        {
+            Current = LocalizeEnvelope(await _subscriptionService.SyncPaymentAsync(Current.Subscription.Id));
+            NormalizeCurrentSubscription();
+
+            if (Current.Subscription?.Status == "Active" && Current.Subscription.PaymentStatus == "Paid")
+            {
+                IsQrVisible = false;
+                await Shell.Current.DisplayAlert(GetText("payment_success_title"), GetText("payment_success_message"), GetText("ok"));
+                return;
+            }
+
+            if (Current.Subscription?.PaymentStatus == "Cancelled")
+            {
+                IsQrVisible = false;
+                await Shell.Current.DisplayAlert(GetText("payment_cancelled_title"), GetText("payment_cancelled_message"), GetText("ok"));
+                return;
+            }
+
+            if (Current.Subscription?.PaymentStatus == "Failed")
+            {
+                IsQrVisible = false;
+                await Shell.Current.DisplayAlert(GetText("payment_failed_title"), GetText("payment_failed_message"), GetText("ok"));
+                return;
+            }
+
+            await Shell.Current.DisplayAlert(GetText("processing_title"), GetText("processing_message"), GetText("ok"));
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert(GetText("error_title"), ex.Message, GetText("ok"));
+        }
+    }
+
+    [RelayCommand]
+    private async Task CancelCurrentAsync()
+    {
+        if (Current.Subscription == null) return;
+        var ok = await _subscriptionService.CancelAsync(Current.Subscription.Id);
+        if (ok)
+        {
+            PendingCheckout = null;
+            IsQrVisible = false;
+            QrImageUrl = string.Empty;
+            Current = new AppSubscriptionEnvelopeDto();
+            await ReloadAsync();
+            return;
+        }
+
+        await Shell.Current.DisplayAlert(GetText("error_title"), GetText("cancel_failed_message"), GetText("ok"));
+    }
+
+    private async Task SubscribeAsync(AppServicePackageDto package, string billingCycle)
+    {
+        if (package == null) return;
+
+        try
+        {
+            StatusMessage = null;
+            var cycleToUse = string.IsNullOrWhiteSpace(package.RecommendedBillingCycle) ? billingCycle : package.RecommendedBillingCycle;
+            var result = await _subscriptionService.CreateCheckoutAsync(package.Id, cycleToUse);
+            if (result == null || string.IsNullOrWhiteSpace(result.CheckoutUrl))
+            {
+                await Shell.Current.DisplayAlert("Loi", "Khong tao duoc link thanh toan PayOS.", "OK");
+                return;
+            }
+
+            PendingCheckout = result;
+            PendingPackageTier = package.Tier;
+            PendingBillingCycle = cycleToUse;
+            PendingCheckoutTitle = $"{LocalizePackageName(package.Tier, package.Name)} - {ResolveBillingCycleLabel(cycleToUse)}";
+            QrImageUrl = BuildQrImageUrl(result.QrCode);
+            IsQrVisible = true;
+            Current = LocalizeEnvelope(await _subscriptionService.GetMySubscriptionAsync());
+            NormalizeCurrentSubscription();
+            var paymentReadyMessage = IsQrVisible
+                ? GetText("payment_ready_qr_message")
+                : GetText("payment_ready_link_message");
+            await Shell.Current.DisplayAlert(GetText("payment_ready_title"), paymentReadyMessage, GetText("ok"));
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = ex.Message;
+            await Shell.Current.DisplayAlert(GetText("error_title"), ex.Message, GetText("ok"));
+        }
+    }
+
+    [RelayCommand]
+    private void CloseQr()
+    {
+        IsQrVisible = false;
+    }
+
+    private static string BuildQrImageUrl(string? qrCode)
+    {
+        if (string.IsNullOrWhiteSpace(qrCode))
+        {
+            return string.Empty;
+        }
+
+        return $"https://api.qrserver.com/v1/create-qr-code/?size=280x280&data={Uri.EscapeDataString(qrCode)}";
+    }
+
+    private static string ResolveBillingCycleLabel(string? billingCycle) => billingCycle switch
+    {
+        "Daily" => "Theo ngay",
+        "Yearly" => "Theo nam",
+        _ => "Theo thang"
+    };
+
+    private void NormalizeCurrentSubscription()
+    {
+        if (Current.Subscription == null)
+        {
+            return;
+        }
+
+        if (string.Equals(Current.Subscription.Status, "Cancelled", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Current.Subscription.Status, "Expired", StringComparison.OrdinalIgnoreCase))
+        {
+            Current = new AppSubscriptionEnvelopeDto();
+        }
+    }
+
+    partial void OnCurrentChanged(AppSubscriptionEnvelopeDto value)
+    {
+        OnPropertyChanged(nameof(CurrentStatusDisplay));
+        OnPropertyChanged(nameof(CurrentExpiryDisplay));
+    }
+
+    private void OnLanguageChanged(object? sender, string language)
+    {
+        UpdateLocalizedTexts();
+        Packages = LocalizePackages(Packages);
+        Current = LocalizeEnvelope(Current);
+        if (PendingCheckout != null)
+        {
+            PendingCheckoutTitle = $"{LocalizePackageName(PendingPackageTier, PendingPackageTier)} - {ResolveBillingCycleLabel(PendingBillingCycle)}";
+        }
+        OnPropertyChanged(nameof(CurrentStatusDisplay));
+        OnPropertyChanged(nameof(CurrentExpiryDisplay));
+    }
+
+    private void UpdateLocalizedTexts()
+    {
+        Title = GetText("page_title");
+        PageHeading = GetText("page_heading");
+        CurrentPackageHeading = GetText("current_package_heading");
+        NoActivePackageText = GetText("no_active_package");
+        ReloadText = GetText("reload");
+        ContinuePaymentText = GetText("continue_payment");
+        PaymentCompletedText = GetText("payment_completed");
+        CancelPackageText = GetText("cancel_package");
+        ChoosePackageHeading = GetText("choose_package_heading");
+        EmptyPackagesText = GetText("empty_packages");
+        QrDialogTitle = GetText("qr_dialog_title");
+        QrDialogHint = GetText("qr_dialog_hint");
+        OpenPayOsText = GetText("open_payos");
+        CloseQrText = GetText("close_qr");
+        ExpiresOnFormat = GetText("expires_on_format");
+    }
+
+    private List<AppServicePackageDto> LocalizePackages(IEnumerable<AppServicePackageDto> packages)
+    {
+        return packages.Select(package => new AppServicePackageDto
+        {
+            Id = package.Id,
+            Tier = package.Tier,
+            Audience = package.Audience,
+            MonthlyPrice = package.MonthlyPrice,
+            YearlyPrice = package.YearlyPrice,
+            AllowAudioAccess = package.AllowAudioAccess,
+            RecommendedBillingCycle = package.RecommendedBillingCycle,
+            DisplayPrice = package.DisplayPrice,
+            Name = LocalizePackageName(package.Tier, package.Name),
+            Description = LocalizePackageDescription(package.Tier),
+            DisplayLabel = ResolveBillingCycleLabel(package.RecommendedBillingCycle),
+            Features = LocalizePackageFeatures(package.Tier)
+        }).ToList();
+    }
+
+    private AppSubscriptionEnvelopeDto LocalizeEnvelope(AppSubscriptionEnvelopeDto envelope)
+    {
+        if (envelope.Subscription == null)
+        {
+            return envelope;
+        }
+
+        envelope.Subscription.PackageName = LocalizePackageName(envelope.Subscription.PackageTier, envelope.Subscription.PackageName);
+        return envelope;
+    }
+
+    private string LocalizePackageName(string tier, string fallback) => (_audioService.CurrentLanguage, tier) switch
+    {
+        ("en", "Basic") => "Audio Daily",
+        ("en", "Premium") => "Audio Monthly",
+        ("en", "VIP") => "Audio Yearly",
+        ("zh", "Basic") => "每日语音",
+        ("zh", "Premium") => "月度语音",
+        ("zh", "VIP") => "年度语音",
+        ("vi", "Basic") => "Audio Ngay",
+        ("vi", "Premium") => "Audio Thang",
+        ("vi", "VIP") => "Audio Nam",
+        _ => fallback
+    };
+
+    private string LocalizePackageDescription(string tier) => (_audioService.CurrentLanguage, tier) switch
+    {
+        ("en", "Basic") => "Daily audio package for quick listening needs.",
+        ("en", "Premium") => "Monthly audio package for regular listeners.",
+        ("en", "VIP") => "Yearly audio package for long-term use.",
+        ("zh", "Basic") => "适合短期收听需求的每日语音套餐。",
+        ("zh", "Premium") => "适合经常收听用户的月度语音套餐。",
+        ("zh", "VIP") => "适合长期使用用户的年度语音套餐。",
+        ("vi", "Basic") => "Goi audio theo ngay cho user can nghe nhanh.",
+        ("vi", "Premium") => "Goi audio theo thang cho user nghe thuong xuyen.",
+        ("vi", "VIP") => "Goi audio theo nam cho user su dung lau dai.",
+        _ => string.Empty
+    };
+
+    private List<string> LocalizePackageFeatures(string tier) => (_audioService.CurrentLanguage, tier) switch
+    {
+        ("en", "Basic") => new() { "Use for 1 day", "Listen in 3 languages", "Suitable for short trips" },
+        ("en", "Premium") => new() { "Use for 1 month", "Listen in 3 languages", "Unlimited listens during the package period" },
+        ("en", "VIP") => new() { "Use for 1 year", "Listen in 3 languages", "Best value for frequent listeners" },
+        ("zh", "Basic") => new() { "可使用 1 天", "支持 3 种语言讲解", "适合短途体验" },
+        ("zh", "Premium") => new() { "可使用 1 个月", "支持 3 种语言讲解", "套餐期间可无限次收听" },
+        ("zh", "VIP") => new() { "可使用 1 年", "支持 3 种语言讲解", "更适合长期频繁收听" },
+        ("vi", "Basic") => new() { "Su dung trong 1 ngay", "Nghe thuyet minh 3 ngon ngu", "Phu hop cho chuyen di ngan" },
+        ("vi", "Premium") => new() { "Su dung trong 1 thang", "Nghe thuyet minh 3 ngon ngu", "Khong gioi han luot nghe trong thoi gian goi" },
+        ("vi", "VIP") => new() { "Su dung trong 1 nam", "Nghe thuyet minh 3 ngon ngu", "Tiet kiem chi phi cho nguoi nghe thuong xuyen" },
+        _ => new()
+    };
+
+    private string LocalizeStatus(string status) => (_audioService.CurrentLanguage, status) switch
+    {
+        ("en", "Active") => "Active",
+        ("en", "PendingPayment") => "Pending payment",
+        ("en", "Pending") => "Pending",
+        ("en", "Cancelled") => "Cancelled",
+        ("en", "Expired") => "Expired",
+        ("zh", "Active") => "已启用",
+        ("zh", "PendingPayment") => "待支付",
+        ("zh", "Pending") => "处理中",
+        ("zh", "Cancelled") => "已取消",
+        ("zh", "Expired") => "已过期",
+        ("vi", "Active") => "Dang hoat dong",
+        ("vi", "PendingPayment") => "Cho thanh toan",
+        ("vi", "Pending") => "Dang xu ly",
+        ("vi", "Cancelled") => "Da huy",
+        ("vi", "Expired") => "Het han",
+        _ => status
+    };
+
+    private string GetText(string key)
+    {
+        var lang = _audioService.CurrentLanguage;
+        return (lang, key) switch
+        {
+            ("en", "page_title") => "Audio packages",
+            ("en", "page_heading") => "Narration audio packages",
+            ("en", "current_package_heading") => "Current package",
+            ("en", "no_active_package") => "You do not have an active audio package.",
+            ("en", "reload") => "Refresh",
+            ("en", "continue_payment") => "Continue payment",
+            ("en", "payment_completed") => "I've paid",
+            ("en", "cancel_package") => "Cancel package",
+            ("en", "choose_package_heading") => "Choose the right package",
+            ("en", "empty_packages") => "There are currently no available packages.",
+            ("en", "qr_dialog_title") => "Audio package payment",
+            ("en", "qr_dialog_hint") => "Scan the QR code to pay. After payment, tap 'I've paid' to update your package status.",
+            ("en", "open_payos") => "Open PayOS",
+            ("en", "close_qr") => "Close QR",
+            ("en", "expires_on_format") => "Expires on: {0:dd/MM/yyyy}",
+            ("en", "payment_success_title") => "Payment successful",
+            ("en", "payment_success_message") => "Your audio package has been activated.",
+            ("en", "payment_cancelled_title") => "Payment cancelled",
+            ("en", "payment_cancelled_message") => "The audio package was cancelled.",
+            ("en", "payment_failed_title") => "Payment failed",
+            ("en", "payment_failed_message") => "PayOS has not confirmed a successful payment yet.",
+            ("en", "processing_title") => "Processing",
+            ("en", "processing_message") => "The system has not received the payment result yet. Please try again in a few seconds.",
+            ("en", "error_title") => "Error",
+            ("en", "cancel_failed_message") => "Unable to cancel the current package.",
+            ("en", "payment_ready_title") => "Ready to pay",
+            ("en", "payment_ready_qr_message") => "A QR code has been created in the app. You can scan it or open PayOS to complete payment.",
+            ("en", "payment_ready_link_message") => "A PayOS payment link has been created. You can open PayOS to complete payment.",
+            ("en", "ok") => "OK",
+
+            ("zh", "page_title") => "语音套餐",
+            ("zh", "page_heading") => "讲解语音套餐",
+            ("zh", "current_package_heading") => "当前套餐",
+            ("zh", "no_active_package") => "你当前没有启用中的语音套餐。",
+            ("zh", "reload") => "刷新",
+            ("zh", "continue_payment") => "继续支付",
+            ("zh", "payment_completed") => "我已支付",
+            ("zh", "cancel_package") => "取消套餐",
+            ("zh", "choose_package_heading") => "选择适合你的套餐",
+            ("zh", "empty_packages") => "当前没有可用套餐。",
+            ("zh", "qr_dialog_title") => "语音套餐支付",
+            ("zh", "qr_dialog_hint") => "请扫描二维码完成支付。支付完成后，点击“我已支付”以更新套餐状态。",
+            ("zh", "open_payos") => "打开 PayOS",
+            ("zh", "close_qr") => "关闭二维码",
+            ("zh", "expires_on_format") => "到期日: {0:dd/MM/yyyy}",
+            ("zh", "payment_success_title") => "支付成功",
+            ("zh", "payment_success_message") => "你的语音套餐已启用。",
+            ("zh", "payment_cancelled_title") => "支付已取消",
+            ("zh", "payment_cancelled_message") => "语音套餐已被取消。",
+            ("zh", "payment_failed_title") => "支付失败",
+            ("zh", "payment_failed_message") => "PayOS 尚未确认支付成功。",
+            ("zh", "processing_title") => "处理中",
+            ("zh", "processing_message") => "系统暂未收到支付结果，请稍后再试。",
+            ("zh", "error_title") => "错误",
+            ("zh", "cancel_failed_message") => "无法取消当前套餐。",
+            ("zh", "payment_ready_title") => "准备支付",
+            ("zh", "payment_ready_qr_message") => "应用内已生成二维码。你可以扫码或打开 PayOS 完成支付。",
+            ("zh", "payment_ready_link_message") => "已生成 PayOS 支付链接。你可以打开 PayOS 完成支付。",
+            ("zh", "ok") => "确定",
+
+            (_, "page_title") => "Goi audio",
+            (_, "page_heading") => "Goi nghe thuyet minh",
+            (_, "current_package_heading") => "Goi hien tai",
+            (_, "no_active_package") => "Ban chua co goi audio nao dang hoat dong.",
+            (_, "reload") => "Kiem tra lai",
+            (_, "continue_payment") => "Tiep tuc thanh toan",
+            (_, "payment_completed") => "Toi da thanh toan",
+            (_, "cancel_package") => "Huy goi",
+            (_, "choose_package_heading") => "Chon goi phu hop",
+            (_, "empty_packages") => "Hien tai chua co goi nao kha dung.",
+            (_, "qr_dialog_title") => "Thanh toan goi audio",
+            (_, "qr_dialog_hint") => "Quet ma QR de thanh toan. Sau khi thanh toan xong, bam 'Toi da thanh toan' de cap nhat trang thai goi.",
+            (_, "open_payos") => "Mo cong PayOS",
+            (_, "close_qr") => "Dong QR",
+            (_, "expires_on_format") => "Het han: {0:dd/MM/yyyy}",
+            (_, "payment_success_title") => "Thanh toan thanh cong",
+            (_, "payment_success_message") => "Goi audio cua ban da duoc kich hoat.",
+            (_, "payment_cancelled_title") => "Da huy thanh toan",
+            (_, "payment_cancelled_message") => "Goi audio da bi huy.",
+            (_, "payment_failed_title") => "Thanh toan that bai",
+            (_, "payment_failed_message") => "PayOS chua xac nhan thanh toan thanh cong.",
+            (_, "processing_title") => "Dang xu ly",
+            (_, "processing_message") => "He thong chua nhan duoc ket qua thanh toan. Vui long thu lai sau it giay.",
+            (_, "error_title") => "Loi",
+            (_, "cancel_failed_message") => "Khong huy duoc goi hien tai.",
+            (_, "payment_ready_title") => "San sang thanh toan",
+            (_, "payment_ready_qr_message") => "Ma QR da duoc tao trong app. Ban co the quet QR hoac mo cong PayOS de thanh toan.",
+            (_, "payment_ready_link_message") => "Lien ket thanh toan PayOS da duoc tao. Ban co the mo cong PayOS de thanh toan.",
+            (_, "ok") => "OK",
+            _ => key
+        };
+    }
+
+}

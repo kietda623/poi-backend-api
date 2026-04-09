@@ -20,3 +20,15 @@ obj/
 build/
 DerivedData/
 *.moved-aside
+
+
+appsettings.Development.json
+appsettings.*.json
+
+
+.DS_Store
+Thumbs.db
+
+
+.agent/
+.git - copy/
