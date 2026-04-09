@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using foodstreet_admin.Models;
 
 namespace foodstreet_admin.Services;
@@ -24,13 +24,10 @@ public class StoreService
         return null;
     }
 
-
-
     public async Task<List<StoreModel>> GetStoresAsync(int? sellerId = null)
     {
         if (sellerId.HasValue)
         {
-            // Nếu có sellerId, ưu tiên dùng API của Owner (Nếu đang ở vai trò Seller)
             var myStores = await _api.GetAsync<List<StoreModel>>("owner/shops");
             if (myStores != null) return myStores;
         }
@@ -57,7 +54,7 @@ public class StoreService
                 address = store.Address,
                 imageUrl = store.ImageUrl,
                 menuImagesUrl = store.MenuImagesUrl,
-                category = string.IsNullOrWhiteSpace(store.Category) || store.Category == "Mặc định" ? null : store.Category,
+                category = string.IsNullOrWhiteSpace(store.Category) || store.Category == "M?c d?nh" ? null : store.Category,
                 latitude = store.Latitude,
                 longitude = store.Longitude
             });
@@ -66,12 +63,12 @@ public class StoreService
                 return (true, "Đăng ký gian hàng thành công!");
             }
             _logger.LogWarning("CreateStoreAsync: API returned empty/default response");
-            return (false, "Lỗi khi đăng ký gian hàng. Vui lòng thử lại.");
+            return (false, "L?i khi dang ký gian hàng. Vui lòng th? l?i.");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "CreateStoreAsync failed");
-            return (false, $"Lỗi khi đăng ký gian hàng: {ex.Message}");
+            return (false, $"L?Lỗi khi đăng ký gian hàng: {ex.Message}");
         }
     }
 
@@ -86,49 +83,37 @@ public class StoreService
                 address = store.Address,
                 imageUrl = store.ImageUrl,
                 menuImagesUrl = store.MenuImagesUrl,
-                category = string.IsNullOrWhiteSpace(store.Category) || store.Category == "Mặc định" ? null : store.Category,
+                category = string.IsNullOrWhiteSpace(store.Category) || store.Category == "M?c d?nh" ? null : store.Category,
                 latitude = store.Latitude,
                 longitude = store.Longitude
             });
             if (response.ValueKind != JsonValueKind.Undefined)
             {
-                return (true, "Cập nhật thành công!");
+                return (true, "C?p nh?t thành công!");
             }
             _logger.LogWarning("UpdateStoreAsync: API returned empty/default response");
-            return (false, "Lỗi khi cập nhật gian hàng.");
+            return (false, "L?i khi c?p nh?t gian hàng.");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "UpdateStoreAsync failed");
-            return (false, $"Lỗi khi cập nhật gian hàng: {ex.Message}");
+            return (false, $"L?i khi c?p nh?t gian hàng: {ex.Message}");
         }
     }
 
     public async Task<JsonElement> GenerateTTSAsync(int storeId, string langCode = "vi")
     {
-        return await _api.PostAsync<object, JsonElement>(
-            $"owner/shops/{storeId}/generate-tts",
-            new { langCode },
-            TimeSpan.FromMinutes(2));
+        return await _api.PostAsync<object, JsonElement>($"owner/shops/{storeId}/generate-tts", new { langCode }, TimeSpan.FromMinutes(2));
     }
 
     public async Task<JsonElement> GenerateTTSWithTextAsync(int storeId, string text, string langCode = "vi")
     {
-        return await _api.PostAsync<object, JsonElement>(
-            $"owner/shops/{storeId}/generate-tts",
-            new { text, langCode },
-            TimeSpan.FromMinutes(2));
+        return await _api.PostAsync<object, JsonElement>($"owner/shops/{storeId}/generate-tts", new { text, langCode }, TimeSpan.FromMinutes(2));
     }
 
-    /// <summary>
-    /// Generate TTS audio for ALL 3 languages (vi, en, zh) in one shot.
-    /// </summary>
     public async Task<JsonElement> GenerateTTSAllLanguagesAsync(int storeId, string? text = null)
     {
-        return await _api.PostAsync<object, JsonElement>(
-            $"owner/shops/{storeId}/generate-tts-all",
-            new { text },
-            TimeSpan.FromMinutes(4));
+        return await _api.PostAsync<object, JsonElement>($"owner/shops/{storeId}/generate-tts-all", new { text }, TimeSpan.FromMinutes(4));
     }
 
     public async Task<string?> TranslateTextAsync(string text, string targetLang)
@@ -156,8 +141,6 @@ public class StoreService
         return await _api.PatchAsync($"admin/shops/{id}/reject");
     }
 
-    // ── Sellers ─────────────────────────────────────────────────────
-
     public async Task<List<CustomerModel>> GetAllUsersAsync()
     {
         return await _api.GetAsync<List<CustomerModel>>("admin/users") ?? new();
@@ -184,8 +167,6 @@ public class StoreService
         return await _api.DeleteAsync($"admin/users/{id}");
     }
 
-    // ── Customers ───────────────────────────────────────────────────
-
     public async Task<List<CustomerModel>> GetCustomersAsync()
     {
         return await _api.GetAsync<List<CustomerModel>>("admin/users/customers") ?? new();
@@ -201,10 +182,6 @@ public class StoreService
     {
         return await _api.PatchAsync($"admin/users/{id}/status?status={status}");
     }
-
-    // ── Stats ────────────────────────────────────────────────────────
-
-    // ── Stats ────────────────────────────────────────────────────────
 
     public async Task<List<StatModel>> GetSellerStatsAsync(int sellerId, int? storeId = null)
     {
@@ -223,11 +200,14 @@ public class StoreService
         return await _api.GetAsync<List<ReviewModel>>(url) ?? new List<ReviewModel>();
     }
 
-    // ── Revenue ─────────────────────────────────────────────────────
+    public async Task<AdminStatsModel?> GetAdminStatsAsync(int year, int? month = null)
+    {
+        var query = $"admin/stats?year={year}";
+        if (month.HasValue)
+            query += $"&month={month.Value}";
+        return await _api.GetAsync<AdminStatsModel>(query);
+    }
 
-    /// <summary>
-    /// Get admin revenue stats filtered by year and optionally by month.
-    /// </summary>
     public async Task<AdminRevenueModel?> GetAdminRevenueAsync(int? month, int year)
     {
         var query = $"admin/stats/revenue?year={year}";
@@ -236,9 +216,6 @@ public class StoreService
         return await _api.GetAsync<AdminRevenueModel>(query);
     }
 
-    /// <summary>
-    /// Get seller revenue stats for a specific week.
-    /// </summary>
     public async Task<SellerRevenueModel?> GetSellerRevenueAsync(int sellerId, string? weekDate = null, int? storeId = null)
     {
         var query = $"stats/seller/{sellerId}/revenue";
@@ -246,7 +223,42 @@ public class StoreService
         if (!string.IsNullOrEmpty(weekDate)) param.Add($"week={weekDate}");
         if (storeId.HasValue && storeId.Value > 0) param.Add($"storeId={storeId.Value}");
         if (param.Any()) query += "?" + string.Join("&", param);
-        
+
         return await _api.GetAsync<SellerRevenueModel>(query);
     }
+
+    public async Task<SellerStatsOverviewModel?> GetSellerOverviewAsync(int sellerId, string period, string? anchorDate = null, int? storeId = null)
+    {
+        var query = $"stats/seller/{sellerId}/overview?period={period}";
+        if (!string.IsNullOrWhiteSpace(anchorDate)) query += $"&anchorDate={anchorDate}";
+        if (storeId.HasValue && storeId.Value > 0) query += $"&storeId={storeId.Value}";
+        return await _api.GetAsync<SellerStatsOverviewModel>(query);
+    }
+
+    public async Task<bool> DeleteAdminStoreAudioAsync(int storeId, string languageCode)
+    {
+        return await _api.DeleteAsync($"admin/shops/{storeId}/audio/{Uri.EscapeDataString(languageCode)}");
+    }
+
+    public string ToAbsoluteMediaUrl(string? audioUrl)
+    {
+        if (string.IsNullOrWhiteSpace(audioUrl))
+        {
+            return string.Empty;
+        }
+
+        if (Uri.TryCreate(audioUrl, UriKind.Absolute, out var absoluteUri))
+        {
+            return absoluteUri.ToString();
+        }
+
+        var baseUri = new Uri(new Uri("http://localhost:5279/api/"), ".");
+        if (Uri.TryCreate(baseUri, audioUrl.TrimStart('/'), out var combinedUri))
+        {
+            return combinedUri.ToString();
+        }
+
+        return audioUrl;
+    }
 }
+

@@ -9,168 +9,226 @@
 
 <PageTitle>@Lang.T("Dashboard")</PageTitle>
 
-<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-6 animate-fade-in-up">
-    <MudStack Spacing="0">
-        <MudText Typo="Typo.h4" Style="font-weight:800">📊 <span class="gradient-text-safe">@Lang.T("Dashboard")</span></MudText>
-        <MudText Typo="Typo.body2" Style="opacity:0.6">@Lang.T("StoreSettings")</MudText>
+<style>
+    .seller-dashboard {
+        animation: fadeIn 0.8s ease-out;
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 24px;
+        transition: all 0.3s ease;
+    }
+
+    .glass-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .gradient-text {
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+    }
+
+    .revenue-text {
+        color: #10b981;
+        font-weight: 800;
+    }
+
+    .quick-btn {
+        border-radius: 16px;
+        height: 52px;
+        text-transform: none;
+        font-weight: 700;
+        transition: all 0.2s;
+    }
+
+    .quick-btn:hover {
+        transform: scale(1.02);
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="seller-dashboard">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-8">
+        <MudStack Spacing="0">
+            <MudText Typo="Typo.h4" Class="gradient-text">Dashboard</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">Theo dõi hoạt động kinh doanh của bạn theo thời gian thực.</MudText>
+        </MudStack>
+        <MudSpacer />
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" 
+                   StartIcon="@Icons.Material.Filled.Refresh" 
+                   OnClick="LoadData" 
+                   Style="border-radius: 12px; text-transform: none;">Làm mới</MudButton>
     </MudStack>
-</MudStack>
 
-@if (_loading)
-{
-    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-4" />
-}
+    @if (_loading)
+    {
+        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-6" Style="border-radius: 4px;" />
+    }
 
-<!-- Stats Cards -->
-<MudGrid>
-    <MudItem xs="12" sm="6" md="3" Class="animate-fade-in-up">
-        <MudPaper Class="pa-5 glass-card" Elevation="0">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
-                <div class="gradient-icon" style="background: var(--primary-gradient)">
-                    <MudIcon Icon="@Icons.Material.Filled.Headphones" Size="Size.Medium" />
+    <!-- Stats Overview -->
+    <MudGrid Class="mb-6">
+        <MudItem xs="12" sm="4" md="3" lg="3">
+            <MudPaper Class="pa-5 glass-card" Elevation="0" Style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-color: #a7f3d0;">
+                <div class="stat-icon mb-3" style="background: white; color: #059669;">
+                    <MudIcon Icon="@Icons.Material.Filled.Payments" />
                 </div>
-                <MudStack Spacing="0">
-                    <MudText Typo="Typo.h4" Style="font-weight:800">@_totalListens.ToString("N0")</MudText>
-                    <MudText Typo="Typo.caption" Style="text-transform:uppercase; letter-spacing:1px; font-weight:600; opacity:0.6">Audio Listens</MudText>
-                </MudStack>
-            </MudStack>
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="12" sm="6" md="3" Class="animate-fade-in-up delay-1">
-        <MudPaper Class="pa-5 glass-card" Elevation="0">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
-                <div class="gradient-icon" style="background: var(--accent-gradient)">
-                    <MudIcon Icon="@Icons.Material.Filled.Visibility" Size="Size.Medium" />
-                </div>
-                <MudStack Spacing="0">
-                    <MudText Typo="Typo.h4" Style="font-weight:800">@_totalViews.ToString("N0")</MudText>
-                    <MudText Typo="Typo.caption" Style="text-transform:uppercase; letter-spacing:1px; font-weight:600; opacity:0.6">Store Views</MudText>
-                </MudStack>
-            </MudStack>
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="12" sm="6" md="3" Class="animate-fade-in-up delay-2">
-        <MudPaper Class="pa-5 glass-card" Elevation="0">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
-                <div class="gradient-icon" style="background: var(--secondary-gradient)">
-                    <MudIcon Icon="@Icons.Material.Filled.StarRate" Size="Size.Medium" />
-                </div>
-                <MudStack Spacing="0">
-                    <MudText Typo="Typo.h4" Style="font-weight:800">@_totalReviews.ToString()</MudText>
-                    <MudText Typo="Typo.caption" Style="text-transform:uppercase; letter-spacing:1px; font-weight:600; opacity:0.6">Reviews</MudText>
-                </MudStack>
-            </MudStack>
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="12" sm="6" md="3" Class="animate-fade-in-up delay-3">
-        <MudPaper Class="pa-5 glass-card" Elevation="0">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
-                <div class="gradient-icon" style="background: var(--primary-gradient); filter: hue-rotate(45deg)">
-                    <MudIcon Icon="@Icons.Material.Filled.Store" Size="Size.Medium" />
-                </div>
-                <MudStack Spacing="0">
-                    <MudText Typo="Typo.h4" Style="font-weight:800">@_activeCount.ToString()</MudText>
-                    <MudText Typo="Typo.caption" Style="text-transform:uppercase; letter-spacing:1px; font-weight:600; opacity:0.6">Active Stores</MudText>
-                </MudStack>
-            </MudStack>
-        </MudPaper>
-    </MudItem>
-</MudGrid>
-
-<MudGrid Class="mt-4">
-    <!-- Monthly Stats -->
-    <MudItem xs="12" md="8" Class="animate-fade-in-up delay-4">
-        <MudPaper Class="pa-6 glass-card" Elevation="0">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-6">
-                <MudText Typo="Typo.h6" Style="font-weight:700">📈 @Lang.T("MonthlyStats")</MudText>
-                <MudSpacer />
-                <MudButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Error"
-                           StartIcon="@Icons.Material.Filled.PictureAsPdf" Class="mr-2"
-                           Style="border-radius:12px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2)">PDF</MudButton>
-                <MudButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Success"
-                           StartIcon="@Icons.Material.Filled.TableChart"
-                           Style="border-radius:12px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2)">Excel</MudButton>
-            </MudStack>
-            <MudTable Items="@_stats" Hover="true" Dense="false" Class="mud-table-glass">
-                <HeaderContent>
-                    <MudTh>@Lang.T("Month")</MudTh>
-                    <MudTh>@Lang.T("Listens")</MudTh>
-                    <MudTh>@Lang.T("Views")</MudTh>
-                    <MudTh>@Lang.T("Reviews")</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Month">@context.Month.ToString()</MudTd>
-                    <MudTd DataLabel="Listens">
-                        <MudText Style="font-weight:600">@context.TotalListens.ToString()</MudText>
-                    </MudTd>
-                    <MudTd DataLabel="Views">
-                        <MudText Color="Color.Primary" Style="font-weight:600">@context.TotalViews.ToString()</MudText>
-                    </MudTd>
-                    <MudTd DataLabel="Reviews">
-                        <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Text">@context.TotalReviews.ToString()</MudChip>
-                    </MudTd>
-                </RowTemplate>
-            </MudTable>
-        </MudPaper>
-    </MudItem>
-
-    <!-- Quick Actions + Stores -->
-    <MudItem xs="12" md="4">
-        <MudStack Spacing="4">
-            <MudPaper Class="pa-6 glass-card animate-fade-in-up delay-4" Elevation="0">
-                <MudText Typo="Typo.subtitle1" Style="font-weight:700" Class="mb-4">⚡ Quick Actions</MudText>
-                <MudStack Spacing="3">
-                    <MudButton Href="/seller/mystore" Variant="Variant.Filled" Color="Color.Primary"
-                               StartIcon="@Icons.Material.Filled.Store" FullWidth="true"
-                               Style="height:48px; border-radius:12px; box-shadow: 0 6px 15px rgba(99, 102, 241, 0.25)">
-                        @Lang.T("MyStore")
-                    </MudButton>
-                    <MudButton Href="/seller/mystore" Variant="Variant.Outlined" Color="Color.Success"
-                               StartIcon="@Icons.Material.Filled.AddBusiness" FullWidth="true"
-                               Style="height:48px; border-radius:12px">
-                        Đăng ký gian hàng mới
-                    </MudButton>
-                </MudStack>
+                <MudText Typo="Typo.h5" Class="revenue-text">@_totalRevenue.ToString("N0")</MudText>
+                <MudText Typo="Typo.caption" Style="color: #065f46; font-weight: 600;">DOANH THU (VND)</MudText>
             </MudPaper>
+        </MudItem>
+        <MudItem xs="6" sm="4" md="2" lg="2">
+            <MudPaper Class="pa-5 glass-card" Elevation="0">
+                <div class="stat-icon mb-3" style="background: #eef2ff; color: #4f46e5;">
+                    <MudIcon Icon="@Icons.Material.Filled.Headphones" />
+                </div>
+                <MudText Typo="Typo.h5" Style="font-weight:800;">@_totalListens.ToString("N0")</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary" Style="font-weight:600;">LƯỢT NGHE</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6" sm="4" md="2" lg="2">
+            <MudPaper Class="pa-5 glass-card" Elevation="0">
+                <div class="stat-icon mb-3" style="background: #fffbeb; color: #d97706;">
+                    <MudIcon Icon="@Icons.Material.Filled.Star" />
+                </div>
+                <MudText Typo="Typo.h5" Style="font-weight:800;">@_totalReviews</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary" Style="font-weight:600;">ĐÁNH GIÁ</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6" sm="12" md="5" lg="5">
+            <MudPaper Class="pa-5 glass-card" Elevation="0" Style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white;">
+                <div class="d-flex align-center justify-space-between">
+                    <div>
+                        <MudText Typo="Typo.h5" Style="font-weight:800;">@_activeCount / @_myStores.Count</MudText>
+                        <MudText Typo="Typo.caption" Style="font-weight:600; opacity: 0.8;">GIAN HÀNG HOẠT ĐỘNG</MudText>
+                    </div>
+                    <MudIcon Icon="@Icons.Material.Filled.Storefront" Size="Size.Large" Style="opacity: 0.3;" />
+                </div>
+                <MudProgressLinear Color="Color.Inherit" Value="@(_myStores.Any() ? (_activeCount * 100.0 / _myStores.Count) : 0)" Class="mt-3" Style="height: 6px; border-radius: 3px; background: rgba(255,255,255,0.2)" />
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
 
-            <MudPaper Class="pa-6 glass-card animate-fade-in-up delay-4" Elevation="0">
-                <MudText Typo="Typo.subtitle1" Style="font-weight:700" Class="mb-4">🏪 @Lang.T("MyStore")</MudText>
-                <MudStack Spacing="3">
-                    @foreach (var s in _myStores.Take(5))
-                    {
-                        <div class="d-flex align-center pa-2 rounded-lg hover-bg" style="transition:0.2s">
-                            <MudAvatar Size="Size.Medium" Color="Color.Primary" Variant="Variant.Outlined">@s.Name[0]</MudAvatar>
-                            <MudStack Spacing="0" Class="ml-3" Style="flex:1">
-                                <MudText Typo="Typo.body2" Style="font-weight:700">@s.Name</MudText>
-                                <MudText Typo="Typo.caption" Style="opacity:0.6">@s.Category</MudText>
-                            </MudStack>
-                            <MudChip T="string" Size="Size.Small" 
-                                     Variant="Variant.Text"
-                                     Color="@(s.Status=="Active"?Color.Success:s.Status=="Pending"?Color.Warning:Color.Error)">
-                                @s.Status.ToString()
-                            </MudChip>
-                        </div>
-                    }
+    <MudGrid>
+        <!-- Mixed Performance Chart -->
+        <MudItem xs="12" md="8">
+            <MudPaper Class="pa-6 glass-card" Elevation="0">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-6">
+                    <MudIcon Icon="@Icons.Material.Filled.Timeline" Color="Color.Primary" />
+                    <MudText Typo="Typo.h6" Style="font-weight:800">Hiệu suất tháng này</MudText>
+                    <MudSpacer />
+                    <MudSelect T="string" Value="@_period" ValueChanged="OnPeriodChanged" Dense="true" Margin="Margin.Dense" Bordered="false" Style="width: 120px;">
+                        <MudSelectItem Value="@("week")">Tuần này</MudSelectItem>
+                        <MudSelectItem Value="@("month")">Tháng này</MudSelectItem>
+                    </MudSelect>
+                </MudStack>
+
+                @if (_chartSeries.Any())
+                {
+                    <MudChart ChartType="ChartType.Bar" ChartSeries="@_chartSeries" XAxisLabels="@_xAxisLabels" Width="100%" Height="350px" ChartOptions="@_chartOptions" />
+                }
+                else
+                {
+                    <div class="d-flex align-center justify-center" style="height: 350px; opacity: 0.3;">
+                        <MudText>Chưa có dữ liệu biểu đồ</MudText>
+                    </div>
+                }
+
+                <MudTable Items="@_historyStats" Hover="true" Dense="true" Elevation="0" Class="mt-4 border-0" Style="background: transparent;">
+                    <HeaderContent>
+                        <MudTh Style="font-weight: 700;">Tháng</MudTh>
+                        <MudTh Style="font-weight: 700;">Lượt nghe</MudTh>
+                        <MudTh Style="font-weight: 700;">Review</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Tháng">@context.Month</MudTd>
+                        <MudTd DataLabel="Lượt nghe">@context.TotalListens.ToString("N0")</MudTd>
+                        <MudTd DataLabel="Review"><MudChip T="string" Color="Color.Warning" Size="Size.Small" Variant="Variant.Text">@context.TotalReviews</MudChip></MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudStack Spacing="4">
+                <!-- Quick Actions -->
+                <MudPaper Class="pa-6 glass-card" Elevation="0">
+                    <MudText Typo="Typo.subtitle1" Style="font-weight:800" Class="mb-5">⚡ Thao tác nhanh</MudText>
+                    <MudStack Spacing="3">
+                        <MudButton Href="/seller/mystore" Variant="Variant.Filled" Color="Color.Primary" 
+                                   StartIcon="@Icons.Material.Filled.AddBusiness" FullWidth="true"
+                                   Class="quick-btn" Style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
+                            Thêm gian hàng mới
+                        </MudButton>
+                        <MudButton Href="/seller/mystore" Variant="Variant.Outlined" Color="Color.Primary" 
+                                   StartIcon="@Icons.Material.Filled.Store" FullWidth="true"
+                                   Class="quick-btn">
+                            Quản lý gian hàng
+                        </MudButton>
+                    </MudStack>
+                </MudPaper>
+
+                <!-- My Stores List -->
+                <MudPaper Class="pa-6 glass-card" Elevation="0">
+                    <MudText Typo="Typo.subtitle1" Style="font-weight:800" Class="mb-5">🏪 Gian hàng tiêu biểu</MudText>
+                    <MudList T="string" Dense="true" Class="pa-0">
+                        @foreach (var store in _myStores.Take(4))
+                        {
+                            <MudListItem T="string" Class="pa-3 mb-2 rounded-xl" Style="background: rgba(0,0,0,0.02);">
+                                <div class="d-flex align-center">
+                                    <MudAvatar Color="Color.Primary" Variant="Variant.Filled" Size="Size.Small" Style="font-weight: 800;">@store.Name[0]</MudAvatar>
+                                    <div class="ml-3" style="flex: 1; overflow: hidden;">
+                                        <MudText Typo="Typo.body2" Style="font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@store.Name</MudText>
+                                        <MudText Typo="Typo.caption" Color="Color.Secondary">@store.Category</MudText>
+                                    </div>
+                                    <MudChip T="string" Size="Size.Small" Color="@(store.Status == "Active" ? Color.Success : Color.Warning)" Variant="Variant.Text">@store.Status</MudChip>
+                                </div>
+                            </MudListItem>
+                        }
+                    </MudList>
                     @if (!_myStores.Any())
                     {
-                        <MudAlert Severity="Severity.Info" Variant="Variant.Text" Dense="true" Class="text-center">
-                            Chưa có gian hàng nào
-                        </MudAlert>
+                        <MudAlert Severity="Severity.Info" Variant="Variant.Text" Dense="true" Class="text-center">Chưa có gian hàng nào</MudAlert>
                     }
-                </MudStack>
-            </MudPaper>
-        </MudStack>
-    </MudItem>
-</MudGrid>
+                </MudPaper>
+            </MudStack>
+        </MudItem>
+    </MudGrid>
+</div>
 
 @code {
     private bool _loading = true;
-    private List<StatModel> _stats = new();
+    private string _period = "week";
     private List<StoreModel> _myStores = new();
+    private List<StatModel> _historyStats = new();
     private int _totalListens, _totalViews, _totalReviews, _activeCount;
+    private decimal _totalRevenue;
 
-    // Không dùng const nữa, đổi thành biến chứa ID thật
-    private int _currentSellerId = 0; 
+    private List<ChartSeries<double>> _chartSeries = new();
+    private string[] _xAxisLabels = Array.Empty<string>();
+    private ChartOptions _chartOptions = new();
+
+    private int _currentSellerId = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -186,15 +244,19 @@
         });
     }
 
+    private async Task OnPeriodChanged(string period)
+    {
+        _period = period;
+        await LoadStats();
+    }
+
     private async Task LoadData()
     {
         _loading = true;
-        // 1. Lấy thông tin người dùng đang đăng nhập
+        
         var authState = await AuthState.GetAuthenticationStateAsync();
         var user = authState.User;
-
-        // 2. Tìm ID thật sự của họ
-        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        if (user.Identity?.IsAuthenticated == true)
         {
             var idClaim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
             if (idClaim != null && int.TryParse(idClaim.Value, out int parsedId))
@@ -203,16 +265,44 @@
             }
         }
 
-        // 3. Gọi API với ID thật
-        _myStores = await StoreSvc.GetStoresAsync(_currentSellerId);
-        _stats = await StoreSvc.GetSellerStatsAsync(_currentSellerId);
+        if (_currentSellerId > 0)
+        {
+            _myStores = await StoreSvc.GetStoresAsync(_currentSellerId);
+            _historyStats = await StoreSvc.GetSellerStatsAsync(_currentSellerId);
+            
+            await LoadStats();
 
-        _totalListens = _myStores.Sum(s => s.TotalListens);
-        _totalViews   = _myStores.Sum(s => s.TotalViews);
-        _totalReviews = _stats.Sum(s => s.TotalReviews);
-        _activeCount  = _myStores.Count(s => s.Status == "Active");
+            _activeCount = _myStores.Count(s => s.Status == "Active");
+            _totalReviews = _historyStats.Sum(s => s.TotalReviews);
+        }
+
         _loading = false;
+        StateHasChanged();
     }
+
+    private async Task LoadStats()
+    {
+        var overview = await StoreSvc.GetSellerOverviewAsync(_currentSellerId, _period);
+        if (overview != null)
+        {
+            _totalRevenue = overview.TotalRevenue;
+            _totalListens = overview.TotalListens;
+            _totalViews = _myStores.Sum(s => s.TotalViews);
+
+            // Prepare chart data
+            var revenueData = overview.RevenueBreakdown;
+            var listenData = overview.ListenBreakdown;
+
+            _xAxisLabels = revenueData.Select(d => d.Label).ToArray();
+            
+            _chartSeries = new List<ChartSeries<double>>()
+            {
+                new ChartSeries<double>() { Name = "Doanh thu (k)", Data = revenueData.Select(d => (double)d.Revenue / 1000).ToArray() },
+                new ChartSeries<double>() { Name = "Lượt nghe", Data = listenData.Select(d => (double)d.Listens).ToArray() }
+            };
+        }
+    }
+
     public void Dispose()
     {
         Lang.OnLanguageChanged -= HandleLanguageChanged;

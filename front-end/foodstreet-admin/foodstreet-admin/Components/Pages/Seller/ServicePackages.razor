@@ -1,0 +1,607 @@
+@page "/seller/service-packages"
+@layout SellerLayout
+@rendermode InteractiveServer
+@inject ServicePackageService PackageService
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+@using Microsoft.AspNetCore.WebUtilities
+
+<PageTitle>Gói Dịch Vụ</PageTitle>
+
+<MudStack Spacing="3">
+    <div class="d-flex flex-column align-center mb-6">
+        <MudText Typo="Typo.h4" Class="fw-bold mb-2">Gói dịch vụ cho seller</MudText>
+        <MudText Typo="Typo.subtitle1" Color="Color.Secondary">
+            Đăng ký gói seller qua PayOS. Sau khi thanh toán thành công, seller có thể tạo gian hàng theo số lượng của gói.
+        </MudText>
+    </div>
+
+    @if (_loading)
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+    }
+
+    @if (_current?.HasSubscription == true && _current.Subscription != null)
+    {
+        <MudPaper Elevation="4" Class="pa-6 mb-8 border-l-4 border-solid" Style="border-color: var(--mud-palette-primary); background: var(--mud-palette-background-grey);">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <MudStack Spacing="1">
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="fw-bold">Gói hiện tại: @_current.Subscription.PackageName</MudText>
+                    <MudText Typo="Typo.body1">
+                        <b>Trạng thái:</b>
+                        <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(_current.Subscription.Status)" Variant="Variant.Text">@_current.Subscription.Status</MudChip>
+                        <MudChip T="string" Size="Size.Small" Color="@GetPaymentStatusColor(_current.Subscription.PaymentStatus)" Variant="Variant.Text">@_current.Subscription.PaymentStatus</MudChip>
+                    </MudText>
+                    <MudText Typo="Typo.body2">
+                        <b>Hiệu lực:</b> @_current.Subscription.StartDate.ToString("dd/MM/yyyy") - @_current.Subscription.EndDate.ToString("dd/MM/yyyy") (@_current.Subscription.BillingCycle)
+                    </MudText>
+                    <MudText Typo="Typo.body2">
+                        <b>Số gian hàng:</b> @_current.StoresUsed / @_current.Subscription.MaxStores | <b>Còn lại:</b> @_current.StoresRemaining
+                    </MudText>
+                    <MudText Typo="Typo.body2">
+                        <b>Có thể tạo gian hàng:</b> @(_current.CanCreateStore ? "Có" : "Không")
+                    </MudText>
+                    @if (_current.Subscription.CancelAtPeriodEnd)
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Warning">
+                            <b>Gia hạn:</b> Gói hiện tại sẽ dùng đến hết ngày @_current.Subscription.EndDate.ToString("dd/MM/yyyy") và không gia hạn ở kỳ tiếp theo.
+                        </MudText>
+                    }
+                </MudStack>
+
+                <MudStack Row="true" Spacing="2">
+                    <MudButton Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Refresh" OnClick="ReloadAsync">
+                        Làm mới trạng thái
+                    </MudButton>
+                    @if (_current.Subscription.Status == "Active" && _current.Subscription.PaymentStatus == "Paid" && !_current.Subscription.CancelAtPeriodEnd)
+                    {
+                        <MudButton Variant="Variant.Outlined" Color="Color.Warning" StartIcon="@Icons.Material.Filled.EventBusy" OnClick="CancelNextCycleAsync">
+                            Hủy gia hạn kỳ sau
+                        </MudButton>
+                    }
+                    @if (_current.Subscription.Status == "PendingPayment" && !string.IsNullOrWhiteSpace(_current.Subscription.CheckoutUrl))
+                    {
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Payment" OnClick="OpenPendingPaymentDialog">
+                            Tiếp tục thanh toán PayOS
+                        </MudButton>
+                    }
+                    @if (_current.Subscription.Status == "PendingPayment" || _current.Subscription.Status == "Pending")
+                    {
+                        <MudButton Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Cancel" OnClick="CancelPendingSubscriptionAsync">
+                            Hủy gói đang chờ
+                        </MudButton>
+                    }
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    }
+
+    <MudGrid Spacing="4">
+        @foreach (var package in _packages)
+        {
+            var isPremium = package.Tier == "Premium";
+            var isVip = package.Tier == "VIP";
+            var accentColor = isVip ? Color.Secondary : (isPremium ? Color.Warning : Color.Primary);
+            var headerStyle = isVip
+                ? "background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%); color: white;"
+                : isPremium
+                    ? "background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); color: white;"
+                    : "background: var(--mud-palette-background-grey); color: var(--mud-palette-text-primary);";
+
+            <MudItem xs="12" md="4">
+                <MudCard Elevation="@(isPremium || isVip ? 8 : 2)" Class="@(isPremium || isVip ? "pricing-card-featured pa-1" : "pa-1")" Style="@(isPremium || isVip ? "transform: scale(1.02);" : string.Empty)">
+                    <div style="@headerStyle" class="pa-4 rounded-t">
+                        <MudStack AlignItems="AlignItems.Center">
+                            @if (isVip)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Stars" Size="Size.Large" />
+                            }
+                            else if (isPremium)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.WorkspacePremium" Size="Size.Large" />
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Store" Size="Size.Large" />
+                            }
+
+                            <MudText Typo="Typo.h5" Class="fw-bold">@package.Name</MudText>
+                            <MudText Typo="Typo.caption" Class="text-center" Style="opacity: 0.85">@package.Description</MudText>
+                        </MudStack>
+                    </div>
+
+                    <MudCardContent Class="pa-6">
+                        <MudStack AlignItems="AlignItems.Center" Class="mb-4">
+                            <div class="d-flex align-end">
+                                <MudText Typo="Typo.h3" Class="fw-bold">@package.MonthlyPrice.ToString("N0")</MudText>
+                                <MudText Typo="Typo.h6" Class="pb-1 ml-1" Color="Color.Secondary">đ</MudText>
+                            </div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">/ tháng</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Info" Class="mt-1">
+                                <b>Hoặc:</b> @package.YearlyPrice.ToString("N0") đ / năm
+                            </MudText>
+                        </MudStack>
+
+                        <MudDivider Class="mb-4" />
+
+                        <MudStack Spacing="2">
+                            @foreach (var feature in package.Features)
+                            {
+                                var isNegative = feature.StartsWith("!");
+                                <div class="d-flex align-start">
+                                    @if (isNegative)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.Close" Color="Color.Error" Size="Size.Small" Class="mr-2 mt-1" />
+                                        <MudText Typo="Typo.body2" Color="Color.Secondary" Style="text-decoration: line-through; opacity: 0.6;">@feature[1..]</MudText>
+                                    }
+                                    else
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Small" Class="mr-2 mt-1" />
+                                        <MudText Typo="Typo.body2">@feature</MudText>
+                                    }
+                                </div>
+                            }
+
+                            <div class="d-flex align-start">
+                                <MudIcon Icon="@Icons.Material.Filled.DoneAll" Color="Color.Success" Size="Size.Small" Class="mr-2 mt-1" />
+                                <MudText Typo="Typo.body2">Tối đa <b>@package.MaxStores</b> gian hàng</MudText>
+                            </div>
+                        </MudStack>
+                    </MudCardContent>
+
+                    <MudCardActions Class="d-flex flex-column pa-6">
+                        <MudButton Variant="Variant.Filled" Color="@accentColor" FullWidth="true" Disabled="@(!CanSubscribePackage(package))" OnClick='@(() => SubscribeAsync(package, "Monthly"))' Class="mb-3 py-2 rounded-lg">
+                            @GetPrimaryButtonLabel(package, "Monthly")
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="@accentColor" FullWidth="true" Disabled="@(!CanSubscribePackage(package))" OnClick='@(() => SubscribeAsync(package, "Yearly"))' Class="py-2 rounded-lg">
+                            @GetPrimaryButtonLabel(package, "Yearly")
+                        </MudButton>
+                        @if (!CanSubscribePackage(package))
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-2">
+                                @GetDisabledReason(package)
+                            </MudText>
+                        }
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+
+    <MudOverlay Visible="@_paymentDialogVisible" DarkBackground="true" AutoClose="false" ZIndex="1500">
+        <div class="seller-payment-overlay">
+            <MudPaper Elevation="12" Class="pa-6 seller-payment-dialog">
+                <MudStack Spacing="3">
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                        <MudText Typo="Typo.h6">Thanh toán gói dịch vụ</MudText>
+                        <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Default" OnClick="@ClosePaymentDialog" />
+                    </MudStack>
+
+                    @if (_lastCheckout != null)
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">
+                            Chọn cách thanh toán cho gói @_lastCheckout.PackageName (@_lastCheckout.BillingCycle).
+                        </MudText>
+
+                        <MudStack Row="true" Spacing="2">
+                            <MudButton Variant="@(_selectedPaymentMethod == "QR" ? Variant.Filled : Variant.Outlined)" Color="Color.Primary" OnClick='@(() => _selectedPaymentMethod = "QR")'>
+                                Quét mã QR
+                            </MudButton>
+                            <MudButton Variant="@(_selectedPaymentMethod == "PAYOS" ? Variant.Filled : Variant.Outlined)" Color="Color.Info" OnClick='@(() => _selectedPaymentMethod = "PAYOS")'>
+                                Mở cổng PayOS
+                            </MudButton>
+                        </MudStack>
+
+                        @if (_selectedPaymentMethod == "QR")
+                        {
+                            @if (!string.IsNullOrWhiteSpace(_lastCheckout.QrCode))
+                            {
+                                <MudStack AlignItems="AlignItems.Center" Spacing="2" Class="mt-2">
+                                    <img src="@GetQrImageUrl(_lastCheckout.QrCode!)" alt="QR thanh toán" style="width:220px;height:220px;border-radius:16px;border:1px solid #e5e7eb;padding:8px;background:white;" />
+                                    <MudText Typo="Typo.body2" Align="Align.Center">
+                                        Quét QR bằng ứng dụng ngân hàng, sau đó bấm kiểm tra kết quả thanh toán.
+                                    </MudText>
+                                </MudStack>
+                            }
+                            else
+                            {
+                                <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">
+                                    QR không còn sẵn trong phiên này. Vui lòng mở cổng thanh toán PayOS để tiếp tục.
+                                </MudAlert>
+                            }
+                        }
+                        else
+                        {
+                            <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">
+                                PayOS sẽ cho phép seller chọn các phương thức thanh toán khác nhau trong cổng thanh toán.
+                            </MudAlert>
+                        }
+
+                        <MudStack Row="true" Spacing="2" Justify="Justify.FlexEnd" Class="mt-2">
+                            <MudButton Variant="Variant.Outlined" Color="Color.Default" OnClick="ClosePaymentDialog">
+                                Đóng
+                            </MudButton>
+                            <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Refresh" OnClick="RefreshSubscriptionStatusAsync">
+                                Tôi đã thanh toán, kiểm tra lại
+                            </MudButton>
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Payment" Disabled="@string.IsNullOrWhiteSpace(_lastCheckout.CheckoutUrl)" OnClick="@(() => OpenCheckout(_lastCheckout.CheckoutUrl))">
+                                Mở cổng thanh toán PayOS
+                            </MudButton>
+                        </MudStack>
+                    }
+                </MudStack>
+            </MudPaper>
+        </div>
+    </MudOverlay>
+</MudStack>
+
+<style>
+    .fw-bold { font-weight: 700; }
+    .pricing-card-featured { border: 2px solid var(--mud-palette-warning); position: relative; }
+    .seller-payment-overlay {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+    }
+    .seller-payment-dialog {
+        width: min(560px, 100%);
+        border-radius: 20px;
+    }
+</style>
+
+@code {
+    private bool _loading = true;
+    private List<ServicePackageModel> _packages = new();
+    private CurrentSubscriptionEnvelopeModel? _current;
+    private bool _paymentDialogVisible;
+    private CheckoutSubscriptionResultModel? _lastCheckout;
+    private string _selectedPaymentMethod = "QR";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await HandlePaymentCallbackAsync();
+        await ReloadAsync();
+    }
+
+    private Color GetStatusColor(string status) => status switch
+    {
+        "Active" => Color.Success,
+        "Pending" => Color.Warning,
+        "PendingPayment" => Color.Info,
+        "Expired" => Color.Error,
+        "Cancelled" => Color.Default,
+        _ => Color.Default
+    };
+
+    private Color GetPaymentStatusColor(string status) => status switch
+    {
+        "Paid" => Color.Success,
+        "Pending" => Color.Warning,
+        "Cancelled" => Color.Default,
+        "Failed" => Color.Error,
+        _ => Color.Default
+    };
+
+    private async Task ReloadAsync()
+    {
+        _loading = true;
+        _packages = await PackageService.GetOwnerPackagesAsync();
+        _current = await PackageService.GetOwnerCurrentSubscriptionAsync();
+        _loading = false;
+    }
+
+    private async Task SubscribeAsync(ServicePackageModel package, string billingCycle)
+    {
+        try
+        {
+            var result = await PackageService.CreateOwnerSubscriptionCheckoutAsync(package.Id, billingCycle);
+            if (result == null || string.IsNullOrWhiteSpace(result.CheckoutUrl))
+            {
+                Snackbar.Add("Không tạo được liên kết thanh toán.", Severity.Error);
+                return;
+            }
+
+            _lastCheckout = result;
+            _selectedPaymentMethod = !string.IsNullOrWhiteSpace(result.QrCode) ? "QR" : "PAYOS";
+            _paymentDialogVisible = true;
+            await ReloadAsync();
+            Snackbar.Add($"Đã tạo thanh toán PayOS cho gói {result.PackageName} ({result.BillingCycle}) - tối đa {result.MaxStores} gian hàng.", Severity.Success);
+        }
+        catch (HttpRequestException ex)
+        {
+            Snackbar.Add(ReadFriendlyError(ex.Message), Severity.Error);
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Đã xảy ra lỗi trong lúc tạo thanh toán.", Severity.Error);
+        }
+    }
+
+    private void OpenCheckout(string checkoutUrl)
+    {
+        if (string.IsNullOrWhiteSpace(checkoutUrl))
+        {
+            Snackbar.Add("Không tìm thấy liên kết thanh toán PayOS.", Severity.Error);
+            return;
+        }
+
+        Nav.NavigateTo(checkoutUrl, forceLoad: true);
+    }
+
+    private void ClosePaymentDialog()
+    {
+        _paymentDialogVisible = false;
+    }
+
+    private bool CanSubscribePackage(ServicePackageModel package)
+    {
+        if (_current?.Subscription == null)
+        {
+            return true;
+        }
+
+        if (_current.Subscription.Status == "PendingPayment" || _current.Subscription.Status == "Pending")
+        {
+            return false;
+        }
+
+        if (_current.Subscription.Status != "Active")
+        {
+            return true;
+        }
+
+        return GetTierRank(package.Tier) > GetTierRank(_current.Subscription.PackageTier);
+    }
+
+    private async Task RefreshSubscriptionStatusAsync()
+    {
+        var subscriptionId = _lastCheckout?.SubscriptionId ?? _current?.Subscription?.Id ?? 0;
+        if (subscriptionId > 0)
+        {
+            _current = await PackageService.SyncOwnerSubscriptionPaymentAsync(subscriptionId);
+        }
+        else
+        {
+            await ReloadAsync();
+        }
+
+        if (_current?.Subscription?.Status == "Active" && _current.Subscription.PaymentStatus == "Paid")
+        {
+            _paymentDialogVisible = false;
+            Snackbar.Add("Thanh toán thành công. Seller đã có thể tiếp tục sử dụng gian hàng và tạo gian hàng theo quyền của gói.", Severity.Success);
+            return;
+        }
+
+        if (_current?.Subscription?.PaymentStatus == "Failed")
+        {
+            _paymentDialogVisible = false;
+            Snackbar.Add("Thanh toán thất bại. Vui lòng thử lại.", Severity.Error);
+            return;
+        }
+
+        if (_current?.Subscription?.PaymentStatus == "Cancelled")
+        {
+            _paymentDialogVisible = false;
+            Snackbar.Add("Thanh toán đã bị hủy.", Severity.Warning);
+            return;
+        }
+
+        Snackbar.Add("Chưa nhận được kết quả thanh toán. Vui lòng đợi thêm vài giây rồi thử lại.", Severity.Info);
+    }
+
+    private async Task HandlePaymentCallbackAsync()
+    {
+        var uri = Nav.ToAbsoluteUri(Nav.Uri);
+        var query = QueryHelpers.ParseQuery(uri.Query);
+        if (query.Count == 0)
+        {
+            return;
+        }
+
+        var status = GetQueryValue(query, "status").ToUpperInvariant();
+        var code = GetQueryValue(query, "code");
+        var cancel = string.Equals(GetQueryValue(query, "cancel"), "true", StringComparison.OrdinalIgnoreCase);
+        var subscriptionId = TryParseInt(GetQueryValue(query, "subscriptionId"));
+
+        if (cancel || string.Equals(status, "CANCELLED", StringComparison.OrdinalIgnoreCase))
+        {
+            Snackbar.Add("Bạn đã hủy thanh toán gói dịch vụ.", Severity.Warning);
+            Nav.NavigateTo("/seller/service-packages", replace: true);
+            return;
+        }
+
+        if (subscriptionId > 0 && (string.Equals(status, "PAID", StringComparison.OrdinalIgnoreCase) || string.Equals(code, "00", StringComparison.OrdinalIgnoreCase)))
+        {
+            _current = await PackageService.SyncOwnerSubscriptionPaymentAsync(subscriptionId);
+
+            if (_current?.Subscription?.Status == "Active" && _current.Subscription.PaymentStatus == "Paid")
+            {
+                Snackbar.Add("Thanh toán thành công. Gói seller đã được kích hoạt.", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("PayOS đã báo thanh toán thành công. Hệ thống đang tiếp tục đồng bộ trạng thái gói.", Severity.Info);
+            }
+
+            Nav.NavigateTo("/seller/service-packages", replace: true);
+            return;
+        }
+
+        if (string.Equals(status, "PENDING", StringComparison.OrdinalIgnoreCase) || string.Equals(status, "PROCESSING", StringComparison.OrdinalIgnoreCase))
+        {
+            Snackbar.Add("Thanh toán đang được xử lý. Vui lòng bấm kiểm tra lại sau ít giây.", Severity.Info);
+            Nav.NavigateTo("/seller/service-packages", replace: true);
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(status) || !string.IsNullOrWhiteSpace(code))
+        {
+            Snackbar.Add("Đã xảy ra lỗi trong lúc thanh toán.", Severity.Error);
+            Nav.NavigateTo("/seller/service-packages", replace: true);
+        }
+    }
+
+    private void OpenPendingPaymentDialog()
+    {
+        if (_current?.Subscription == null || string.IsNullOrWhiteSpace(_current.Subscription.CheckoutUrl))
+        {
+            Snackbar.Add("Không tìm thấy thông tin thanh toán đang chờ.", Severity.Error);
+            return;
+        }
+
+        _lastCheckout = new CheckoutSubscriptionResultModel
+        {
+            SubscriptionId = _current.Subscription.Id,
+            PackageId = _current.Subscription.ServicePackageId,
+            PackageName = _current.Subscription.PackageName,
+            PackageTier = _current.Subscription.PackageTier,
+            BillingCycle = _current.Subscription.BillingCycle,
+            Price = _current.Subscription.Price,
+            MaxStores = _current.Subscription.MaxStores,
+            CheckoutUrl = _current.Subscription.CheckoutUrl ?? string.Empty,
+            PaymentLinkId = _current.Subscription.PaymentLinkId ?? string.Empty,
+            QrCode = _current.Subscription.CheckoutUrl,
+            OrderCode = _current.Subscription.PaymentOrderCode ?? 0
+        };
+        _selectedPaymentMethod = !string.IsNullOrWhiteSpace(_lastCheckout.QrCode) ? "QR" : "PAYOS";
+        _paymentDialogVisible = true;
+    }
+
+    private async Task CancelNextCycleAsync()
+    {
+        if (_current?.Subscription == null)
+        {
+            return;
+        }
+
+        var ok = await PackageService.CancelOwnerSubscriptionAsync(_current.Subscription.Id);
+        if (!ok)
+        {
+            Snackbar.Add("Không thể hủy gia hạn cho kỳ tiếp theo.", Severity.Error);
+            return;
+        }
+
+        await ReloadAsync();
+        Snackbar.Add("Đã hủy gia hạn tự động. Gói hiện tại vẫn được sử dụng đến hết kỳ.", Severity.Success);
+    }
+
+    private async Task CancelPendingSubscriptionAsync()
+    {
+        if (_current?.Subscription == null)
+        {
+            return;
+        }
+
+        var ok = await PackageService.CancelOwnerSubscriptionAsync(_current.Subscription.Id);
+        if (!ok)
+        {
+            Snackbar.Add("Không thể hủy gói đang chờ thanh toán.", Severity.Error);
+            return;
+        }
+
+        _paymentDialogVisible = false;
+        _lastCheckout = null;
+        await ReloadAsync();
+        Snackbar.Add("Đã hủy gói đang chờ. Seller có thể đăng ký lại hoặc chọn gói khác ngay bây giờ.", Severity.Success);
+    }
+
+    private static string GetQrImageUrl(string qrCode) =>
+        $"https://api.qrserver.com/v1/create-qr-code/?size=240x240&data={Uri.EscapeDataString(qrCode)}";
+
+    private static string GetQueryValue(IDictionary<string, Microsoft.Extensions.Primitives.StringValues> query, string key)
+    {
+        return query.TryGetValue(key, out var value) ? value.ToString() : string.Empty;
+    }
+
+    private static int TryParseInt(string? value)
+    {
+        return int.TryParse(value, out var parsed) ? parsed : 0;
+    }
+
+    private static string ReadFriendlyError(string rawMessage)
+    {
+        if (string.IsNullOrWhiteSpace(rawMessage))
+        {
+            return "Không thể tạo thanh toán cho gói dịch vụ.";
+        }
+
+        if (rawMessage.StartsWith("{", StringComparison.Ordinal))
+        {
+            try
+            {
+                var error = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(rawMessage);
+                if (error != null && error.TryGetValue("message", out var message) && !string.IsNullOrWhiteSpace(message))
+                {
+                    rawMessage = message;
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        if (rawMessage.Contains("active or pending seller package", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Bạn đang có gói seller active hoặc đang chờ thanh toán.";
+        }
+
+        if (rawMessage.Contains("nang cap len goi cao hon", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Seller chỉ có thể nâng cấp lên gói cao hơn. Không thể quay về gói thấp hơn hoặc đăng ký lại gói hiện tại.";
+        }
+
+        if (rawMessage.Contains("PayOS is not configured", StringComparison.OrdinalIgnoreCase))
+        {
+            return "PayOS chưa được cấu hình trên backend.";
+        }
+
+        if (rawMessage.Contains("PayOS create payment failed", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Không tạo được liên kết thanh toán PayOS. Vui lòng kiểm tra cấu hình hoặc thử lại.";
+        }
+
+        return rawMessage;
+    }
+
+    private string GetPrimaryButtonLabel(ServicePackageModel package, string billingCycle)
+    {
+        var prefix = _current?.Subscription?.Status == "Active" && GetTierRank(package.Tier) > GetTierRank(_current.Subscription.PackageTier)
+            ? "Nâng cấp"
+            : "Đăng ký";
+
+        return billingCycle == "Yearly"
+            ? $"{prefix} theo năm"
+            : $"{prefix} theo tháng";
+    }
+
+    private string GetDisabledReason(ServicePackageModel package)
+    {
+        if (_current?.Subscription == null)
+        {
+            return string.Empty;
+        }
+
+        if (_current.Subscription.Status == "PendingPayment" || _current.Subscription.Status == "Pending")
+        {
+            return "Bạn đang có gói seller chờ thanh toán. Hãy hoàn tất hoặc hủy gói đó trước.";
+        }
+
+        if (_current.Subscription.Status == "Active" && GetTierRank(package.Tier) <= GetTierRank(_current.Subscription.PackageTier))
+        {
+            return "Chỉ có thể nâng cấp lên gói cao hơn. Không thể chuyển về gói thấp hơn hoặc đăng ký lại gói hiện tại.";
+        }
+
+        return "Bạn chưa thể đăng ký gói này lúc này.";
+    }
+
+    private static int GetTierRank(string? tier) => tier?.Trim().ToUpperInvariant() switch
+    {
+        "BASIC" => 1,
+        "PREMIUM" => 2,
+        "VIP" => 3,
+        _ => 0
+    };
+}
+

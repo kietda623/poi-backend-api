@@ -1,26 +1,26 @@
-@page "/admin/settings"
+﻿@page "/admin/settings"
 @layout AdminLayout
 @attribute [Authorize(Roles = "ADMIN")]
 @rendermode InteractiveServer
 @using MudBlazor
 
-<PageTitle>Cài đặt hệ thống</PageTitle>
+<PageTitle>CÃ i Ä‘áº·t há»‡ thá»‘ng</PageTitle>
 
-<MudText Typo="Typo.h4" Class="mb-4">⚙️ Cài đặt hệ thống</MudText>
+<MudText Typo="Typo.h4" Class="mb-4">âš™ï¸ CÃ i Ä‘áº·t há»‡ thá»‘ng</MudText>
 
 <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-4">
 
     <!-- Language Management -->
-    <MudTabPanel Text="🌐 Quản lý ngôn ngữ" Icon="@Icons.Material.Filled.Language">
+    <MudTabPanel Text="ðŸŒ Quáº£n lÃ½ ngÃ´n ngá»¯" Icon="@Icons.Material.Filled.Language">
         <MudGrid>
             <MudItem xs="12" md="6">
-                <MudText Typo="Typo.h6" Class="mb-3">Ngôn ngữ đang hỗ trợ</MudText>
+                <MudText Typo="Typo.h6" Class="mb-3">NgÃ´n ngá»¯ Ä‘ang há»— trá»£</MudText>
                 <MudTable Items="@languages" Hover="true" Dense="true" Striped="true">
                     <HeaderContent>
-                        <MudTh>Mã ngôn ngữ</MudTh>
-                        <MudTh>Tên</MudTh>
-                        <MudTh>Trạng thái</MudTh>
-                        <MudTh>Thao tác</MudTh>
+                        <MudTh>MÃ£ ngÃ´n ngá»¯</MudTh>
+                        <MudTh>TÃªn</MudTh>
+                        <MudTh>Tráº¡ng thÃ¡i</MudTh>
+                        <MudTh>Thao tÃ¡c</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd>@context.Code</MudTd>
@@ -35,47 +35,47 @@
                     </RowTemplate>
                 </MudTable>
                 <MudStack Row="true" Class="mt-3" Spacing="2">
-                    <MudTextField @bind-Value="newLangCode" Label="Mã (vd: en, ja)" Variant="Variant.Outlined" Dense="true" />
-                    <MudTextField @bind-Value="newLangName" Label="Tên (vd: English)" Variant="Variant.Outlined" Dense="true" />
+                    <MudTextField @bind-Value="newLangCode" Label="MÃ£ (vd: en, ja)" Variant="Variant.Outlined" Dense="true" />
+                    <MudTextField @bind-Value="newLangName" Label="TÃªn (vd: English)" Variant="Variant.Outlined" Dense="true" />
                     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddLanguage"
-                               StartIcon="@Icons.Material.Filled.Add">Thêm</MudButton>
+                               StartIcon="@Icons.Material.Filled.Add">ThÃªm</MudButton>
                 </MudStack>
             </MudItem>
             <MudItem xs="12" md="6">
                 <MudAlert Severity="Severity.Info" Class="mb-3">
-                    Khi thêm ngôn ngữ mới, hệ thống sẽ tạo file .resx tương ứng và yêu cầu dịch nội dung.
+                    Khi thÃªm ngÃ´n ngá»¯ má»›i, há»‡ thá»‘ng sáº½ táº¡o file .resx tÆ°Æ¡ng á»©ng vÃ  yÃªu cáº§u dá»‹ch ná»™i dung.
                 </MudAlert>
                 <MudText Typo="Typo.body2">
-                    Ngôn ngữ mặc định: <MudChip T="string" Color="Color.Primary" Size="Size.Small">vi-VN</MudChip>
+                    NgÃ´n ngá»¯ máº·c Ä‘á»‹nh: <MudChip T="string" Color="Color.Primary" Size="Size.Small">vi-VN</MudChip>
                 </MudText>
             </MudItem>
         </MudGrid>
     </MudTabPanel>
 
     <!-- Payment Config -->
-    <MudTabPanel Text="💰 Cấu hình phí" Icon="@Icons.Material.Filled.Payment">
+    <MudTabPanel Text="ðŸ’° Cáº¥u hÃ¬nh phÃ­" Icon="@Icons.Material.Filled.Payment">
         <MudGrid>
             <MudItem xs="12" md="6">
-                <MudText Typo="Typo.h6" Class="mb-3">Phí thanh toán</MudText>
-                <MudNumericField @bind-Value="monthlyFee" Label="Phí tháng (VNĐ)"
+                <MudText Typo="Typo.h6" Class="mb-3">PhÃ­ thanh toÃ¡n</MudText>
+                <MudNumericField @bind-Value="monthlyFee" Label="PhÃ­ thÃ¡ng (VNÄ)"
                                  Variant="Variant.Outlined" Class="mb-3" Format="N0" />
-                <MudNumericField @bind-Value="yearlyFee" Label="Phí năm (VNĐ)"
+                <MudNumericField @bind-Value="yearlyFee" Label="PhÃ­ nÄƒm (VNÄ)"
                                  Variant="Variant.Outlined" Class="mb-3" Format="N0" />
-                <MudNumericField @bind-Value="transactionFeePercent" Label="Phí giao dịch (%)"
+                <MudNumericField @bind-Value="transactionFeePercent" Label="PhÃ­ giao dá»‹ch (%)"
                                  Variant="Variant.Outlined" Class="mb-3"
                                  Min="0" Max="100" Step="0.1" />
                 <MudButton Variant="Variant.Filled" Color="Color.Success"
                            StartIcon="@Icons.Material.Filled.Save" OnClick="SavePaymentConfig">
-                    Lưu cấu hình phí
+                    LÆ°u cáº¥u hÃ¬nh phÃ­
                 </MudButton>
                 @if (paymentSaved)
                 {
-                    <MudAlert Severity="Severity.Success" Class="mt-2">Đã lưu!</MudAlert>
+                    <MudAlert Severity="Severity.Success" Class="mt-2">ÄÃ£ lÆ°u!</MudAlert>
                 }
             </MudItem>
             <MudItem xs="12" md="6">
-                <MudText Typo="Typo.h6" Class="mb-3">Cổng thanh toán</MudText>
-                <MudSelect @bind-Value="paymentGateway" Label="Cổng thanh toán" Variant="Variant.Outlined" Class="mb-3">
+                <MudText Typo="Typo.h6" Class="mb-3">Cá»•ng thanh toÃ¡n</MudText>
+                <MudSelect @bind-Value="paymentGateway" Label="Cá»•ng thanh toÃ¡n" Variant="Variant.Outlined" Class="mb-3">
                     <MudSelectItem Value="@("vnpay")">VNPay</MudSelectItem>
                     <MudSelectItem Value="@("momo")">MoMo</MudSelectItem>
                     <MudSelectItem Value="@("zalopay")">ZaloPay</MudSelectItem>
@@ -90,7 +90,7 @@
     </MudTabPanel>
 
     <!-- Database & Backup -->
-    <MudTabPanel Text="🗄️ Database & Backup" Icon="@Icons.Material.Filled.Storage">
+    <MudTabPanel Text="ðŸ—„ï¸ Database & Backup" Icon="@Icons.Material.Filled.Storage">
         <MudGrid>
             <MudItem xs="12" md="6">
                 <MudText Typo="Typo.h6" Class="mb-3">Backup Database</MudText>
@@ -98,11 +98,11 @@
                     <MudStack Spacing="2">
                         <MudText Typo="Typo.body2">
                             <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Small" Class="mr-1" />
-                            Backup gần nhất: <b>12/05/2025 02:00</b>
+                            Backup gáº§n nháº¥t: <b>12/05/2026 02:00</b>
                         </MudText>
                         <MudText Typo="Typo.body2">
                             <MudIcon Icon="@Icons.Material.Filled.FolderOpen" Size="Size.Small" Class="mr-1" />
-                            Dung lượng backup: <b>245 MB</b>
+                            Dung lÆ°á»£ng backup: <b>245 MB</b>
                         </MudText>
                         <MudButton Variant="Variant.Filled" Color="Color.Primary"
                                    StartIcon="@Icons.Material.Filled.Backup" OnClick="RunBackup">
@@ -111,35 +111,35 @@
                         @if (backupRunning)
                         {
                             <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
-                            <MudText Typo="Typo.caption">Đang backup...</MudText>
+                            <MudText Typo="Typo.caption">Äang backup...</MudText>
                         }
                     </MudStack>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" md="6">
-                <MudText Typo="Typo.h6" Class="mb-3">Lịch backup tự động</MudText>
-                <MudSelect @bind-Value="backupSchedule" Label="Tần suất" Variant="Variant.Outlined" Class="mb-3">
-                    <MudSelectItem Value="@("daily")">Hàng ngày (02:00 AM)</MudSelectItem>
-                    <MudSelectItem Value="@("weekly")">Hàng tuần (Chủ nhật)</MudSelectItem>
-                    <MudSelectItem Value="@("monthly")">Hàng tháng (Ngày 1)</MudSelectItem>
+                <MudText Typo="Typo.h6" Class="mb-3">Lá»‹ch backup tá»± Ä‘á»™ng</MudText>
+                <MudSelect @bind-Value="backupSchedule" Label="Táº§n suáº¥t" Variant="Variant.Outlined" Class="mb-3">
+                    <MudSelectItem Value="@("daily")">HÃ ng ngÃ y (02:00 AM)</MudSelectItem>
+                    <MudSelectItem Value="@("weekly")">HÃ ng tuáº§n (Chá»§ nháº­t)</MudSelectItem>
+                    <MudSelectItem Value="@("monthly")">HÃ ng thÃ¡ng (NgÃ y 1)</MudSelectItem>
                 </MudSelect>
                 <MudButton Variant="Variant.Outlined" Color="Color.Success"
                            StartIcon="@Icons.Material.Filled.Schedule" OnClick="SaveBackupSchedule">
-                    Lưu lịch backup
+                    LÆ°u lá»‹ch backup
                 </MudButton>
             </MudItem>
         </MudGrid>
     </MudTabPanel>
 
     <!-- Audit Log -->
-    <MudTabPanel Text="📋 Audit Log" Icon="@Icons.Material.Filled.History">
-        <MudText Typo="Typo.h6" Class="mb-3">Lịch sử hoạt động hệ thống</MudText>
+    <MudTabPanel Text="ðŸ“‹ Audit Log" Icon="@Icons.Material.Filled.History">
+        <MudText Typo="Typo.h6" Class="mb-3">Lá»‹ch sá»­ hoáº¡t Ä‘á»™ng há»‡ thá»‘ng</MudText>
         <MudTable Items="@auditLogs" Hover="true" Dense="true" Striped="true">
             <HeaderContent>
-                <MudTh>Thời gian</MudTh>
-                <MudTh>Người dùng</MudTh>
-                <MudTh>Hành động</MudTh>
-                <MudTh>Chi tiết</MudTh>
+                <MudTh>Thá»i gian</MudTh>
+                <MudTh>NgÆ°á»i dÃ¹ng</MudTh>
+                <MudTh>HÃ nh Ä‘á»™ng</MudTh>
+                <MudTh>Chi tiáº¿t</MudTh>
                 <MudTh>IP</MudTh>
             </HeaderContent>
             <RowTemplate>
@@ -169,10 +169,10 @@
     private record Language(string Code, string Name) { public bool IsActive { get; set; } = true; }
     private List<Language> languages = new()
     {
-        new("vi", "Tiếng Việt") { IsActive = true },
+        new("vi", "Tiáº¿ng Viá»‡t") { IsActive = true },
         new("en", "English") { IsActive = true },
-        new("zh", "中文") { IsActive = false },
-        new("ja", "日本語") { IsActive = false },
+        new("zh", "ä¸­æ–‡") { IsActive = false },
+        new("ja", "æ—¥æœ¬èªž") { IsActive = false },
     };
 
     // Payment
@@ -192,11 +192,11 @@
     private record AuditLog(string Timestamp, string User, string Action, string Detail, string Ip);
     private List<AuditLog> auditLogs = new()
     {
-        new("13/05/2025 10:35", "admin@sys.com", "APPROVE", "Duyệt gian hàng #12", "192.168.1.1"),
-        new("13/05/2025 10:20", "admin@sys.com", "DISABLE_SELLER", "Vô hiệu hóa seller #5", "192.168.1.1"),
-        new("12/05/2025 15:00", "admin@sys.com", "DELETE", "Xóa gian hàng vi phạm #8", "192.168.1.2"),
-        new("12/05/2025 09:00", "system", "BACKUP", "Backup tự động thành công", "localhost"),
-        new("11/05/2025 14:30", "admin@sys.com", "UPDATE_CONFIG", "Cập nhật phí tháng", "192.168.1.1"),
+        new("13/05/2026 10:35", "admin@sys.com", "APPROVE", "Duyá»‡t gian hÃ ng #12", "192.168.1.1"),
+        new("13/05/2026 10:20", "admin@sys.com", "DISABLE_SELLER", "VÃ´ hiá»‡u hÃ³a seller #5", "192.168.1.1"),
+        new("12/05/2026 15:00", "admin@sys.com", "DELETE", "XÃ³a gian hÃ ng vi pháº¡m #8", "192.168.1.2"),
+        new("12/05/2026 09:00", "system", "BACKUP", "Backup tá»± Ä‘á»™ng thÃ nh cÃ´ng", "localhost"),
+        new("11/05/2026 14:30", "admin@sys.com", "UPDATE_CONFIG", "Cáº­p nháº­t phÃ­ thÃ¡ng", "192.168.1.1"),
     };
 
     private void AddLanguage()
@@ -221,3 +221,4 @@
 
     private void SaveBackupSchedule() { /* TODO */ }
 }
+

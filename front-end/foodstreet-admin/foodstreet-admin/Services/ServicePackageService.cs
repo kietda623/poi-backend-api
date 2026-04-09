@@ -1,4 +1,4 @@
-using foodstreet_admin.Models;
+﻿using foodstreet_admin.Models;
 
 namespace foodstreet_admin.Services;
 
@@ -11,73 +11,107 @@ public class ServicePackageService
         _api = api;
     }
 
-    // ── Packages CRUD ───────────────────────────────────────────────
-
     public async Task<List<ServicePackageModel>> GetPackagesAsync()
     {
         return await _api.GetAsync<List<ServicePackageModel>>("admin/service-packages") ?? new();
     }
 
-    public async Task<(bool Ok, string Msg)> CreatePackageAsync(ServicePackageModel m)
+    public async Task<(bool Ok, string Msg)> CreatePackageAsync(ServicePackageModel model)
     {
-        // Backend mong đợi Features dạng chuỗi tách bằng |
         var dto = new
         {
-            m.Name,
-            m.Tier,
-            m.MonthlyPrice,
-            m.YearlyPrice,
-            m.Description,
-            Features = string.Join("|", m.Features),
-            m.MaxStores,
-            m.IsActive
+            model.Name,
+            model.Tier,
+            model.Audience,
+            model.MonthlyPrice,
+            model.YearlyPrice,
+            model.Description,
+            Features = string.Join("|", model.Features),
+            model.MaxStores,
+            model.AllowAudioAccess,
+            model.IsActive
         };
 
         var response = await _api.PostAsync<object, dynamic>("admin/service-packages", dto);
-        if (response != null)
-            return (true, "Tạo gói dịch vụ thành công!");
-        return (false, "Lỗi khi tạo gói!");
+        return response != null
+            ? (true, "Tao goi dich vu thanh cong.")
+            : (false, "Khong the tao goi dich vu.");
     }
 
-    public async Task<(bool Ok, string Msg)> UpdatePackageAsync(ServicePackageModel m)
+    public async Task<(bool Ok, string Msg)> UpdatePackageAsync(ServicePackageModel model)
     {
         var dto = new
         {
-            m.Name,
-            m.Tier,
-            m.MonthlyPrice,
-            m.YearlyPrice,
-            m.Description,
-            Features = string.Join("|", m.Features),
-            m.MaxStores,
-            m.IsActive
+            model.Name,
+            model.Tier,
+            model.Audience,
+            model.MonthlyPrice,
+            model.YearlyPrice,
+            model.Description,
+            Features = string.Join("|", model.Features),
+            model.MaxStores,
+            model.AllowAudioAccess,
+            model.IsActive
         };
 
-        var response = await _api.PutAsync<object, dynamic>($"admin/service-packages/{m.Id}", dto);
-        if (response != null)
-            return (true, "Cập nhật gói thành công!");
-        return (false, "Lỗi khi cập nhật!");
+        var response = await _api.PutAsync<object, dynamic>($"admin/service-packages/{model.Id}", dto);
+        return response != null
+            ? (true, "Cap nhat goi dich vu thanh cong.")
+            : (false, "Khong the cap nhat goi dich vu.");
     }
 
-    public async Task<bool> DeletePackageAsync(int id)
+    public Task<bool> DeletePackageAsync(int id)
     {
-        return await _api.DeleteAsync($"admin/service-packages/{id}");
+        return _api.DeleteAsync($"admin/service-packages/{id}");
     }
-
-    // ── Subscriptions ───────────────────────────────────────────────
 
     public async Task<List<SubscriptionModel>> GetSubscriptionsAsync()
     {
         return await _api.GetAsync<List<SubscriptionModel>>("admin/service-packages/subscriptions") ?? new();
     }
 
-    public async Task<bool> ApproveSubscriptionAsync(int id)
+    public Task<bool> ApproveSubscriptionAsync(int id)
     {
-        return await _api.PatchAsync($"admin/service-packages/subscriptions/{id}/approve");
+        return _api.PatchAsync($"admin/service-packages/subscriptions/{id}/approve");
     }
 
-    public async Task<bool> CancelSubscriptionAsync(int id)
+    public Task<bool> CancelSubscriptionAsync(int id)
     {
-        return await _api.PatchAsync($"admin/service-packages/subscriptions/{id}/cancel");
+        return _api.PatchAsync($"admin/service-packages/subscriptions/{id}/cancel");
+    }
+
+    public async Task<List<ServicePackageModel>> GetOwnerPackagesAsync()
+    {
+        return await _api.GetAsync<List<ServicePackageModel>>("owner/subscriptions/packages") ?? new();
+    }
+
+    public async Task<CurrentSubscriptionEnvelopeModel> GetOwnerCurrentSubscriptionAsync()
+    {
+        return await _api.GetAsync<CurrentSubscriptionEnvelopeModel>("owner/subscriptions/my") ?? new CurrentSubscriptionEnvelopeModel();
+    }
+
+    public async Task<List<CurrentSubscriptionModel>> GetOwnerSubscriptionHistoryAsync()
+    {
+        return await _api.GetAsync<List<CurrentSubscriptionModel>>("owner/subscriptions/history") ?? new();
+    }
+
+    public async Task<CheckoutSubscriptionResultModel?> CreateOwnerSubscriptionCheckoutAsync(int packageId, string billingCycle)
+    {
+        return await _api.PostAsync<object, CheckoutSubscriptionResultModel>("owner/subscriptions", new
+        {
+            packageId,
+            billingCycle
+        });
+    }
+
+    public async Task<CurrentSubscriptionEnvelopeModel> SyncOwnerSubscriptionPaymentAsync(int subscriptionId)
+    {
+        return await _api.PostAsync<object, CurrentSubscriptionEnvelopeModel>($"owner/subscriptions/{subscriptionId}/sync-payment", new { })
+            ?? new CurrentSubscriptionEnvelopeModel();
+    }
+
+    public Task<bool> CancelOwnerSubscriptionAsync(int id)
+    {
+        return _api.DeleteAsync($"owner/subscriptions/{id}");
     }
 }

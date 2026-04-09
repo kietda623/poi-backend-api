@@ -1,107 +1,255 @@
 @page "/admin/manage-language"
 @layout AdminLayout
 @rendermode InteractiveServer
-@inject LanguageService LangSvc
+@using foodstreet_admin.Models
+@using MudBlazor
+@inject StoreService StoreSvc
 @inject ISnackbar Snackbar
 
-<PageTitle>Quản lý Ngôn ngữ</PageTitle>
+<PageTitle>Quản lý file audio gian hàng</PageTitle>
 
 <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
     <MudStack Spacing="0">
-        <MudText Typo="Typo.h5" Style="font-weight:700">🌐 Quản lý Ngôn ngữ</MudText>
-        <MudText Typo="Typo.body2" Color="Color.Secondary">Thiết lập ngôn ngữ hỗ trợ thuyết minh</MudText>
+        <MudText Typo="Typo.h5" Style="font-weight:700">Quản lý file audio gian hàng</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">Admin có thể xem nội dung thuyết minh, nghe thử và xóa audio theo từng ngôn ngữ</MudText>
     </MudStack>
     <MudSpacer />
-    <MudButton Variant="Variant.Filled" Color="Color.Primary"
-               StartIcon="@Icons.Material.Filled.Add"
-               OnClick="OpenNew">Thêm ngôn ngữ</MudButton>
+    <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" OnClick="LoadData">Làm mới</MudButton>
 </MudStack>
 
+<MudPaper Class="pa-3 mb-4" Elevation="1">
+    <MudGrid AlignItems="AlignItems.Center">
+        <MudItem xs="12" md="5">
+            <MudTextField @bind-Value="searchText" Label="Tìm gian hàng / người bán / ngôn ngữ / nội dung" Variant="Variant.Outlined" Immediate="true" />
+        </MudItem>
+        <MudItem xs="12" md="3">
+            <MudSelect T="string" @bind-Value="statusFilter" Label="Trạng thái audio" Variant="Variant.Outlined">
+                <MudSelectItem Value='@("all")'>Tất cả</MudSelectItem>
+                <MudSelectItem Value='@("has")'>Đã có audio</MudSelectItem>
+                <MudSelectItem Value='@("missing")'>Chưa có audio</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" md="2">
+            <MudPaper Class="pa-3 d-flex flex-column" Elevation="0" Style="background:#faf5e8">
+                <MudText Typo="Typo.caption">Tổng dòng audio</MudText>
+                <MudText Typo="Typo.h6" Style="font-weight:700">@filteredRows.Count</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="2">
+            <MudPaper Class="pa-3 d-flex flex-column" Elevation="0" Style="background:#edf7ed">
+                <MudText Typo="Typo.caption">Đã có file</MudText>
+                <MudText Typo="Typo.h6" Style="font-weight:700">@filteredRows.Count(r => r.HasAudio)</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
 @if (_loading)
-{ <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-2" /> }
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-2" />
+}
 
 <MudPaper Elevation="2" Style="border-radius:8px;overflow:hidden">
-    <MudTable Items="@_languages" Hover="true" Dense="true" Striped="true">
+    <MudTable Items="@filteredRows" Hover="true" Dense="true" Striped="true" Loading="@_loading">
         <HeaderContent>
-            <MudTh>ID</MudTh>
-            <MudTh>Mã ngôn ngữ</MudTh>
-            <MudTh>Tên ngôn ngữ</MudTh>
-            <MudTh>Trạng thái</MudTh>
+            <MudTh>Gian hàng</MudTh>
+            <MudTh>Người bán</MudTh>
+            <MudTh>Ngôn ngữ</MudTh>
+            <MudTh>Nội dung thuyết minh</MudTh>
+            <MudTh>File audio</MudTh>
+            <MudTh>Nghe thử</MudTh>
             <MudTh>Thao tác</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd>@context.Id</MudTd>
-            <MudTd><b>@context.Code</b></MudTd>
-            <MudTd>@context.Name</MudTd>
             <MudTd>
-                <MudChip T="string" Size="Size.Small" Color="@(context.IsActive ? Color.Success : Color.Error)">
-                    @(context.IsActive ? "Kích hoạt" : "Vô hiệu hóa")
-                </MudChip>
+                <MudText Typo="Typo.body2" Style="font-weight:700">@context.StoreName</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">ID: @context.StoreId</MudText>
+            </MudTd>
+            <MudTd>@context.SellerName</MudTd>
+            <MudTd>
+                <MudChip T="string" Size="Size.Small" Color="@(context.HasAudio ? Color.Success : Color.Default)">@context.LanguageCode.ToUpperInvariant()</MudChip>
+            </MudTd>
+            <MudTd Style="min-width:280px; max-width:420px;">
+                <MudText Typo="Typo.body2" Style="font-weight:600">@DisplayText(context.Title, "Chưa có tiêu đề")</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@DisplayText(context.Description, "Chưa có nội dung mô tả")</MudText>
             </MudTd>
             <MudTd>
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Primary" Title="Sửa" OnClick="@(() => OpenEdit(context))" />
-                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" Title="Xóa" OnClick="@(async () => await Delete(context))" />
+                @if (context.HasAudio)
+                {
+                    <MudLink Href="@context.PlayableAudioUrl" Target="_blank">Mở file</MudLink>
+                }
+                else
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Không có file</MudText>
+                }
+            </MudTd>
+            <MudTd>
+                @if (context.HasAudio)
+                {
+                    <audio controls preload="none" src="@context.PlayableAudioUrl" style="max-width:240px; height:32px;"></audio>
+                }
+                else
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Chưa thể nghe</MudText>
+                }
+            </MudTd>
+            <MudTd>
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Error"
+                           Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.Delete"
+                           Disabled="@(!context.HasAudio || deletingKeys.Contains(context.UniqueKey))"
+                           OnClick="@(() => DeleteAudioAsync(context))">
+                    Xóa audio
+                </MudButton>
             </MudTd>
         </RowTemplate>
+        <NoRecordsContent>
+            <MudText Class="pa-4">Không tìm thấy dữ liệu audio.</MudText>
+        </NoRecordsContent>
     </MudTable>
 </MudPaper>
 
-<MudDialog @bind-Visible="_showDialog">
-    <TitleContent>
-        <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.Language" Class="mr-2" />
-            @(_editing == null ? "Thêm Ngôn ngữ" : "Sửa Ngôn ngữ")
-        </MudText>
-    </TitleContent>
-    <DialogContent>
-        <MudTextField @bind-Value="_form.Code" Label="Mã (vd: vi, en, ja)" Variant="Variant.Outlined" Class="mb-3" />
-        <MudTextField @bind-Value="_form.Name" Label="Tên hiển thị" Variant="Variant.Outlined" Class="mb-3" />
-        <MudCheckBox @bind-Value="_form.IsActive" Label="Kích hoạt" Color="Color.Primary" />
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="@(() => _showDialog = false)" Variant="Variant.Outlined">Hủy</MudButton>
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save">Lưu</MudButton>
-    </DialogActions>
-</MudDialog>
-
 @code {
-    private bool _loading = true, _showDialog;
-    private List<LanguageModel> _languages = new();
-    private LanguageModel? _editing;
-    private LanguageModel _form = new();
+    private bool _loading = true;
+    private string searchText = string.Empty;
+    private string statusFilter = "all";
+    private List<AudioFileRow> rows = new();
+    private HashSet<string> deletingKeys = new(StringComparer.OrdinalIgnoreCase);
+
+    private List<AudioFileRow> filteredRows => rows.Where(row =>
+    {
+        var matchesSearch = string.IsNullOrWhiteSpace(searchText)
+            || row.StoreName.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+            || row.SellerName.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+            || row.LanguageCode.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+            || row.Title.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+            || row.Description.Contains(searchText, StringComparison.OrdinalIgnoreCase);
+
+        var matchesStatus = statusFilter switch
+        {
+            "has" => row.HasAudio,
+            "missing" => !row.HasAudio,
+            _ => true
+        };
+
+        return matchesSearch && matchesStatus;
+    }).ToList();
 
     protected override async Task OnInitializedAsync()
     {
-        _languages = await LangSvc.GetLanguagesAsync();
-        _loading = false;
+        await LoadData();
     }
 
-    private void OpenNew() { _editing = null; _form = new() { IsActive = true }; _showDialog = true; }
-    private void OpenEdit(LanguageModel item) { _editing = item; _form = new() { Id = item.Id, Code = item.Code, Name = item.Name, IsActive = item.IsActive }; _showDialog = true; }
-
-    private async Task Save()
+    private async Task LoadData()
     {
-        if (string.IsNullOrWhiteSpace(_form.Code) || string.IsNullOrWhiteSpace(_form.Name)) return;
-
-        if (_editing == null)
+        _loading = true;
+        try
         {
-            var (ok, msg) = await LangSvc.CreateLanguageAsync(_form);
-            Snackbar.Add(msg, ok ? Severity.Success : Severity.Error);
+            var stores = await StoreSvc.GetStoresAsync();
+            rows = stores
+                .SelectMany(ExpandAudioRows)
+                .OrderBy(x => x.StoreName)
+                .ThenBy(x => x.LanguageCode)
+                .ToList();
         }
-        else
+        finally
         {
-            var (ok, msg) = await LangSvc.UpdateLanguageAsync(_form);
-            Snackbar.Add(msg, ok ? Severity.Success : Severity.Error);
+            _loading = false;
         }
-        
-        _languages = await LangSvc.GetLanguagesAsync();
-        _showDialog = false;
     }
 
-    private async Task Delete(LanguageModel item)
+    private IEnumerable<AudioFileRow> ExpandAudioRows(StoreModel store)
     {
-        await LangSvc.DeleteLanguageAsync(item.Id);
-        _languages.Remove(item);
-        Snackbar.Add("Đã xóa ngôn ngữ!", Severity.Success);
+        if (store.AudioTranslations.Count > 0)
+        {
+            foreach (var translation in store.AudioTranslations.OrderBy(t => t.LanguageCode))
+            {
+                // Chỉ hiển thị các bản dịch có file audio
+                if (!string.IsNullOrWhiteSpace(translation.AudioUrl))
+                {
+                    yield return BuildRow(store, translation.LanguageCode, translation.AudioUrl, translation.Name, translation.Description);
+                }
+            }
+
+            yield break;
+        }
+
+        var languages = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "vi", "en", "zh" };
+        foreach (var key in store.AudioUrls.Keys)
+        {
+            languages.Add(key);
+        }
+
+        foreach (var language in languages.OrderBy(x => x))
+        {
+            if (store.AudioUrls.TryGetValue(language, out var audioUrl) && !string.IsNullOrWhiteSpace(audioUrl))
+            {
+                yield return BuildRow(store, language, audioUrl, string.Empty, string.Empty);
+            }
+        }
+    }
+
+    private AudioFileRow BuildRow(StoreModel store, string languageCode, string audioUrl, string title, string description)
+    {
+        var playableUrl = StoreSvc.ToAbsoluteMediaUrl(audioUrl);
+        return new AudioFileRow
+        {
+            StoreId = store.Id,
+            StoreName = store.Name,
+            SellerName = store.SellerName,
+            LanguageCode = languageCode,
+            AudioUrl = audioUrl ?? string.Empty,
+            PlayableAudioUrl = playableUrl,
+            Title = title ?? string.Empty,
+            Description = description ?? string.Empty,
+            HasAudio = !string.IsNullOrWhiteSpace(audioUrl),
+            UniqueKey = $"{store.Id}:{languageCode}"
+        };
+    }
+
+    private async Task DeleteAudioAsync(AudioFileRow row)
+    {
+        if (!row.HasAudio)
+        {
+            return;
+        }
+
+        deletingKeys.Add(row.UniqueKey);
+        try
+        {
+            var deleted = await StoreSvc.DeleteAdminStoreAudioAsync(row.StoreId, row.LanguageCode);
+            if (!deleted)
+            {
+                Snackbar.Add("Không thể xóa file audio.", Severity.Error);
+                return;
+            }
+
+            Snackbar.Add("Đã xóa file audio.", Severity.Success);
+            await LoadData();
+        }
+        finally
+        {
+            deletingKeys.Remove(row.UniqueKey);
+        }
+    }
+
+    private static string DisplayText(string? value, string fallback)
+    {
+        return string.IsNullOrWhiteSpace(value) ? fallback : value;
+    }
+
+    private sealed class AudioFileRow
+    {
+        public int StoreId { get; set; }
+        public string StoreName { get; set; } = string.Empty;
+        public string SellerName { get; set; } = string.Empty;
+        public string LanguageCode { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string AudioUrl { get; set; } = string.Empty;
+        public string PlayableAudioUrl { get; set; } = string.Empty;
+        public bool HasAudio { get; set; }
+        public string UniqueKey { get; set; } = string.Empty;
     }
 }

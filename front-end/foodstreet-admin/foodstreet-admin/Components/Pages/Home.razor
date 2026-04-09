@@ -32,26 +32,9 @@
             </MudButton>
         </MudStack>
 
-        <MudDivider Class="my-5" />
-
-        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-2">
-            Demo nhanh (không cần đăng nhập)
-        </MudText>
-        <MudStack Row="true" Spacing="2" Justify="Justify.Center">
-            <MudButton Href="/seller/dashboard"
-                       Variant="Variant.Outlined" Color="Color.Info" Size="Size.Small"
-                       StartIcon="@Icons.Material.Filled.Storefront">
-                Demo Seller
-            </MudButton>
-            <MudButton Href="/admin/dashboard"
-                       Variant="Variant.Outlined" Color="Color.Secondary" Size="Size.Small"
-                       StartIcon="@Icons.Material.Filled.AdminPanelSettings">
-                Demo Admin
-            </MudButton>
-        </MudStack>
 
         <MudText Typo="Typo.caption" Color="Color.Tertiary" Class="mt-5">
-            © 2025 FoodStreet. All rights reserved.
+            © @DateTime.Now.Year FoodStreet. All rights reserved.
         </MudText>
     </MudPaper>
 </div>

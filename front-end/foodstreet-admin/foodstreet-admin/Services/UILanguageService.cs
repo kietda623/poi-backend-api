@@ -12,7 +12,7 @@ namespace foodstreet_admin.Services
         {
             ["vi"] = new()
             {
-                ["Dashboard"] = "Bảng điều khiển",
+                ["Dashboard"] = "Dashboard",
                 ["MyStore"] = "Gian hàng của tôi",
                 ["Stats"] = "Thống kê",
                 ["Profile"] = "Cấu hình",
