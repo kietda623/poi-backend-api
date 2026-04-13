@@ -16,29 +16,58 @@
         x:Name="LoginContent"
         Route="login"
         ContentTemplate="{DataTemplate pages:LoginPage}"
-        Shell.TabBarIsVisible="False"/>
+        Shell.TabBarIsVisible="False" />
 
     <TabBar x:Name="MainTabBar">
         <ShellContent
             x:Name="HomeTab"
             Route="home"
             Title="Trang chủ"
-            Icon="ic_home.png"
-            ContentTemplate="{DataTemplate pages:HomePage}"/>
+            ContentTemplate="{DataTemplate pages:HomePage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="{x:Null}" Glyph="🏠" Size="20" />
+            </ShellContent.Icon>
+        </ShellContent>
 
         <ShellContent
             x:Name="ExploreTab"
             Route="poiList"
             Title="Khám phá"
-            Icon="ic_explore.png"
-            ContentTemplate="{DataTemplate pages:POIListPage}"/>
+            ContentTemplate="{DataTemplate pages:POIListPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="{x:Null}" Glyph="🔍" Size="20" />
+            </ShellContent.Icon>
+        </ShellContent>
+
+        <ShellContent
+            x:Name="ChatTab"
+            Route="chat"
+            Title="Chatbot"
+            ContentTemplate="{DataTemplate pages:ChatPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="{x:Null}" Glyph="🤖" Size="20" />
+            </ShellContent.Icon>
+        </ShellContent>
+
+        <ShellContent
+            x:Name="TourPlanTab"
+            Route="tourPlan"
+            Title="Tour Plan"
+            ContentTemplate="{DataTemplate pages:TourPlanPage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="{x:Null}" Glyph="🗺️" Size="20" />
+            </ShellContent.Icon>
+        </ShellContent>
 
         <ShellContent
             x:Name="ProfileTab"
             Route="profile"
             Title="Hồ sơ"
-            Icon="ic_profile.png"
-            ContentTemplate="{DataTemplate pages:ProfilePage}"/>
+            ContentTemplate="{DataTemplate pages:ProfilePage}">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="{x:Null}" Glyph="👤" Size="20" />
+            </ShellContent.Icon>
+        </ShellContent>
     </TabBar>
 
 </Shell>

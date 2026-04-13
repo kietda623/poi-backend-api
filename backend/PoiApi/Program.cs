@@ -27,6 +27,7 @@ builder.Services.AddScoped<AzureSpeechService>();
 builder.Services.AddScoped<AzureTranslationService>();
 builder.Services.AddScoped<SubscriptionAccessService>();
 builder.Services.AddScoped<PayOsService>();
+builder.Services.AddScoped<GroqService>();
 builder.Services.Configure<PayOsOptions>(builder.Configuration.GetSection("PayOS"));
 
 // AUTH

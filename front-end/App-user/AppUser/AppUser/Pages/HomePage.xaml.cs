@@ -5,6 +5,7 @@ namespace AppUser.Pages
     public partial class HomePage : ContentPage
     {
         private readonly HomeViewModel _vm;
+        private bool _isInitializing;
 
         public HomePage(HomeViewModel vm)
         {
@@ -16,7 +17,21 @@ namespace AppUser.Pages
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await _vm.InitializeAsync();
+            if (_isInitializing) return;
+
+            try
+            {
+                _isInitializing = true;
+                await _vm.InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"HomePage.OnAppearing error: {ex}");
+            }
+            finally
+            {
+                _isInitializing = false;
+            }
         }
     }
 }

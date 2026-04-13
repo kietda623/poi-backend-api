@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AppUser.ViewModels"
+             x:Class="AppUser.Pages.ChatPage"
+             x:DataType="vm:ChatViewModel"
+             Title="Thổ Địa Vĩnh Khánh"
+             BackgroundColor="White">
+
+
+    <Grid RowDefinitions="auto, *, auto">
+        <!-- Header -->
+        <Grid Padding="20,24" ColumnDefinitions="auto, *">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="{StaticResource Primary}" Offset="0" />
+                    <GradientStop Color="{StaticResource PrimaryLight}" Offset="1" />
+                </LinearGradientBrush>
+            </Grid.Background>
+            <Border Grid.Column="0" 
+                    WidthRequest="48" HeightRequest="48" 
+                    StrokeShape="RoundRectangle 24" 
+                    BackgroundColor="White" 
+                    StrokeThickness="0"
+                    VerticalOptions="Center">
+                <Label Text="🤖" FontFamily="{x:Null}" FontSize="24" 
+                       HorizontalOptions="Center" VerticalOptions="Center" 
+                       TextColor="{StaticResource Primary}"/>
+            </Border>
+            <VerticalStackLayout Grid.Column="1" Margin="15,0,0,0" VerticalOptions="Center">
+                <Label Text="Thổ Địa Vĩnh Khánh" TextColor="White" Style="{StaticResource TitleLarge}"/>
+                <HorizontalStackLayout Spacing="6">
+                    <Ellipse Fill="#4ADE80" WidthRequest="8" HeightRequest="8" VerticalOptions="Center"/>
+                    <Label Text="Đang trực tuyến" TextColor="#CCFFFFFF" FontSize="12" FontFamily="BeVietnamProMedium"/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- Message List -->
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Messages}" x:Name="MsgList" Margin="16">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:ChatMessage">
+                    <Grid Padding="0,8">
+                        <Border BackgroundColor="{Binding IsFromUser, Converter={StaticResource ChatBubbleColorConverter}}"
+                                StrokeShape="RoundRectangle 20,20,20,20"
+                                StrokeThickness="0"
+                                Padding="16,10"
+                                HorizontalOptions="{Binding IsFromUser, Converter={StaticResource ChatAlignmentConverter}}"
+                                MaximumWidthRequest="300">
+                            <Border.Shadow>
+                                <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.05"/>
+                            </Border.Shadow>
+                            <Label Text="{Binding Text}" 
+                                   TextColor="{Binding IsFromUser, Converter={StaticResource ChatTextColorConverter}}"
+                                   Style="{StaticResource BodyMedium}"/>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Input Area -->
+        <Grid Grid.Row="2" ColumnDefinitions="*, auto" Padding="16,12" BackgroundColor="White">
+            <Border StrokeShape="RoundRectangle 24" Padding="18,0" HeightRequest="52" 
+                    StrokeThickness="1" Stroke="{StaticResource Border}" BackgroundColor="{StaticResource Background}">
+                <Entry Placeholder="Hỏi Thổ Địa cái gì hay ho..." 
+                       Text="{Binding UserMessage}"
+                       Style="{StaticResource InputEntry}"
+                       VerticalOptions="Center"
+                       ReturnCommand="{Binding SendMessageCommand}"/>
+            </Border>
+            <Button Grid.Column="1"
+                    Text="✉️"
+                    FontFamily="{x:Null}"
+                    WidthRequest="52"
+                    HeightRequest="52"
+                    CornerRadius="26"
+                    Margin="12,0,0,0"
+                    Command="{Binding SendMessageCommand}"
+                    Style="{StaticResource PrimaryButton}"
+                    Padding="0"/>
+        </Grid>
+
+        <!-- Loading Overlay -->
+        <Grid Grid.Row="1" IsVisible="{Binding IsLoading}" HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,24">
+            <Border BackgroundColor="White" StrokeShape="RoundRectangle 16" Padding="12,8">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,4" Radius="8" Opacity="0.1"/>
+                </Border.Shadow>
+                <HorizontalStackLayout Spacing="8">
+                    <ActivityIndicator IsRunning="True" Color="{StaticResource Primary}" HeightRequest="18" WidthRequest="18"/>
+                    <Label Text="Thổ Địa đang gõ..." Style="{StaticResource BodySmall}" VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- Access Denied Overlay -->
+        <Grid Grid.RowSpan="3" IsVisible="{Binding IsAccessDenied}" BackgroundColor="#D0FFFFFF" Padding="40">
+            <Border VerticalOptions="Center" Padding="32" Style="{StaticResource PremiumBorder}">
+                <VerticalStackLayout Spacing="24" HorizontalOptions="Center">
+                    <Label Text="🤖" FontFamily="{x:Null}" FontSize="72" 
+                           TextColor="{StaticResource Primary}" HorizontalOptions="Center" Opacity="0.8"/>
+                    <Label Text="Trò chuyện với Thổ Địa" Style="{StaticResource HeadlineSmall}" HorizontalOptions="Center"/>
+                    <Label Text="Tính năng Chatbot AI dành cho người dùng Tour Basic hoặc Tour Plus để tư vấn ẩm thực đường phố." 
+                           HorizontalTextAlignment="Center"
+                           Style="{StaticResource BodyMedium}"/>
+                    <Button Text="Nâng cấp ngay" 
+                            Command="{Binding UpgradeCommand}"
+                            Style="{StaticResource PrimaryButton}"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>

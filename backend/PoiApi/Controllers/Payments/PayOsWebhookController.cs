@@ -13,15 +13,18 @@ public class PayOsWebhookController : ControllerBase
     private readonly AppDbContext _context;
     private readonly PayOsService _payOsService;
     private readonly SubscriptionAccessService _subscriptionAccessService;
+    private readonly ILogger<PayOsWebhookController> _logger;
 
     public PayOsWebhookController(
         AppDbContext context,
         PayOsService payOsService,
-        SubscriptionAccessService subscriptionAccessService)
+        SubscriptionAccessService subscriptionAccessService,
+        ILogger<PayOsWebhookController> logger)
     {
         _context = context;
         _payOsService = payOsService;
         _subscriptionAccessService = subscriptionAccessService;
+        _logger = logger;
     }
 
     [HttpPost("webhook")]
@@ -69,7 +72,20 @@ public class PayOsWebhookController : ControllerBase
             subscription.PaymentLinkId = payload.Data.PaymentLinkId;
         }
 
-        var effectiveStatus = payload.Success ? "PAID" : payload.Data.Status;
+        var paidAmount = payload.Success ? payload.Data.Amount : 0;
+        var effectiveStatus = _subscriptionAccessService.ResolveEffectivePayOsState(
+            payload.Data.Status,
+            payload.Data.Amount,
+            paidAmount,
+            payload.Success);
+        _logger.LogInformation(
+            "Webhook payment for subscription {SubscriptionId}: success={Success}, rawStatus={RawStatus}, amount={Amount}, amountPaid={AmountPaid}, effectiveStatus={EffectiveStatus}",
+            subscription.Id,
+            payload.Success,
+            payload.Data.Status,
+            payload.Data.Amount,
+            paidAmount,
+            effectiveStatus);
         await _subscriptionAccessService.ApplyPayOsPaymentStateAsync(subscription, effectiveStatus);
 
         await _context.SaveChangesAsync();

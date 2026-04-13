@@ -37,11 +37,12 @@
                            Style="{StaticResource HeadlineMedium}"
                            TextColor="White"
                            HorizontalOptions="Center"
-                           FontFamily="PoppinsBold"/>
+                           FontFamily="BeVietnamProBold"/>
                     <Label Text="Tham gia cộng đồng FoodTour"
                            Style="{StaticResource BodyMedium}"
                            TextColor="#E8FFFFFF"
-                           HorizontalOptions="Center"/>
+                           HorizontalOptions="Center"
+                           FontFamily="BeVietnamPro"/>
                 </VerticalStackLayout>
             </Grid>
 

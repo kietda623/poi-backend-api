@@ -19,7 +19,12 @@
             <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter"/>
             <converters:StringContainsConverter x:Key="StringContainsConverter"/>
             <converters:IntIsZeroConverter x:Key="IntIsZeroConverter"/>
+            <converters:IntToBoolConverter x:Key="IntToBoolConverter"/>
             <converters:TimeSpanToStringConverter x:Key="TimeSpanToStringConverter"/>
+            <converters:EyeIconConverter x:Key="EyeIconConverter"/>
+            <converters:ChatBubbleColorConverter x:Key="ChatBubbleColorConverter"/>
+            <converters:ChatTextColorConverter x:Key="ChatTextColorConverter"/>
+            <converters:ChatAlignmentConverter x:Key="ChatAlignmentConverter"/>
 
         </ResourceDictionary>
     </Application.Resources>

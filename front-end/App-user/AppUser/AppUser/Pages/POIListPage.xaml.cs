@@ -6,6 +6,7 @@ namespace AppUser.Pages
     {
         private readonly POIListViewModel _vm;
         private bool _isMapLoaded;
+        private bool _isInitializing;
 
         public POIListPage(POIListViewModel vm)
         {
@@ -96,7 +97,21 @@ namespace AppUser.Pages
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await _vm.InitializeAsync();
+            if (_isInitializing) return;
+
+            try
+            {
+                _isInitializing = true;
+                await _vm.InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"POIListPage.OnAppearing error: {ex}");
+            }
+            finally
+            {
+                _isInitializing = false;
+            }
         }
 
         protected override void OnDisappearing()

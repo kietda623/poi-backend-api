@@ -333,6 +333,22 @@ namespace PoiApi.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("AllowAiPlanAccess")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("AllowAudioAccess")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("AllowChatbotAccess")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("AllowTinderAccess")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Audience")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -372,41 +388,146 @@ namespace PoiApi.Migrations
                         new
                         {
                             Id = 1,
+                            AllowAiPlanAccess = false,
+                            AllowAudioAccess = false,
+                            AllowChatbotAccess = false,
+                            AllowTinderAccess = false,
+                            Audience = "OWNER",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Gói dành cho gian hàng mới bắt đầu",
-                            Features = "Hiển thị trên bản đồ|1 gian hàng|Hỗ trợ qua email",
+                            Description = "Gói khởi đầu cho shop kinh doanh nhỏ.",
+                            Features = "Hiển thị trên bản đồ|Tối đa 1 gian hàng|1 Menu, không giới hạn món|Hỗ trợ qua email|!Badge trên app|!Ưu tiên đề xuất|!Thống kê nâng cao",
                             IsActive = true,
                             MaxStores = 1,
                             MonthlyPrice = 99000m,
-                            Name = "Gói Cơ bản",
+                            Name = "Basic",
                             Tier = "Basic",
                             YearlyPrice = 990000m
                         },
                         new
                         {
                             Id = 2,
+                            AllowAiPlanAccess = false,
+                            AllowAudioAccess = false,
+                            AllowChatbotAccess = false,
+                            AllowTinderAccess = false,
+                            Audience = "OWNER",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Ưu tiên đề xuất và badge Premium trên app",
-                            Features = "Ưu tiên đề xuất|Badge Premium|3 gian hàng|Hỗ trợ ưu tiên|Thống kê nâng cao",
+                            Description = "Dành cho shop muốn tăng độ nhận diện và hiệu quả.",
+                            Features = "Tất cả tính năng Basic|Tối đa 3 gian hàng|Badge \"Premium\" trên app|Ưu tiên đề xuất (score +50)|Thống kê nâng cao|Hỗ trợ ưu tiên|!Quảng cáo banner",
                             IsActive = true,
                             MaxStores = 3,
                             MonthlyPrice = 299000m,
-                            Name = "Gói Nâng cao",
+                            Name = "Premium",
                             Tier = "Premium",
                             YearlyPrice = 2990000m
                         },
                         new
                         {
                             Id = 3,
+                            AllowAiPlanAccess = false,
+                            AllowAudioAccess = false,
+                            AllowChatbotAccess = false,
+                            AllowTinderAccess = false,
+                            Audience = "OWNER",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Top đề xuất, badge VIP và hỗ trợ riêng 24/7",
-                            Features = "Top đề xuất trên app|Badge VIP|5 gian hàng|Hỗ trợ riêng 24/7|Thống kê chi tiết|Quảng cáo trên banner",
+                            Description = "Đặc quyền cao cấp nhất cho doanh nghiệp lớn.",
+                            Features = "Tất cả tính năng Premium|Tối đa 5 gian hàng|Badge \"VIP\" trên app|Top đề xuất (score +100)|Thống kê chi tiết|Quảng cáo trên banner|Hỗ trợ riêng 24/7",
                             IsActive = true,
                             MaxStores = 5,
                             MonthlyPrice = 599000m,
-                            Name = "Gói VIP",
+                            Name = "VIP",
                             Tier = "VIP",
                             YearlyPrice = 5990000m
+                        },
+                        new
+                        {
+                            Id = 4,
+                            AllowAiPlanAccess = false,
+                            AllowAudioAccess = true,
+                            AllowChatbotAccess = false,
+                            AllowTinderAccess = false,
+                            Audience = "USER",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Goi nghe thuyet minh co ban danh cho nguoi dung app.",
+                            Features = "Nghe thuyet minh 3 ngon ngu|Ho tro review sau khi nghe|Su dung tren toan bo app",
+                            IsActive = false,
+                            MaxStores = 0,
+                            MonthlyPrice = 49000m,
+                            Name = "Audio Starter",
+                            Tier = "Basic",
+                            YearlyPrice = 490000m
+                        },
+                        new
+                        {
+                            Id = 5,
+                            AllowAiPlanAccess = false,
+                            AllowAudioAccess = true,
+                            AllowChatbotAccess = false,
+                            AllowTinderAccess = false,
+                            Audience = "USER",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Goi audio uu tien danh cho nguoi nghe thuong xuyen.",
+                            Features = "Nghe thuyet minh 3 ngon ngu|Uu tien audio moi|Khong gioi han luot nghe trong goi con han",
+                            IsActive = false,
+                            MaxStores = 0,
+                            MonthlyPrice = 99000m,
+                            Name = "Audio Plus",
+                            Tier = "Premium",
+                            YearlyPrice = 990000m
+                        },
+                        new
+                        {
+                            Id = 6,
+                            AllowAiPlanAccess = false,
+                            AllowAudioAccess = true,
+                            AllowChatbotAccess = false,
+                            AllowTinderAccess = false,
+                            Audience = "USER",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Goi audio cao cap cho nguoi dung trung thanh.",
+                            Features = "Nghe thuyet minh 3 ngon ngu|Truy cap tat ca diem audio|Ho tro uu tien",
+                            IsActive = false,
+                            MaxStores = 0,
+                            MonthlyPrice = 199000m,
+                            Name = "Audio Premium",
+                            Tier = "VIP",
+                            YearlyPrice = 1990000m
+                        },
+                        new
+                        {
+                            Id = 7,
+                            AllowAiPlanAccess = false,
+                            AllowAudioAccess = true,
+                            AllowChatbotAccess = false,
+                            AllowTinderAccess = false,
+                            Audience = "USER",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Mở khóa thuyết minh ẩm thực tự động khi đến gần các gian hàng.",
+                            Features = "Tự động phát thuyết minh khi đến gần POI|Nghe thuyet minh 3 ngon ngu|Ho tro review sau khi nghe|!Tinder Ẩm Thực|!AI Kế Hoạch Tour|!Chatbot Thổ Địa",
+                            IsActive = true,
+                            MaxStores = 0,
+                            MonthlyPrice = 99000m,
+                            Name = "Tour Basic",
+                            Tier = "Basic",
+                            YearlyPrice = 990000m
+                        },
+                        new
+                        {
+                            Id = 8,
+                            AllowAiPlanAccess = true,
+                            AllowAudioAccess = true,
+                            AllowChatbotAccess = true,
+                            AllowTinderAccess = true,
+                            Audience = "USER",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Trải nghiệm đầy đủ: thuyết minh + Tinder ẩm thực + AI lịch trình + Chatbot tư vấn.",
+                            Features = "Tất cả quyền lợi Tour Basic|Tinder Ẩm Thực (quẹt trái/phải)|AI Kế Hoạch Tour từ Gemini|Chatbot Thổ Địa tư vấn món ăn|Ưu tiên đề xuất quán hot",
+                            IsActive = true,
+                            MaxStores = 0,
+                            MonthlyPrice = 299000m,
+                            Name = "Tour Plus",
+                            Tier = "Premium",
+                            YearlyPrice = 2990000m
                         });
                 });
 
@@ -420,6 +541,9 @@ namespace PoiApi.Migrations
 
                     b.Property<string>("Address")
                         .HasColumnType("longtext");
+
+                    b.Property<double>("AverageRating")
+                        .HasColumnType("double");
 
                     b.Property<int?>("CategoryId")
                         .HasColumnType("int");
@@ -468,8 +592,20 @@ namespace PoiApi.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime?>("ActivatedAt")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("BillingCycle")
                         .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("CancelAtPeriodEnd")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime?>("CancelRequestedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CheckoutUrl")
                         .HasColumnType("longtext");
 
                     b.Property<DateTime>("CreatedAt")
@@ -478,8 +614,28 @@ namespace PoiApi.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("PaymentLinkId")
+                        .HasColumnType("longtext");
+
+                    b.Property<long?>("PaymentOrderCode")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PaymentProvider")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("RevenueRecipientShopId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RevenueRecipientUserId")
+                        .HasColumnType("int");
 
                     b.Property<int>("ServicePackageId")
                         .HasColumnType("int");
@@ -501,6 +657,36 @@ namespace PoiApi.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Subscriptions");
+                });
+
+            modelBuilder.Entity("PoiApi.Models.SwipedItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsLiked")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("ShopId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SwipedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ShopId");
+
+                    b.HasIndex("UserId", "ShopId")
+                        .IsUnique();
+
+                    b.ToTable("SwipedItems");
                 });
 
             modelBuilder.Entity("PoiApi.Models.UsageHistory", b =>
@@ -679,6 +865,25 @@ namespace PoiApi.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("PoiApi.Models.SwipedItem", b =>
+                {
+                    b.HasOne("PoiApi.Models.Shop", "Shop")
+                        .WithMany()
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PoiApi.Models.User", "User")
+                        .WithMany("SwipedItems")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Shop");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("PoiApi.Models.UsageHistory", b =>
                 {
                     b.HasOne("PoiApi.Models.Shop", "Shop")
@@ -731,6 +936,8 @@ namespace PoiApi.Migrations
             modelBuilder.Entity("PoiApi.Models.User", b =>
                 {
                     b.Navigation("Shops");
+
+                    b.Navigation("SwipedItems");
                 });
 #pragma warning restore 612, 618
         }

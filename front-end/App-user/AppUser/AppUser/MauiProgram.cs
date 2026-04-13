@@ -19,9 +19,13 @@ namespace AppUser
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                    fonts.AddFont("Poppins-Regular.ttf", "Poppins");
-                    fonts.AddFont("Poppins-Bold.ttf", "PoppinsBold");
-                    fonts.AddFont("Poppins-SemiBold.ttf", "PoppinsSemiBold");
+                    
+                    // Be Vietnam Pro - Premium Vietnamese Font
+                    fonts.AddFont("BeVietnamPro-Regular.ttf", "BeVietnamPro");
+                    fonts.AddFont("BeVietnamPro-Medium.ttf", "BeVietnamProMedium");
+                    fonts.AddFont("BeVietnamPro-SemiBold.ttf", "BeVietnamProSemiBold");
+                    fonts.AddFont("BeVietnamPro-Bold.ttf", "BeVietnamProBold");
+
                 });
 
             // Register Services
@@ -30,6 +34,7 @@ namespace AppUser
             builder.Services.AddSingleton<POIService>();
             builder.Services.AddSingleton<AudioService>();
             builder.Services.AddSingleton<SubscriptionService>();
+            builder.Services.AddSingleton<AiService>();
             builder.Services.AddSingleton<AppShell>();
 
             // Register ViewModels
@@ -42,6 +47,9 @@ namespace AppUser
             builder.Services.AddTransient<ProfileViewModel>();
             builder.Services.AddTransient<RegisterViewModel>();
             builder.Services.AddTransient<EditProfileViewModel>();
+            builder.Services.AddTransient<TinderViewModel>();
+            builder.Services.AddTransient<ChatViewModel>();
+            builder.Services.AddTransient<TourPlanViewModel>();
 
             // Register Pages
             builder.Services.AddTransient<Pages.LoginPage>();
@@ -53,6 +61,9 @@ namespace AppUser
             builder.Services.AddTransient<Pages.ProfilePage>();
             builder.Services.AddTransient<Pages.RegisterPage>();
             builder.Services.AddTransient<Pages.EditProfilePage>();
+            builder.Services.AddTransient<Pages.TinderPage>();
+            builder.Services.AddTransient<Pages.ChatPage>();
+            builder.Services.AddTransient<Pages.TourPlanPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

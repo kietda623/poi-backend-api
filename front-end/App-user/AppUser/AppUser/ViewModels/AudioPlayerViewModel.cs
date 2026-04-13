@@ -59,7 +59,7 @@ namespace AppUser.ViewModels
 
         private readonly POIService _poiService;
 
-        public string POIName => POI?.DisplayName(CurrentLangCode) ?? string.Empty;
+        public string POIName => POI?.DisplayName ?? string.Empty;
         public string GuideTitle => AudioGuide?.Title ?? string.Empty;
         public string ImageUrl => POI?.ImageUrl ?? string.Empty;
         public List<AppLanguageDto> AvailableLanguages => BuildLanguageOptions();

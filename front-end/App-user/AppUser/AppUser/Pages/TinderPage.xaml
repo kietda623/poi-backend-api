@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AppUser.ViewModels"
+             xmlns:models="clr-namespace:AppUser.Models"
+             x:Class="AppUser.Pages.TinderPage"
+             x:DataType="vm:TinderViewModel"
+             Title="Tinder Ẩm Thực"
+             BackgroundColor="{StaticResource Surface}">
+
+    <ContentPage.Resources>
+        <Style TargetType="Label" x:Key="TitleLabel">
+            <Setter Property="FontFamily" Value="BeVietnamProBold"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="TextColor" Value="{StaticResource Primary}"/>
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid>
+        <!-- Background Decor -->
+        <BoxView Color="{StaticResource Primary}" 
+                  HeightRequest="150" 
+                  VerticalOptions="Start" 
+                  Margin="0,-50,0,0"/>
+
+        <!-- Main Content -->
+        <VerticalStackLayout Padding="20" Spacing="15">
+            
+            <Label Text="Tinder Ẩm Thực" 
+                   Style="{StaticResource TitleLabel}"
+                   TextColor="White"
+                   HorizontalOptions="Center"/>
+            
+            <Label Text="Quẹt phải để lưu quán ăn vào lịch trình" 
+                   TextColor="#CCFFFFFF"
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,20"
+                   FontFamily="BeVietnamPro"/>
+
+            <Grid HeightRequest="500" WidthRequest="340" HorizontalOptions="Center">
+                
+                <!-- Loading State -->
+                <ActivityIndicator IsRunning="{Binding IsLoading}" 
+                                  Color="{StaticResource Primary}"
+                                  VerticalOptions="Center" 
+                                  HorizontalOptions="Center"/>
+
+                <!-- Cards Stack -->
+                <CollectionView ItemsSource="{Binding Cards}">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="0"/>
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout VerticalOptions="Center" Spacing="20">
+                            <Label Text="Đã hết quán ăn để quẹt!" 
+                                   HorizontalOptions="Center" 
+                                   FontSize="18"
+                                   FontFamily="BeVietnamProSemiBold"/>
+                            <Button Text="Tải thêm quán" 
+                                    Command="{Binding LoadCardsCommand}"
+                                    Style="{StaticResource PrimaryButton}"
+                                    WidthRequest="200"
+                                    FontFamily="BeVietnamProSemiBold"/>
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:TinderCardDto">
+                            <SwipeView Threshold="100">
+                                <SwipeView.LeftItems>
+                                    <SwipeItems Mode="Execute">
+                                        <SwipeItem Text="Like" 
+                                                   BackgroundColor="#4CAF50"
+                                                   Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TinderViewModel}}, Path=SwipeRightCommand}"
+                                                   CommandParameter="{Binding .}"/>
+                                    </SwipeItems>
+                                </SwipeView.LeftItems>
+                                <SwipeView.RightItems>
+                                    <SwipeItems Mode="Execute">
+                                        <SwipeItem Text="Dislike" 
+                                                   BackgroundColor="#F44336"
+                                                   Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TinderViewModel}}, Path=SwipeLeftCommand}"
+                                                   CommandParameter="{Binding .}"/>
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
+
+                                <Frame CornerRadius="20" 
+                                       HasShadow="True" 
+                                       Padding="0" 
+                                       Margin="0,10"
+                                       HeightRequest="450"
+                                       BorderColor="Transparent"
+                                       BackgroundColor="White">
+                                    <Grid RowDefinitions="*, auto">
+                                        <!-- Image -->
+                                        <Image Source="{Binding ImageUrl}" 
+                                               Aspect="AspectFill" 
+                                               Grid.Row="0"/>
+                                        
+                                        <!-- Info Overlay -->
+                                        <Border Grid.Row="1" Padding="20" StrokeShape="Rectangle">
+                                            <VerticalStackLayout Spacing="5">
+                                                <Grid ColumnDefinitions="*, auto">
+                                                    <Label Text="{Binding Name}" 
+                                                           FontSize="22" 
+                                                           FontAttributes="Bold"
+                                                           FontFamily="BeVietnamProBold"/>
+                                                    <HorizontalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Center">
+                                                        <Label Text="⭐" VerticalOptions="Center"/>
+                                                        <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}" 
+                                                                VerticalOptions="Center"
+                                                                FontSize="16"
+                                                                FontFamily="BeVietnamProSemiBold"/>
+                                                    </HorizontalStackLayout>
+                                                </Grid>
+                                                
+                                                <Label Text="{Binding Location}" 
+                                                       TextColor="{StaticResource TextHint}"
+                                                       FontSize="14"
+                                                       FontFamily="BeVietnamPro"/>
+                                                
+                                                <Label Text="{Binding Description}" 
+                                                       MaxLines="2"
+                                                       FontSize="14"
+                                                       Margin="0,5"
+                                                       FontFamily="BeVietnamPro"/>
+
+                                                <!-- Top Items Buttons -->
+                                                <HorizontalStackLayout Spacing="5" Margin="0,10,0,0"
+                                                                       BindableLayout.ItemsSource="{Binding TopItems}">
+                                                    <BindableLayout.ItemTemplate>
+                                                        <DataTemplate x:DataType="models:TinderMenuItemDto">
+                                                            <Frame Padding="8,4" CornerRadius="10" BackgroundColor="#F0F0F0" BorderColor="Transparent">
+                                                                <Label Text="{Binding Name}" FontSize="12" TextColor="{StaticResource Primary}" FontFamily="BeVietnamPro"/>
+                                                            </Frame>
+                                                        </DataTemplate>
+                                                    </BindableLayout.ItemTemplate>
+                                                </HorizontalStackLayout>
+
+                                                <!-- Action Buttons (Manual) -->
+                                                <Grid ColumnDefinitions="*, *" ColumnSpacing="20" Margin="0,15,0,0">
+                                                    <Button Text="Bỏ qua" 
+                                                            Style="{StaticResource OutlineButton}"
+                                                            BackgroundColor="#FFF0F0"
+                                                            TextColor="#F44336"
+                                                            BorderColor="#F44336"
+                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TinderViewModel}}, Path=SwipeLeftCommand}"
+                                                            CommandParameter="{Binding .}"
+                                                            FontFamily="BeVietnamProSemiBold"/>
+                                                    <Button Grid.Column="1" 
+                                                            Text="Thích" 
+                                                            Style="{StaticResource PrimaryButton}"
+                                                            BackgroundColor="#E8F5E9"
+                                                            TextColor="#4CAF50"
+                                                            BorderColor="#4CAF50"
+                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TinderViewModel}}, Path=SwipeRightCommand}"
+                                                            CommandParameter="{Binding .}"
+                                                            FontFamily="BeVietnamProSemiBold"/>
+                                                </Grid>
+                                            </VerticalStackLayout>
+                                        </Border>
+                                    </Grid>
+                                </Frame>
+                            </SwipeView>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </Grid>
+        </VerticalStackLayout>
+
+        <!-- Access Denied Overlay -->
+        <Grid IsVisible="{Binding IsAccessDenied}" BackgroundColor="#CCFFFFFF" Padding="40">
+            <Frame VerticalOptions="Center" Padding="30" CornerRadius="20" BackgroundColor="White">
+                <VerticalStackLayout Spacing="20" HorizontalOptions="Center">
+                    <Label Text="🔒" FontSize="64" HorizontalOptions="Center"/>
+                    <Label Text="Tính năng Tour Plus" FontSize="22" FontFamily="BeVietnamProBold" HorizontalOptions="Center"/>
+                    <Label Text="Bạn cần gói Tour Plus để sử dụng Tinder Ẩm Thực và tạo lịch trình tự động." 
+                           HorizontalTextAlignment="Center"
+                           TextColor="{StaticResource TextHint}"
+                           FontFamily="BeVietnamPro"/>
+                    <Button Text="Nâng cấp ngay" 
+                            Command="{Binding UpgradeCommand}"
+                            Style="{StaticResource PrimaryButton}"
+                            FontFamily="BeVietnamProSemiBold"/>
+                </VerticalStackLayout>
+            </Frame>
+        </Grid>
+    </Grid>
+</ContentPage>

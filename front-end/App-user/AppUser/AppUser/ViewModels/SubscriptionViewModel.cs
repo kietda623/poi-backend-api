@@ -21,16 +21,16 @@ public partial class SubscriptionViewModel : ObservableObject
     private AppSubscriptionEnvelopeDto current = new();
 
     [ObservableProperty]
-    private string title = "Goi audio";
+    private string title = "Goi dich vu";
 
     [ObservableProperty]
-    private string pageHeading = "Goi nghe thuyet minh";
+    private string pageHeading = "Goi kham pha am thuc";
 
     [ObservableProperty]
     private string currentPackageHeading = "Goi hien tai";
 
     [ObservableProperty]
-    private string noActivePackageText = "Ban chua co goi audio nao dang hoat dong.";
+    private string noActivePackageText = "Ban chua co goi Tour nao dang hoat dong.";
 
     [ObservableProperty]
     private string reloadText = "Kiem tra lai";
@@ -51,7 +51,7 @@ public partial class SubscriptionViewModel : ObservableObject
     private string emptyPackagesText = "Hien tai chua co goi nao kha dung.";
 
     [ObservableProperty]
-    private string qrDialogTitle = "Thanh toan goi audio";
+    private string qrDialogTitle = "Thanh toan goi Tour";
 
     [ObservableProperty]
     private string qrDialogHint = "Quet ma QR de thanh toan. Sau khi thanh toan xong, bam 'Toi da thanh toan' de cap nhat trang thai goi.";
@@ -136,7 +136,8 @@ public partial class SubscriptionViewModel : ObservableObject
     [RelayCommand]
     private async Task SubscribeMonthlyAsync(AppServicePackageDto package)
     {
-        await SubscribeAsync(package, "Monthly");
+        // Tour packages use Daily billing
+        await SubscribeAsync(package, "Daily");
     }
 
     [RelayCommand]
@@ -329,20 +330,35 @@ public partial class SubscriptionViewModel : ObservableObject
 
     private List<AppServicePackageDto> LocalizePackages(IEnumerable<AppServicePackageDto> packages)
     {
-        return packages.Select(package => new AppServicePackageDto
+        var hasBasic = Current.Subscription?.PackageTier == "TourBasic" && Current.Subscription.Status == "Active";
+
+        return packages.Select(package => 
         {
-            Id = package.Id,
-            Tier = package.Tier,
-            Audience = package.Audience,
-            MonthlyPrice = package.MonthlyPrice,
-            YearlyPrice = package.YearlyPrice,
-            AllowAudioAccess = package.AllowAudioAccess,
-            RecommendedBillingCycle = package.RecommendedBillingCycle,
-            DisplayPrice = package.DisplayPrice,
-            Name = LocalizePackageName(package.Tier, package.Name),
-            Description = LocalizePackageDescription(package.Tier),
-            DisplayLabel = ResolveBillingCycleLabel(package.RecommendedBillingCycle),
-            Features = LocalizePackageFeatures(package.Tier)
+            var price = package.MonthlyPrice;
+            var displayPrice = package.DisplayPrice;
+
+            // Upgrade logic: if user has TourBasic, TourPlus cost 50K
+            if (hasBasic && package.Tier == "TourPlus")
+            {
+                price = 50000;
+                displayPrice = 50000;
+            }
+
+            return new AppServicePackageDto
+            {
+                Id = package.Id,
+                Tier = package.Tier,
+                Audience = package.Audience,
+                MonthlyPrice = price,
+                YearlyPrice = package.YearlyPrice,
+                AllowAudioAccess = package.AllowAudioAccess,
+                RecommendedBillingCycle = package.RecommendedBillingCycle,
+                DisplayPrice = displayPrice,
+                Name = LocalizePackageName(package.Tier, package.Name),
+                Description = LocalizePackageDescription(package.Tier),
+                DisplayLabel = ResolveBillingCycleLabel(package.RecommendedBillingCycle),
+                Features = LocalizePackageFeatures(package.Tier)
+            };
         }).ToList();
     }
 
@@ -359,43 +375,34 @@ public partial class SubscriptionViewModel : ObservableObject
 
     private string LocalizePackageName(string tier, string fallback) => (_audioService.CurrentLanguage, tier) switch
     {
-        ("en", "Basic") => "Audio Daily",
-        ("en", "Premium") => "Audio Monthly",
-        ("en", "VIP") => "Audio Yearly",
-        ("zh", "Basic") => "每日语音",
-        ("zh", "Premium") => "月度语音",
-        ("zh", "VIP") => "年度语音",
-        ("vi", "Basic") => "Audio Ngay",
-        ("vi", "Premium") => "Audio Thang",
-        ("vi", "VIP") => "Audio Nam",
+        ("en", "TourBasic") => "Tour Basic",
+        ("en", "TourPlus") => "Tour Plus",
+        ("zh", "TourBasic") => "基础游览",
+        ("zh", "TourPlus") => "高级游览",
+        ("vi", "TourBasic") => "Tour Basic",
+        ("vi", "TourPlus") => "Tour Plus",
         _ => fallback
     };
 
     private string LocalizePackageDescription(string tier) => (_audioService.CurrentLanguage, tier) switch
     {
-        ("en", "Basic") => "Daily audio package for quick listening needs.",
-        ("en", "Premium") => "Monthly audio package for regular listeners.",
-        ("en", "VIP") => "Yearly audio package for long-term use.",
-        ("zh", "Basic") => "适合短期收听需求的每日语音套餐。",
-        ("zh", "Premium") => "适合经常收听用户的月度语音套餐。",
-        ("zh", "VIP") => "适合长期使用用户的年度语音套餐。",
-        ("vi", "Basic") => "Goi audio theo ngay cho user can nghe nhanh.",
-        ("vi", "Premium") => "Goi audio theo thang cho user nghe thuong xuyen.",
-        ("vi", "VIP") => "Goi audio theo nam cho user su dung lau dai.",
+        ("en", "TourBasic") => "Unlock audio narration when near food stalls. Valid for 1 day.",
+        ("en", "TourPlus") => "Full experience: narration + Food Tinder + AI itinerary + Chatbot. Valid for 1 day.",
+        ("zh", "TourBasic") => "靠近摊位时自动播放美食讲解。有效期1天。",
+        ("zh", "TourPlus") => "完整体验：讲解 + 美食Tinder + AI行程 + 聊天机器人。有效期1天。",
+        ("vi", "TourBasic") => "Mo khoa thuyet minh am thuc khi den gan quan. Su dung trong 1 ngay.",
+        ("vi", "TourPlus") => "Trai nghiem day du: thuyet minh + Tinder am thuc + AI lich trinh + Chatbot. Su dung trong 1 ngay.",
         _ => string.Empty
     };
 
     private List<string> LocalizePackageFeatures(string tier) => (_audioService.CurrentLanguage, tier) switch
     {
-        ("en", "Basic") => new() { "Use for 1 day", "Listen in 3 languages", "Suitable for short trips" },
-        ("en", "Premium") => new() { "Use for 1 month", "Listen in 3 languages", "Unlimited listens during the package period" },
-        ("en", "VIP") => new() { "Use for 1 year", "Listen in 3 languages", "Best value for frequent listeners" },
-        ("zh", "Basic") => new() { "可使用 1 天", "支持 3 种语言讲解", "适合短途体验" },
-        ("zh", "Premium") => new() { "可使用 1 个月", "支持 3 种语言讲解", "套餐期间可无限次收听" },
-        ("zh", "VIP") => new() { "可使用 1 年", "支持 3 种语言讲解", "更适合长期频繁收听" },
-        ("vi", "Basic") => new() { "Su dung trong 1 ngay", "Nghe thuyet minh 3 ngon ngu", "Phu hop cho chuyen di ngan" },
-        ("vi", "Premium") => new() { "Su dung trong 1 thang", "Nghe thuyet minh 3 ngon ngu", "Khong gioi han luot nghe trong thoi gian goi" },
-        ("vi", "VIP") => new() { "Su dung trong 1 nam", "Nghe thuyet minh 3 ngon ngu", "Tiet kiem chi phi cho nguoi nghe thuong xuyen" },
+        ("en", "TourBasic") => new() { "Valid for 1 day", "Auto-play narration near POI", "Listen in 3 languages", "Review after listening", "Tho Dia Chatbot assistant", "No Food Tinder", "No AI Tour Planner" },
+        ("en", "TourPlus") => new() { "Valid for 1 day", "All Tour Basic features", "Food Tinder (swipe left/right)", "AI Tour Planner by Groq", "Tho Dia Chatbot assistant", "Priority store suggestions" },
+        ("zh", "TourBasic") => new() { "有效期1天", "靠近时自动播放讲解", "支持3种语言", "听后可评价", "土地公聊天机器人", "无美食Tinder", "无AI行程规划" },
+        ("zh", "TourPlus") => new() { "有效期1天", "包含基础游览全部功能", "美食Tinder（左右滑动）", "AI行程规划 (Groq)", "土地公聊天机器人", "优先推荐热门商家" },
+        ("vi", "TourBasic") => new() { "Sử dụng trong 1 ngày", "Tự động phát thuyết minh khi đến gần POI", "Nghe thuyết minh 3 ngôn ngữ", "Hỗ trợ review sau khi nghe", "Chatbot Thổ Địa tư vấn món ăn", "Không hỗ trợ Tinder Ẩm Thực", "Không hỗ trợ AI Lịch Trình" },
+        ("vi", "TourPlus") => new() { "Sử dụng trong 1 ngày", "Tất cả quyền lợi Tour Basic", "Tinder Ẩm Thực (quẹt trái/phải)", "AI Kế Hoạch Tour từ Groq", "Chatbot Thổ Địa tư vấn món ăn", "Ưu tiên đề xuất quán cực hot" },
         _ => new()
     };
 
@@ -424,25 +431,25 @@ public partial class SubscriptionViewModel : ObservableObject
         var lang = _audioService.CurrentLanguage;
         return (lang, key) switch
         {
-            ("en", "page_title") => "Audio packages",
-            ("en", "page_heading") => "Narration audio packages",
+            ("en", "page_title") => "Tour packages",
+            ("en", "page_heading") => "Food tour packages",
             ("en", "current_package_heading") => "Current package",
-            ("en", "no_active_package") => "You do not have an active audio package.",
+            ("en", "no_active_package") => "You do not have an active tour package.",
             ("en", "reload") => "Refresh",
             ("en", "continue_payment") => "Continue payment",
             ("en", "payment_completed") => "I've paid",
             ("en", "cancel_package") => "Cancel package",
             ("en", "choose_package_heading") => "Choose the right package",
             ("en", "empty_packages") => "There are currently no available packages.",
-            ("en", "qr_dialog_title") => "Audio package payment",
+            ("en", "qr_dialog_title") => "Tour package payment",
             ("en", "qr_dialog_hint") => "Scan the QR code to pay. After payment, tap 'I've paid' to update your package status.",
             ("en", "open_payos") => "Open PayOS",
             ("en", "close_qr") => "Close QR",
             ("en", "expires_on_format") => "Expires on: {0:dd/MM/yyyy}",
             ("en", "payment_success_title") => "Payment successful",
-            ("en", "payment_success_message") => "Your audio package has been activated.",
+            ("en", "payment_success_message") => "Your tour package has been activated.",
             ("en", "payment_cancelled_title") => "Payment cancelled",
-            ("en", "payment_cancelled_message") => "The audio package was cancelled.",
+            ("en", "payment_cancelled_message") => "The tour package was cancelled.",
             ("en", "payment_failed_title") => "Payment failed",
             ("en", "payment_failed_message") => "PayOS has not confirmed a successful payment yet.",
             ("en", "processing_title") => "Processing",
@@ -454,25 +461,25 @@ public partial class SubscriptionViewModel : ObservableObject
             ("en", "payment_ready_link_message") => "A PayOS payment link has been created. You can open PayOS to complete payment.",
             ("en", "ok") => "OK",
 
-            ("zh", "page_title") => "语音套餐",
-            ("zh", "page_heading") => "讲解语音套餐",
+            ("zh", "page_title") => "游览套餐",
+            ("zh", "page_heading") => "美食游览套餐",
             ("zh", "current_package_heading") => "当前套餐",
-            ("zh", "no_active_package") => "你当前没有启用中的语音套餐。",
+            ("zh", "no_active_package") => "你当前没有启用中的游览套餐。",
             ("zh", "reload") => "刷新",
             ("zh", "continue_payment") => "继续支付",
             ("zh", "payment_completed") => "我已支付",
             ("zh", "cancel_package") => "取消套餐",
             ("zh", "choose_package_heading") => "选择适合你的套餐",
             ("zh", "empty_packages") => "当前没有可用套餐。",
-            ("zh", "qr_dialog_title") => "语音套餐支付",
+            ("zh", "qr_dialog_title") => "游览套餐支付",
             ("zh", "qr_dialog_hint") => "请扫描二维码完成支付。支付完成后，点击“我已支付”以更新套餐状态。",
             ("zh", "open_payos") => "打开 PayOS",
             ("zh", "close_qr") => "关闭二维码",
             ("zh", "expires_on_format") => "到期日: {0:dd/MM/yyyy}",
             ("zh", "payment_success_title") => "支付成功",
-            ("zh", "payment_success_message") => "你的语音套餐已启用。",
+            ("zh", "payment_success_message") => "你的游览套餐已启用。",
             ("zh", "payment_cancelled_title") => "支付已取消",
-            ("zh", "payment_cancelled_message") => "语音套餐已被取消。",
+            ("zh", "payment_cancelled_message") => "游览套餐已被取消。",
             ("zh", "payment_failed_title") => "支付失败",
             ("zh", "payment_failed_message") => "PayOS 尚未确认支付成功。",
             ("zh", "processing_title") => "处理中",
@@ -484,25 +491,25 @@ public partial class SubscriptionViewModel : ObservableObject
             ("zh", "payment_ready_link_message") => "已生成 PayOS 支付链接。你可以打开 PayOS 完成支付。",
             ("zh", "ok") => "确定",
 
-            (_, "page_title") => "Goi audio",
-            (_, "page_heading") => "Goi nghe thuyet minh",
+            (_, "page_title") => "Goi dich vu",
+            (_, "page_heading") => "Goi kham pha am thuc",
             (_, "current_package_heading") => "Goi hien tai",
-            (_, "no_active_package") => "Ban chua co goi audio nao dang hoat dong.",
+            (_, "no_active_package") => "Ban chua co goi Tour nao dang hoat dong.",
             (_, "reload") => "Kiem tra lai",
             (_, "continue_payment") => "Tiep tuc thanh toan",
             (_, "payment_completed") => "Toi da thanh toan",
             (_, "cancel_package") => "Huy goi",
             (_, "choose_package_heading") => "Chon goi phu hop",
             (_, "empty_packages") => "Hien tai chua co goi nao kha dung.",
-            (_, "qr_dialog_title") => "Thanh toan goi audio",
+            (_, "qr_dialog_title") => "Thanh toan goi Tour",
             (_, "qr_dialog_hint") => "Quet ma QR de thanh toan. Sau khi thanh toan xong, bam 'Toi da thanh toan' de cap nhat trang thai goi.",
             (_, "open_payos") => "Mo cong PayOS",
             (_, "close_qr") => "Dong QR",
             (_, "expires_on_format") => "Het han: {0:dd/MM/yyyy}",
             (_, "payment_success_title") => "Thanh toan thanh cong",
-            (_, "payment_success_message") => "Goi audio cua ban da duoc kich hoat.",
+            (_, "payment_success_message") => "Goi Tour cua ban da duoc kich hoat.",
             (_, "payment_cancelled_title") => "Da huy thanh toan",
-            (_, "payment_cancelled_message") => "Goi audio da bi huy.",
+            (_, "payment_cancelled_message") => "Goi Tour da bi huy.",
             (_, "payment_failed_title") => "Thanh toan that bai",
             (_, "payment_failed_message") => "PayOS chua xac nhan thanh toan thanh cong.",
             (_, "processing_title") => "Dang xu ly",

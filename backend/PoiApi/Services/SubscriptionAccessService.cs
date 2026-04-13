@@ -7,10 +7,12 @@ namespace PoiApi.Services;
 public class SubscriptionAccessService
 {
     private readonly AppDbContext _context;
+    private readonly ILogger<SubscriptionAccessService> _logger;
 
-    public SubscriptionAccessService(AppDbContext context)
+    public SubscriptionAccessService(AppDbContext context, ILogger<SubscriptionAccessService> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<Subscription?> GetActiveSubscriptionAsync(int userId, string audience)
@@ -22,9 +24,11 @@ public class SubscriptionAccessService
                 s.UserId == userId &&
                 s.Status == SubscriptionConstants.Active &&
                 s.EndDate > now &&
-                s.ServicePackage.Audience == audience &&
-                s.ServicePackage.IsActive)
-            .OrderByDescending(s => s.EndDate)
+                s.ServicePackage.Audience == audience)
+            .OrderByDescending(s => s.ActivatedAt.HasValue)
+            .ThenByDescending(s => s.ActivatedAt)
+            .ThenByDescending(s => s.EndDate)
+            .ThenByDescending(s => s.CreatedAt)
             .FirstOrDefaultAsync();
     }
 
@@ -32,6 +36,44 @@ public class SubscriptionAccessService
     {
         var sub = await GetActiveSubscriptionAsync(userId, RoleConstants.User);
         return sub?.ServicePackage.AllowAudioAccess == true;
+    }
+
+    /// <summary>Check if user has Tour Plus (Tinder feature)</summary>
+    public async Task<bool> HasTinderAccessAsync(int userId)
+    {
+        var sub = await GetActiveSubscriptionAsync(userId, RoleConstants.User);
+        return sub?.ServicePackage.AllowTinderAccess == true;
+    }
+
+    /// <summary>Check if user has Tour Plus (AI Tour Plan feature)</summary>
+    public async Task<bool> HasAiPlanAccessAsync(int userId)
+    {
+        var sub = await GetActiveSubscriptionAsync(userId, RoleConstants.User);
+        return sub?.ServicePackage.AllowAiPlanAccess == true;
+    }
+
+    /// <summary>Check if user has Tour Plus (Chatbot feature)</summary>
+    public async Task<bool> HasChatbotAccessAsync(int userId)
+    {
+        var sub = await GetActiveSubscriptionAsync(userId, RoleConstants.User);
+        return sub?.ServicePackage.AllowChatbotAccess == true;
+    }
+
+    /// <summary>Get current subscription tier for the user (null if no active sub)</summary>
+    public async Task<UserSubscriptionInfo?> GetUserSubscriptionInfoAsync(int userId)
+    {
+        var sub = await GetActiveSubscriptionAsync(userId, RoleConstants.User);
+        if (sub == null) return null;
+        return new UserSubscriptionInfo
+        {
+            Tier = sub.ServicePackage.Tier,
+            PackageName = sub.ServicePackage.Name,
+            EndDate = sub.EndDate,
+            AllowAudio = sub.ServicePackage.AllowAudioAccess,
+            AllowTinder = sub.ServicePackage.AllowTinderAccess,
+            AllowAiPlan = sub.ServicePackage.AllowAiPlanAccess,
+            AllowChatbot = sub.ServicePackage.AllowChatbotAccess
+        };
     }
 
     public DateTime CalculateEndDate(DateTime startDate, string billingCycle)
@@ -48,7 +90,7 @@ public class SubscriptionAccessService
 
     public async Task ApplyPayOsPaymentStateAsync(Subscription subscription, string? paymentState)
     {
-        var normalized = paymentState?.Trim().ToUpperInvariant();
+        var normalized = NormalizePayOsPaymentState(paymentState);
 
         if (string.Equals(normalized, "PAID", StringComparison.Ordinal))
         {
@@ -60,6 +102,13 @@ public class SubscriptionAccessService
             subscription.CancelAtPeriodEnd = false;
             subscription.CancelRequestedAt = null;
             await CloseOtherSubscriptionsAsync(subscription);
+            return;
+        }
+
+        if (string.Equals(normalized, "FAILED", StringComparison.Ordinal))
+        {
+            subscription.PaymentStatus = SubscriptionConstants.PaymentFailed;
+            subscription.Status = SubscriptionConstants.Cancelled;
             return;
         }
 
@@ -87,8 +136,53 @@ public class SubscriptionAccessService
             return;
         }
 
-        subscription.PaymentStatus = SubscriptionConstants.PaymentFailed;
-        subscription.Status = SubscriptionConstants.Cancelled;
+        if (string.Equals(subscription.PaymentStatus, SubscriptionConstants.PaymentPaid, StringComparison.OrdinalIgnoreCase))
+        {
+            _logger.LogInformation("Ignoring unknown PayOS status for paid subscription {SubscriptionId}: {PaymentState}", subscription.Id, paymentState);
+            return;
+        }
+
+        subscription.PaymentStatus = SubscriptionConstants.PaymentPending;
+        subscription.Status = SubscriptionConstants.PendingPayment;
+        _logger.LogWarning("Fallback unknown PayOS status to pending for subscription {SubscriptionId}: {PaymentState}", subscription.Id, paymentState);
+    }
+
+    public string ResolveEffectivePayOsState(string? paymentStatus, int amount, int amountPaid, bool successHint = false)
+    {
+        if (successHint || (amount > 0 && amountPaid >= amount))
+        {
+            return "PAID";
+        }
+
+        var normalized = NormalizePayOsPaymentState(paymentStatus);
+        if (!string.IsNullOrWhiteSpace(normalized))
+        {
+            return normalized;
+        }
+
+        return "PENDING";
+    }
+
+    private static string NormalizePayOsPaymentState(string? paymentState)
+    {
+        if (string.IsNullOrWhiteSpace(paymentState))
+        {
+            return string.Empty;
+        }
+
+        var normalized = paymentState.Trim().ToUpperInvariant()
+            .Replace("_", string.Empty)
+            .Replace("-", string.Empty)
+            .Replace(" ", string.Empty);
+
+        return normalized switch
+        {
+            "PAID" or "SUCCESS" or "SUCCEEDED" or "COMPLETED" or "COMPLETE" or "DONE" => "PAID",
+            "PENDING" or "PROCESSING" or "INPROGRESS" or "WAITING" or "CREATED" => "PENDING",
+            "CANCELLED" or "CANCELED" => "CANCELLED",
+            "FAILED" or "FAIL" or "ERROR" or "EXPIRED" => "FAILED",
+            _ => normalized
+        };
     }
 
     private async Task CloseOtherSubscriptionsAsync(Subscription subscription)

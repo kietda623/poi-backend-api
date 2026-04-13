@@ -11,128 +11,136 @@
         <Grid RowDefinitions="Auto,*,Auto" MinimumHeightRequest="600">
 
             <!-- ── TOP DECORATIVE AREA ── -->
-            <Grid Grid.Row="0" HeightRequest="280" BackgroundColor="{StaticResource Primary}">
+            <Grid Grid.Row="0" HeightRequest="300">
+                <Grid.Background>
+                    <RadialGradientBrush Center="0.5,0.4" Radius="1.2">
+                        <GradientStop Color="{StaticResource PrimaryLight}" Offset="0.0" />
+                        <GradientStop Color="{StaticResource Primary}" Offset="0.6" />
+                        <GradientStop Color="{StaticResource PrimaryDark}" Offset="1.0" />
+                    </RadialGradientBrush>
+                </Grid.Background>
 
-                <!-- Background gradient overlay -->
-                <BoxView Color="{StaticResource PrimaryDark}" Opacity="0.3"
-                         HorizontalOptions="Fill" VerticalOptions="Fill"/>
-
-                <!-- Decorative circles -->
-                <Ellipse Fill="{StaticResource PrimaryLight}" Opacity="0.2"
-                         WidthRequest="200" HeightRequest="200"
-                         HorizontalOptions="End" VerticalOptions="Start"
-                         Margin="0,-60,-60,0"/>
-                <Ellipse Fill="{StaticResource Secondary}" Opacity="0.15"
-                         WidthRequest="150" HeightRequest="150"
-                         HorizontalOptions="Start" VerticalOptions="End"
-                         Margin="-40,0,0,20"/>
+                <!-- Decorative elements with Lamination -->
+                <Ellipse Fill="{StaticResource LaminationGradient}" 
+                         WidthRequest="400" HeightRequest="400"
+                         HorizontalOptions="Center" VerticalOptions="Center"
+                         Margin="0,-150,0,0"/>
 
                 <!-- Logo & Title -->
                 <VerticalStackLayout
                     HorizontalOptions="Center" VerticalOptions="Center"
-                    Spacing="12" Padding="0,40,0,0">
+                    Spacing="16" Padding="0,20,0,0">
 
-                    <!-- Food Icon -->
-                    <Border BackgroundColor="White" Opacity="0.95"
-                            StrokeShape="RoundRectangle 20"
-                            WidthRequest="80" HeightRequest="80"
+                    <!-- Food Icon (Vector) -->
+                    <Border BackgroundColor="White"
+                            StrokeShape="RoundRectangle 24"
+                            WidthRequest="90" HeightRequest="90"
                             StrokeThickness="0"
                             HorizontalOptions="Center">
-                        <Label Text="🍜"
-                               FontSize="40"
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,10" Radius="20" Opacity="0.1" />
+                        </Border.Shadow>
+                        <Label Text="🍔" 
+                               FontFamily="{x:Null}"
+                               FontSize="54"
+                               TextColor="{StaticResource Primary}"
                                HorizontalOptions="Center"
-                               VerticalOptions="Center"
-                               Margin="10"/>
+                               VerticalOptions="Center"/>
                     </Border>
 
                     <Label Text="FoodTour POI"
                            Style="{StaticResource HeadlineMedium}"
                            TextColor="White"
                            HorizontalOptions="Center"
-                           FontFamily="PoppinsBold"/>
+                           FontSize="28"/>
 
                     <Label Text="Khám phá ẩm thực địa phương"
                            Style="{StaticResource BodyMedium}"
-                           TextColor="#E8FFFFFF"
-                           HorizontalOptions="Center"/>
+                           TextColor="#D0FFFFFF"
+                           HorizontalOptions="Center"
+                           FontFamily="BeVietnamProMedium"/>
                 </VerticalStackLayout>
             </Grid>
 
             <!-- ── LOGIN FORM CARD ── -->
             <Border Grid.Row="1"
                     BackgroundColor="{StaticResource Surface}"
-                    StrokeShape="RoundRectangle 28,28,0,0"
+                    StrokeShape="RoundRectangle 32,32,0,0"
                     StrokeThickness="0"
-                    Margin="0,-28,0,0"
-                    Padding="28,36,28,20">
+                    Margin="0,-32,0,0"
+                    Padding="32,40,32,20">
 
                 <VerticalStackLayout Spacing="0">
 
-                    <Label Text="Đăng nhập"
+                    <Label Text="Chào mừng quay lại"
                            Style="{StaticResource HeadlineSmall}"
-                           Margin="0,0,0,4"/>
+                           Margin="0,0,0,6"/>
 
-                    <Label Text="Đăng nhập để bắt đầu khám phá"
-                           Style="{StaticResource BodySmall}"
-                           Margin="0,0,0,28"/>
+                    <Label Text="Đăng nhập để bắt đầu hành trình của bạn"
+                           Style="{StaticResource BodyMedium}"
+                           TextColor="{StaticResource TextSecondary}"
+                           Margin="0,0,0,32"/>
 
                     <!-- Error Banner -->
-                    <Border BackgroundColor="#FFF3F3"
-                            StrokeShape="RoundRectangle 10"
+                    <Border BackgroundColor="#FFF1F2"
+                            StrokeShape="RoundRectangle 14"
                             StrokeThickness="0"
-                            Padding="14,12"
-                            Margin="0,0,0,16"
+                            Padding="16,12"
+                            Margin="0,0,0,24"
                             IsVisible="{Binding HasError}">
-                        <HorizontalStackLayout Spacing="8">
-                            <Label Text="⚠️" FontSize="16" VerticalOptions="Center"/>
+                        <HorizontalStackLayout Spacing="10">
+                            <Label Text="⚠️" FontFamily="{x:Null}" FontSize="16" 
+                                   TextColor="{StaticResource Error}" VerticalOptions="Center"/>
                             <Label Text="{Binding ErrorMessage}"
                                    Style="{StaticResource BodySmall}"
                                    TextColor="{StaticResource Error}"
-                                   VerticalOptions="Center"/>
+                                   VerticalOptions="Center"
+                                   FontFamily="BeVietnamProMedium"/>
                         </HorizontalStackLayout>
                     </Border>
 
                     <!-- Email Field -->
-                    <Label Text="Email" Style="{StaticResource TitleMedium}" Margin="0,0,0,6"/>
+                    <Label Text="Email" Style="{StaticResource TitleMedium}" Margin="0,0,0,8"/>
                     <Border BackgroundColor="{StaticResource SurfaceVariant}"
-                            StrokeShape="RoundRectangle 12"
-                            StrokeThickness="1.5"
-                            Stroke="{StaticResource Border}"
-                            Padding="16,4"
-                            Margin="0,0,0,16">
+                            StrokeShape="RoundRectangle 16"
+                            StrokeThickness="0"
+                            Padding="18,2"
+                            Margin="0,0,0,20">
                         <Grid ColumnDefinitions="*,Auto">
                             <Entry Grid.Column="0"
                                    x:Name="EmailEntry"
                                    Style="{StaticResource InputEntry}"
-                                   Placeholder="email@example.com"
+                                   Placeholder="example@mail.com"
                                    Text="{Binding Email}"
                                    Keyboard="Email"
                                    ReturnType="Next"/>
-                            <Label Grid.Column="1" Text="📧" FontSize="18"
+                            <Label Grid.Column="1" Text="{StaticResource IconEmail}" 
+                                   FontFamily="{x:Null}" FontSize="18"
+                                   TextColor="{StaticResource TextHint}"
                                    VerticalOptions="Center"/>
                         </Grid>
                     </Border>
 
                     <!-- Password Field -->
-                    <Label Text="Mật khẩu" Style="{StaticResource TitleMedium}" Margin="0,0,0,6"/>
+                    <Label Text="Mật khẩu" Style="{StaticResource TitleMedium}" Margin="0,0,0,8"/>
                     <Border BackgroundColor="{StaticResource SurfaceVariant}"
-                            StrokeShape="RoundRectangle 12"
-                            StrokeThickness="1.5"
-                            Stroke="{StaticResource Border}"
-                            Padding="16,4"
-                            Margin="0,0,0,8">
+                            StrokeShape="RoundRectangle 16"
+                            StrokeThickness="0"
+                            Padding="18,2"
+                            Margin="0,0,0,12">
                         <Grid ColumnDefinitions="*,Auto">
                             <Entry Grid.Column="0"
                                    Style="{StaticResource InputEntry}"
-                                   Placeholder="Nhập mật khẩu"
+                                   Placeholder="••••••••"
                                    Text="{Binding Password}"
                                    IsPassword="{Binding IsPasswordVisible, Converter={StaticResource BoolInverterConverter}}"
                                    ReturnType="Done"
                                    ReturnCommand="{Binding LoginCommand}"/>
                             <Button Grid.Column="1"
-                                    Text="👁️"
+                                    Text="{Binding IsPasswordVisible, Converter={StaticResource EyeIconConverter}}" 
                                     Command="{Binding TogglePasswordVisibilityCommand}"
                                     Style="{StaticResource IconButton}"
+                                    TextColor="{StaticResource TextHint}"
                                     FontSize="18"/>
                         </Grid>
                     </Border>

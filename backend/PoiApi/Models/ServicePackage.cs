@@ -1,4 +1,4 @@
-﻿namespace PoiApi.Models
+namespace PoiApi.Models
 {
     public class ServicePackage
     {
@@ -12,6 +12,9 @@
         public string Features { get; set; } = string.Empty;
         public int MaxStores { get; set; } = 1;
         public bool AllowAudioAccess { get; set; }
+        public bool AllowTinderAccess { get; set; }
+        public bool AllowAiPlanAccess { get; set; }
+        public bool AllowChatbotAccess { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

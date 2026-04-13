@@ -5,6 +5,7 @@ namespace AppUser.Pages
     public partial class POIDetailPage : ContentPage
     {
         private readonly POIDetailViewModel _vm;
+        private bool _isInitializing;
 
         public POIDetailPage(POIDetailViewModel vm)
         {
@@ -16,7 +17,21 @@ namespace AppUser.Pages
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await _vm.InitializeAsync();
+            if (_isInitializing) return;
+
+            try
+            {
+                _isInitializing = true;
+                await _vm.InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"POIDetailPage.OnAppearing error: {ex}");
+            }
+            finally
+            {
+                _isInitializing = false;
+            }
         }
     }
 }

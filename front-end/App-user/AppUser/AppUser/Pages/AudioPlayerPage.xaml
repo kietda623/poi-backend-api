@@ -78,14 +78,14 @@
 
                 <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" Spacing="2">
                     <Label Text="{Binding NowPlayingLabel}"
-                           FontFamily="PoppinsBold"
+                           FontFamily="BeVietnamProBold"
                            FontSize="10"
                            TextColor="#99FFFFFF"
                            HorizontalOptions="Center"
                            CharacterSpacing="2"/>
                     <Label Text="{Binding POIName}"
                            FontSize="14"
-                           FontFamily="PoppinsSemiBold"
+                           FontFamily="BeVietnamProSemiBold"
                            TextColor="White"
                            HorizontalOptions="Center"
                            Opacity="0.9"/>
@@ -98,7 +98,7 @@
                     <Button Text="{Binding PlaybackSpeed, StringFormat='{0}x'}"
                             Style="{StaticResource MediaControlButtonStyle}"
                             Command="{Binding CycleSpeedCommand}"
-                            FontFamily="PoppinsBold"
+                            FontFamily="BeVietnamProBold"
                             FontSize="12"
                             Padding="0"/>
                 </Border>
@@ -113,7 +113,7 @@
                 <Button Text="Tiếng Việt"
                         Command="{Binding SwitchLanguageByCodeCommand}"
                         CommandParameter="vi"
-                        FontFamily="PoppinsMedium"
+                        FontFamily="BeVietnamProMedium"
                         FontSize="12"
                         Padding="16,8"
                         CornerRadius="14"
@@ -135,7 +135,7 @@
                 <Button Text="English"
                         Command="{Binding SwitchLanguageByCodeCommand}"
                         CommandParameter="en"
-                        FontFamily="PoppinsMedium"
+                        FontFamily="BeVietnamProMedium"
                         FontSize="12"
                         Padding="16,8"
                         CornerRadius="14"
@@ -157,7 +157,7 @@
                 <Button Text="中文"
                         Command="{Binding SwitchLanguageByCodeCommand}"
                         CommandParameter="zh"
-                        FontFamily="PoppinsMedium"
+                        FontFamily="BeVietnamProMedium"
                         FontSize="12"
                         Padding="16,8"
                         CornerRadius="14"
@@ -204,14 +204,14 @@
             <!-- Guide Details -->
             <Label Text="{Binding GuideTitle}"
                    FontSize="26"
-                   FontFamily="PoppinsBold"
+                   FontFamily="BeVietnamProBold"
                    TextColor="White"
                    HorizontalOptions="Center"
                    HorizontalTextAlignment="Center"
                    Margin="0,0,0,10"/>
             <Label Text="{Binding SubTitleLabel}"
                    FontSize="15"
-                   FontFamily="PoppinsMedium"
+                   FontFamily="BeVietnamProMedium"
                    TextColor="{StaticResource Primary}"
                    HorizontalOptions="Center"
                    Opacity="0.9"
@@ -230,12 +230,12 @@
                            Text="{Binding PositionText}"
                            FontSize="13"
                            TextColor="#99FFFFFF"
-                           FontFamily="PoppinsMedium"/>
+                           FontFamily="BeVietnamProMedium"/>
                     <Label Grid.Column="1"
                            Text="{Binding DurationText}"
                            FontSize="13"
                            TextColor="#99FFFFFF"
-                           FontFamily="PoppinsMedium"
+                           FontFamily="BeVietnamProMedium"
                            HorizontalOptions="End"/>
                 </Grid>
             </VerticalStackLayout>
@@ -291,7 +291,7 @@
                     Command="{Binding ShowReviewCommand}"
                     BackgroundColor="Transparent"
                     TextColor="#99FFFFFF"
-                    FontFamily="PoppinsMedium"
+                    FontFamily="BeVietnamProMedium"
                     FontSize="12"
                     Margin="0,32,0,0"
                     HorizontalOptions="Center" />
@@ -312,7 +312,8 @@
                 <Label Text="Trình phát dự phòng"
                        FontSize="12"
                        TextColor="#CCFFFFFF"
-                       HorizontalOptions="Center"/>
+                       HorizontalOptions="Center"
+                       FontFamily="BeVietnamPro"/>
                 <WebView x:Name="FallbackAudioWebView"
                          HeightRequest="96"/>
             </VerticalStackLayout>
@@ -334,14 +335,14 @@
                 
                 <Label Text="Đánh giá Trải nghiệm"
                        FontSize="18"
-                       FontFamily="PoppinsBold"
+                       FontFamily="BeVietnamProBold"
                        TextColor="White"
                        HorizontalOptions="Center" />
 
                 <!-- Simple Rating Label (Alternatively a Slider for rating) -->
                 <Label Text="Điểm đánh giá (1-5)"
                        FontSize="12"
-                       FontFamily="PoppinsMedium"
+                       FontFamily="BeVietnamProMedium"
                        TextColor="#99FFFFFF"/>
                 <Slider Minimum="1" Maximum="5" Value="{Binding ReviewRating}" 
                         MinimumTrackColor="{StaticResource Primary}" 
@@ -349,7 +350,7 @@
                         ThumbColor="White"/>
                 <Label Text="{Binding ReviewRating, StringFormat='{0:F0} Sao'}"
                        TextColor="{StaticResource Primary}"
-                       FontFamily="PoppinsBold"
+                       FontFamily="BeVietnamProBold"
                        HorizontalOptions="Center"/>
 
                 <Editor Placeholder="Bình luận bài thuyết minh..."
@@ -358,7 +359,8 @@
                         TextColor="White"
                         BackgroundColor="#2A2A5A"
                         HeightRequest="80"
-                        Margin="0,0,0,16" />
+                        Margin="0,0,0,16"
+                        FontFamily="BeVietnamPro"/>
 
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
                     <Button Grid.Column="0"
@@ -368,14 +370,16 @@
                             BorderColor="#66FFFFFF"
                             BorderWidth="1"
                             CornerRadius="12"
-                            Command="{Binding CancelReviewCommand}" />
+                            Command="{Binding CancelReviewCommand}"
+                            FontFamily="BeVietnamProSemiBold" />
                             
                     <Button Grid.Column="1"
                             Text="Gửi"
                             BackgroundColor="{StaticResource Primary}"
                             TextColor="White"
                             CornerRadius="12"
-                            Command="{Binding SubmitReviewCommand}" />
+                            Command="{Binding SubmitReviewCommand}"
+                            FontFamily="BeVietnamProBold" />
                 </Grid>
                 
             </VerticalStackLayout>

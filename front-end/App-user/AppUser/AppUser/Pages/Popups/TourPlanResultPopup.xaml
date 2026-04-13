@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mct:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+           xmlns:mct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+           x:Class="AppUser.Pages.Popups.TourPlanResultPopup"
+           Color="Transparent">
+
+    <Border BackgroundColor="White" 
+            StrokeShape="RoundRectangle 28" 
+            StrokeThickness="0"
+            WidthRequest="340"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center">
+        <Border.Shadow>
+            <Shadow Brush="Black" Offset="0,20" Radius="40" Opacity="0.3"/>
+        </Border.Shadow>
+
+        <Grid RowDefinitions="Auto,*,Auto" Padding="0">
+            <!-- Header -->
+            <BoxView Grid.Row="0" HeightRequest="80" VerticalOptions="Start">
+                <BoxView.Background>
+                    <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                        <GradientStop Color="{StaticResource Primary}" Offset="0.0" />
+                        <GradientStop Color="{StaticResource PrimaryDark}" Offset="1.0" />
+                    </LinearGradientBrush>
+                </BoxView.Background>
+            </BoxView>
+
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="24,0,16,0" HeightRequest="80">
+                <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                    <Label Text="🎨" FontSize="28" VerticalOptions="Center"/>
+                    <Label Text="Lịch trình của bạn" 
+                           FontAttributes="Bold" 
+                           FontSize="20" 
+                           TextColor="White" 
+                           VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+                
+                <Button Grid.Column="1" 
+                        Text="✕" 
+                        Clicked="OnCloseClicked"
+                        BackgroundColor="Transparent" 
+                        TextColor="White" 
+                        FontSize="24" 
+                        HeightRequest="44" 
+                        WidthRequest="44"
+                        VerticalOptions="Center"/>
+            </Grid>
+
+            <!-- Content -->
+            <ScrollView Grid.Row="1" MaximumHeightRequest="450" Padding="24">
+                <Label x:Name="ResultLabel" 
+                       Text="{Binding .}" 
+                       Style="{StaticResource BodyLarge}" 
+                       TextColor="{StaticResource TextPrimary}" 
+                       LineHeight="1.4" />
+            </ScrollView>
+
+            <!-- Footer -->
+            <VerticalStackLayout Grid.Row="2" Padding="24,0,24,24" Spacing="12">
+                <BoxView HeightRequest="1" Color="{StaticResource Border}" Margin="0,0,0,12"/>
+                <Button Text="Lưu &amp; Chia sẻ" 
+                        Style="{StaticResource PrimaryButton}" 
+                        HeightRequest="52" 
+                        CornerRadius="16"/>
+                <Button Text="Đóng" 
+                        Clicked="OnCloseClicked"
+                        Style="{StaticResource OutlineButton}" 
+                        HeightRequest="50" 
+                        CornerRadius="16"
+                        BorderColor="{StaticResource Border}"/>
+            </VerticalStackLayout>
+        </Grid>
+    </Border>
+</mct:Popup>

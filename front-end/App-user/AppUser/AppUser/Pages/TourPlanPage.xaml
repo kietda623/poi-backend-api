@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AppUser.ViewModels"
+             xmlns:models="clr-namespace:AppUser.Models"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="AppUser.Pages.TourPlanPage"
+             x:DataType="vm:TourPlanViewModel"
+             Title="Tour Plan"
+             BackgroundColor="{StaticResource Background}">
+
+
+    <Grid>
+        <!-- ── BACKGROUND GRADIENT ── -->
+        <BoxView Color="{StaticResource Primary}" HeightRequest="260" VerticalOptions="Start">
+            <BoxView.Background>
+                <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                    <GradientStop Color="{StaticResource Primary}" Offset="0.0" />
+                    <GradientStop Color="{StaticResource PrimaryDark}" Offset="1.0" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+
+        <ScrollView>
+            <VerticalStackLayout Padding="20,40,20,20" Spacing="24">
+                
+                <!-- ── HEADER ── -->
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Tour Plan Groq" Style="{StaticResource HeadlineMedium}" TextColor="White" />
+                    <Label Text="Lên lịch trình ẩm thực thông minh trong chớp mắt" Style="{StaticResource BodyMedium}" TextColor="#CCFFFFFF" />
+                </VerticalStackLayout>
+
+                <!-- ── STEPS INDICATOR ── -->
+                <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center">
+                    <Border Style="{StaticResource StepIndicator}" BackgroundColor="White">
+                        <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                            <Label Text="1" FontFamily="BeVietnamProBold" TextColor="{StaticResource Primary}" VerticalOptions="Center"/>
+                            <Label Text="Chọn quán" Style="{StaticResource LabelCaption}" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </Border>
+                    <Label Text="➔" TextColor="White" Opacity="0.5"/>
+                    <Border Style="{StaticResource StepIndicator}" Opacity="0.7">
+                        <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                            <Label Text="2" FontFamily="BeVietnamProBold" TextColor="{StaticResource TextHint}" VerticalOptions="Center"/>
+                            <Label Text="Sở thích" Style="{StaticResource LabelCaption}" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </Border>
+                    <Label Text="➔" TextColor="White" Opacity="0.5"/>
+                    <Border Style="{StaticResource StepIndicator}" Opacity="0.7">
+                        <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                            <Label Text="3" FontFamily="BeVietnamProBold" TextColor="{StaticResource TextHint}" VerticalOptions="Center"/>
+                            <Label Text="Nhận Tour" Style="{StaticResource LabelCaption}" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </Border>
+                </FlexLayout>
+
+                <!-- ── STEP 1: MATCHING AREA ── -->
+                <Border Style="{StaticResource PremiumBorder}" Padding="0">
+                    <VerticalStackLayout>
+                        <Grid ColumnDefinitions="*,Auto" Padding="20,16">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="Gợi ý món ngon" Style="{StaticResource TitleLarge}" />
+                                <Label Text="{Binding LikedCount, StringFormat='Đã thích {0} quán'}" Style="{StaticResource BodySmall}" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1" Command="{Binding RefreshCommand}" Text="🔄" Style="{StaticResource IconButton}" FontSize="18"/>
+                        </Grid>
+
+                        <ContentView HeightRequest="480">
+                            <CollectionView ItemsSource="{Binding Cards}">
+                                <CollectionView.EmptyView>
+                                    <VerticalStackLayout VerticalOptions="Center" Spacing="20" Padding="40">
+                                        <Label Text="🍽️" FontSize="64" HorizontalOptions="Center" />
+                                        <Label Text="Đã hết quán để quẹt hôm nay" Style="{StaticResource TitleLarge}" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+                                        <Button Text="Tải thêm quán" Command="{Binding LoadCardsCommand}" Style="{StaticResource SecondaryButton}" HeightRequest="48"/>
+                                    </VerticalStackLayout>
+                                </CollectionView.EmptyView>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:TinderCardDto">
+                                        <Grid Padding="16,0,16,16">
+                                            <Border StrokeShape="RoundRectangle 24" StrokeThickness="0" BackgroundColor="White">
+                                                <Border.Shadow>
+                                                    <Shadow Brush="Black" Offset="0,10" Radius="20" Opacity="0.1"/>
+                                                </Border.Shadow>
+                                                <Grid RowDefinitions="*,Auto">
+                                                    <!-- Image -->
+                                                    <Image Source="{Binding ImageUrl}" Aspect="AspectFill" HeightRequest="300" Grid.Row="0" Margin="-1,-1,-1,0"/>
+                                                    
+                                                    <!-- Info Content -->
+                                                    <VerticalStackLayout Grid.Row="1" Padding="20" Spacing="12">
+                                                        <Grid ColumnDefinitions="*,Auto">
+                                                            <Label Text="{Binding Name}" Style="{StaticResource TitleLarge}" />
+                                                            <Border Grid.Column="1" BackgroundColor="{StaticResource SurfaceVariant}" StrokeShape="RoundRectangle 12" Padding="8,4">
+                                                                <HorizontalStackLayout Spacing="4">
+                                                                    <Label Text="⭐" FontSize="12" VerticalOptions="Center"/>
+                                                                    <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}" Style="{StaticResource LabelCaption}" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center"/>
+                                                                </HorizontalStackLayout>
+                                                            </Border>
+                                                        </Grid>
+                                                        
+                                                        <Label Text="{Binding Location}" Style="{StaticResource BodySmall}" MaxLines="1"/>
+                                                        <Label Text="{Binding Description}" Style="{StaticResource BodyMedium}" MaxLines="2" />
+
+                                                        <!-- Action Buttons -->
+                                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="16" Margin="0,8,0,0">
+                                                            <Button Text="Bỏ qua" 
+                                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TourPlanViewModel}}, Path=SwipeLeftCommand}"
+                                                                    CommandParameter="{Binding .}"
+                                                                    BackgroundColor="#FFF1F2" TextColor="{StaticResource Error}" 
+                                                                    FontFamily="BeVietnamProSemiBold" FontSize="14" HeightRequest="44" CornerRadius="12"/>
+                                                            <Button Grid.Column="1" Text="Thích" 
+                                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TourPlanViewModel}}, Path=SwipeRightCommand}"
+                                                                    CommandParameter="{Binding .}"
+                                                                    BackgroundColor="#F0FDF4" TextColor="{StaticResource Success}"
+                                                                    FontFamily="BeVietnamProSemiBold" FontSize="14" HeightRequest="44" CornerRadius="12"/>
+                                                        </Grid>
+                                                    </VerticalStackLayout>
+                                                </Grid>
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </ContentView>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ── STEP 2: PREFERENCES ── -->
+                <Border Style="{StaticResource PremiumBorder}">
+                    <VerticalStackLayout Spacing="16">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="✨" FontSize="20" VerticalOptions="Center"/>
+                            <Label Text="Cá nhân hóa lịch trình" Style="{StaticResource TitleLarge}" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                        
+                        <Label Text="Thêm ghi chú về thời gian, ngân sách hoặc yêu cầu đặc biệt:" Style="{StaticResource BodyMedium}" />
+                        
+                        <Border StrokeShape="RoundRectangle 16" StrokeThickness="1" Stroke="{StaticResource Border}" BackgroundColor="{StaticResource SurfaceVariant}" Padding="12">
+                            <Editor Text="{Binding Preferences}" 
+                                    Placeholder="Ví dụ: Đi buổi tối, ngân sách 500k, thích không gian yên tĩnh..."
+                                    FontFamily="BeVietnamPro" FontSize="14" HeightRequest="100" BackgroundColor="Transparent" />
+                        </Border>
+
+                        <Button Text="Tạo Tour AI ngay" 
+                                Command="{Binding GeneratePlanCommand}" 
+                                Style="{StaticResource PrimaryButton}" 
+                                IsEnabled="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ── LOADING OVERLAY ── -->
+        <Grid IsVisible="{Binding IsLoading}" BackgroundColor="#D90F172A">
+            <VerticalStackLayout VerticalOptions="Center" Spacing="24">
+                <ActivityIndicator IsRunning="True" Color="{StaticResource PrimaryLight}" HeightRequest="80" WidthRequest="80" />
+                <Label Text="AI đang 'may đo' lịch trình dành riêng cho bạn..." 
+                       Style="{StaticResource TitleLarge}" TextColor="White" HorizontalOptions="Center" HorizontalTextAlignment="Center" Padding="40,0"/>
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- ── ACCESS DENIED OVERLAY ── -->
+        <Grid IsVisible="{Binding IsAccessDenied}" BackgroundColor="#F8FAFC" Padding="40">
+            <VerticalStackLayout VerticalOptions="Center" Spacing="32">
+                <Border BackgroundColor="White" StrokeShape="RoundRectangle 40" HeightRequest="120" WidthRequest="120" HorizontalOptions="Center">
+                    <Label Text="💎" FontSize="60" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Nâng tầm trải nghiệm" Style="{StaticResource HeadlineSmall}" HorizontalOptions="Center" />
+                    <Label Text="Mở khóa tính năng lập lịch trình AI không giới hạn với gói Tour Plus." 
+                           Style="{StaticResource BodyLarge}" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+                <Button Text="Khám phá ngay" Command="{Binding UpgradeCommand}" Style="{StaticResource PrimaryButton}" />
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

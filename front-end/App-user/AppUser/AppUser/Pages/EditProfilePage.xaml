@@ -27,7 +27,7 @@
                     </Border.GestureRecognizers>
                     <Label Text="✕" TextColor="White" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
                 </Border>
-                <Label Grid.Column="1" Text="Chỉnh sửa hồ sơ" FontFamily="PoppinsBold" FontSize="20" TextColor="White" VerticalOptions="Center" HorizontalOptions="Center" Margin="-40,0,0,0"/>
+                <Label Grid.Column="1" Text="Chỉnh sửa hồ sơ" FontFamily="BeVietnamProBold" FontSize="20" TextColor="White" VerticalOptions="Center" HorizontalOptions="Center" Margin="-40,0,0,0"/>
             </Grid>
         </Border>
 
@@ -41,37 +41,38 @@
                     
                     <VerticalStackLayout Spacing="20">
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Họ và tên" FontFamily="PoppinsSemiBold" FontSize="14" TextColor="{StaticResource TextPrimary}" />
+                            <Label Text="Họ và tên" FontFamily="BeVietnamProSemiBold" FontSize="14" TextColor="{StaticResource TextPrimary}" />
                             <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource Border}" StrokeThickness="1" BackgroundColor="{StaticResource SurfaceVariant}" Padding="16,4">
-                                <Entry Text="{Binding FullName}" FontFamily="PoppinsRegular" Placeholder="Nhập họ và tên" BackgroundColor="Transparent" TextColor="{StaticResource TextPrimary}" />
+                                <Entry Text="{Binding FullName}" FontFamily="BeVietnamPro" Placeholder="Nhập họ và tên" BackgroundColor="Transparent" TextColor="{StaticResource TextPrimary}" />
                             </Border>
                         </VerticalStackLayout>
 
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Email" FontFamily="PoppinsSemiBold" FontSize="14" TextColor="{StaticResource TextPrimary}" />
+                            <Label Text="Email" FontFamily="BePremiumBold" IsVisible="False" />
+                            <Label Text="Email" FontFamily="BeVietnamProSemiBold" FontSize="14" TextColor="{StaticResource TextPrimary}" />
                             <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource Border}" StrokeThickness="1" BackgroundColor="{StaticResource SurfaceVariant}" Padding="16,4">
-                                <Entry Text="{Binding Email}" FontFamily="PoppinsRegular" Placeholder="example@example.com" Keyboard="Email" BackgroundColor="Transparent" TextColor="{StaticResource TextPrimary}" />
+                                <Entry Text="{Binding Email}" FontFamily="BeVietnamPro" Placeholder="example@example.com" Keyboard="Email" BackgroundColor="Transparent" TextColor="{StaticResource TextPrimary}" />
                             </Border>
                         </VerticalStackLayout>
 
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Mật khẩu hiện tại" FontFamily="PoppinsSemiBold" FontSize="14" TextColor="{StaticResource TextPrimary}" />
+                            <Label Text="Mật khẩu hiện tại" FontFamily="BeVietnamProSemiBold" FontSize="14" TextColor="{StaticResource TextPrimary}" />
                             <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource Border}" StrokeThickness="1" BackgroundColor="{StaticResource SurfaceVariant}" Padding="16,4">
-                                <Entry Text="{Binding CurrentPassword}" IsPassword="True" Placeholder="Nhập mật khẩu hiện tại" FontFamily="PoppinsRegular" BackgroundColor="Transparent" TextColor="{StaticResource TextPrimary}" />
+                                <Entry Text="{Binding CurrentPassword}" IsPassword="True" Placeholder="Nhập mật khẩu hiện tại" FontFamily="BeVietnamPro" BackgroundColor="Transparent" TextColor="{StaticResource TextPrimary}" />
                             </Border>
                         </VerticalStackLayout>
 
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Mật khẩu mới (Tuỳ chọn)" FontFamily="PoppinsSemiBold" FontSize="14" TextColor="{StaticResource TextPrimary}" />
+                            <Label Text="Mật khẩu mới (Tuỳ chọn)" FontFamily="BeVietnamProSemiBold" FontSize="14" TextColor="{StaticResource TextPrimary}" />
                             <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource Border}" StrokeThickness="1" BackgroundColor="{StaticResource SurfaceVariant}" Padding="16,4">
-                                <Entry Text="{Binding NewPassword}" IsPassword="True" Placeholder="Nhập mật khẩu mới" FontFamily="PoppinsRegular" BackgroundColor="Transparent" TextColor="{StaticResource TextPrimary}" />
+                                <Entry Text="{Binding NewPassword}" IsPassword="True" Placeholder="Nhập mật khẩu mới" FontFamily="BeVietnamPro" BackgroundColor="Transparent" TextColor="{StaticResource TextPrimary}" />
                             </Border>
                         </VerticalStackLayout>
 
                         <Label Text="{Binding ErrorMessage}"
                                IsVisible="{Binding ErrorMessage, Converter={StaticResource StringIsNotNullOrEmptyConverter}}"
                                TextColor="Red"
-                               FontFamily="PoppinsMedium" FontSize="12"
+                               FontFamily="BeVietnamProMedium" FontSize="12"
                                HorizontalOptions="Center" />
 
                     </VerticalStackLayout>
@@ -97,7 +98,7 @@
                     <Grid>
                         <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="8" IsVisible="{Binding IsBusy, Converter={StaticResource BoolInverterConverter}}">
                             <Label Text="💾" FontSize="20" TextColor="White" VerticalOptions="Center"/>
-                            <Label Text="Lưu thay đổi" FontFamily="PoppinsBold" FontSize="16" TextColor="White" VerticalOptions="Center"/>
+                            <Label Text="Lưu thay đổi" FontFamily="BeVietnamProBold" FontSize="16" TextColor="White" VerticalOptions="Center"/>
                         </HorizontalStackLayout>
                         <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="White" HorizontalOptions="Center" VerticalOptions="Center"/>
                     </Grid>

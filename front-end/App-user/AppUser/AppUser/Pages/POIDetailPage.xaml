@@ -58,7 +58,7 @@
                                 Command="{Binding ToggleLanguageAsyncCommand}"
                                 BackgroundColor="Transparent"
                                 TextColor="White"
-                                FontFamily="PoppinsBold"
+                                FontFamily="BeVietnamProBold"
                                 FontSize="13"
                                 Padding="0"/>
                     </Border>
@@ -71,14 +71,16 @@
                                Style="{StaticResource HeadlineLarge}"
                                TextColor="White"
                                FontSize="28"
-                               LineBreakMode="WordWrap"/>
+                               LineBreakMode="WordWrap"
+                               FontFamily="BeVietnamProBold"/>
                         <HorizontalStackLayout Spacing="8" Margin="0,6,0,0">
                             <Label Text="📍" FontSize="14" TextColor="White" Opacity="0.9"/>
                             <Label Text="{Binding POI.Location}"
                                    Style="{StaticResource BodyMedium}"
                                    TextColor="#E2E8F0"
                                    LineBreakMode="TailTruncation"
-                                   MaxLines="1"/>
+                                   MaxLines="1"
+                                   FontFamily="BeVietnamPro"/>
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
                 </Grid>
@@ -106,15 +108,18 @@
                                     <Label Text="{Binding AudioGuideLabel, StringFormat='🎧 {0}'}"
                                            Style="{StaticResource TitleMedium}"
                                            TextColor="White"
-                                           Opacity="0.8"/>
+                                           Opacity="0.8"
+                                           FontFamily="BeVietnamProMedium"/>
                                     <Label Text="{Binding CurrentAudioGuide.Title}"
                                            Style="{StaticResource TitleLarge}"
                                            TextColor="White"
                                            LineBreakMode="TailTruncation"
-                                           MaxLines="1"/>
+                                           MaxLines="1"
+                                           FontFamily="BeVietnamProBold"/>
                                     <Label Text="{Binding CurrentAudioGuide.DurationDisplay, StringFormat='⏱️ {0}'}"
                                            Style="{StaticResource LabelCaption}"
-                                           TextColor="#B2FFFFFF"/>
+                                           TextColor="#B2FFFFFF"
+                                           FontFamily="BeVietnamPro"/>
                                 </VerticalStackLayout>
 
                                 <Button Grid.Column="1"
@@ -122,7 +127,7 @@
                                         Command="{Binding PlayAudioCommand}"
                                         BackgroundColor="White"
                                         TextColor="{StaticResource Primary}"
-                                        FontFamily="PoppinsBold"
+                                        FontFamily="BeVietnamProBold"
                                         FontSize="14"
                                         CornerRadius="12"
                                         HeightRequest="44"
@@ -140,17 +145,20 @@
                             <Label Text="{Binding NoAudioLabel, StringFormat='🔇 {0}'}"
                                    Style="{StaticResource BodyMedium}"
                                    TextColor="{StaticResource TextHint}"
-                                   HorizontalOptions="Center"/>
+                                   HorizontalOptions="Center"
+                                   FontFamily="BeVietnamPro"/>
                         </Border>
 
                         <!-- ── DESCRIPTION ── -->
                         <VerticalStackLayout Spacing="10">
                             <Label Text="{Binding IntroLabel}"
                                    Style="{StaticResource HeadlineSmall}"
-                                   TextColor="{StaticResource Primary}"/>
+                                   TextColor="{StaticResource Primary}"
+                                   FontFamily="BeVietnamProBold"/>
                             <Label Text="{Binding DisplayDescription}"
                                    Style="{StaticResource BodyLarge}"
-                                   TextColor="{StaticResource TextPrimary}"/>
+                                   TextColor="{StaticResource TextPrimary}"
+                                   FontFamily="BeVietnamPro"/>
                         </VerticalStackLayout>
 
                         <!-- ── DIVIDER ── -->
@@ -160,61 +168,108 @@
                         <VerticalStackLayout Spacing="16">
                             <Label Text="{Binding MenuLabel, StringFormat='🍽️ {0}'}"
                                    Style="{StaticResource HeadlineSmall}"
-                                   TextColor="{StaticResource Primary}"/>
+                                   TextColor="{StaticResource Primary}"
+                                   FontFamily="BeVietnamProBold"/>
+
+                            <!-- Menu Gallery (Fallback if structured menus not used or as additional images) -->
+                            <CollectionView ItemsSource="{Binding MenuGalleryImages}"
+                                            HeightRequest="200"
+                                            Margin="0,0,0,16"
+                                            IsVisible="{Binding MenuGalleryImages.Count, Converter={StaticResource IntToBoolConverter}}">
+                                <CollectionView.ItemsLayout>
+                                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="12"/>
+                                </CollectionView.ItemsLayout>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border StrokeShape="RoundRectangle 16"
+                                                StrokeThickness="0"
+                                                WidthRequest="280">
+                                            <Image Source="{Binding .}"
+                                                   Aspect="AspectFill"
+                                                   HorizontalOptions="Fill"
+                                                   VerticalOptions="Fill"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
 
                             <!-- Menu Groups -->
-                            <CollectionView ItemsSource="{Binding POI.Shop.Menus}"
-                                            SelectionMode="None">
-                                <CollectionView.ItemTemplate>
+                            <VerticalStackLayout
+                                BindableLayout.ItemsSource="{Binding POI.Shop.Menus}"
+                                Spacing="20">
+                                <BindableLayout.ItemTemplate>
                                     <DataTemplate x:DataType="models:MenuDto">
-                                        <VerticalStackLayout Spacing="12" Margin="0,0,0,24">
-
-                                            <!-- Menu name -->
+                                        <VerticalStackLayout Spacing="12" Margin="0,0,0,4">
                                             <Label Text="{Binding Name}"
                                                    Style="{StaticResource TitleLarge}"
                                                    TextColor="{StaticResource TextPrimary}"
-                                                   FontSize="18"/>
+                                                   FontSize="18"
+                                                   FontFamily="BeVietnamProBold"/>
 
-                                            <!-- Menu Items -->
-                                            <CollectionView ItemsSource="{Binding Items}"
-                                                            SelectionMode="None">
-                                                <CollectionView.ItemsLayout>
-                                                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="12"/>
-                                                </CollectionView.ItemsLayout>
-                                                <CollectionView.ItemTemplate>
+                                            <VerticalStackLayout
+                                                BindableLayout.ItemsSource="{Binding Items}"
+                                                Spacing="16">
+                                                <BindableLayout.ItemTemplate>
                                                     <DataTemplate x:DataType="models:MenuItemDto">
                                                         <Border Style="{StaticResource PremiumBorder}"
-                                                                Padding="16">
-                                                            <Grid ColumnDefinitions="*,Auto">
-                                                                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                                                Padding="12">
+                                                            <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="16">
+                                                                <Border Grid.Column="0"
+                                                                        WidthRequest="84" HeightRequest="84"
+                                                                        StrokeShape="RoundRectangle 16"
+                                                                        StrokeThickness="0"
+                                                                        BackgroundColor="#F1F5F9"
+                                                                        IsVisible="{Binding ImageUrl, Converter={StaticResource StringNotEmptyConverter}}">
+                                                                    <Image Source="{Binding ImageUrl}"
+                                                                           Aspect="AspectFill"
+                                                                           WidthRequest="84" HeightRequest="84"/>
+                                                                </Border>
+
+                                                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="4">
                                                                     <Label Text="{Binding Name}"
                                                                            Style="{StaticResource TitleMedium}"
-                                                                           TextColor="{StaticResource TextPrimary}"/>
+                                                                           TextColor="{StaticResource TextPrimary}"
+                                                                           FontSize="16"
+                                                                           FontFamily="BeVietnamProBold"/>
                                                                     <Label Text="{Binding Description}"
                                                                            Style="{StaticResource BodySmall}"
+                                                                           TextColor="{StaticResource TextSecondary}"
                                                                            LineBreakMode="TailTruncation"
-                                                                           MaxLines="2"/>
-                                                                </VerticalStackLayout>
-                                                                <VerticalStackLayout Grid.Column="1"
-                                                                                     HorizontalOptions="End"
-                                                                                     VerticalOptions="Center" Spacing="4">
+                                                                           MaxLines="2"
+                                                                           IsVisible="{Binding Description, Converter={StaticResource StringNotEmptyConverter}}"
+                                                                           FontFamily="BeVietnamPro"/>
                                                                     <Label Text="{Binding PriceDisplay}"
                                                                            Style="{StaticResource TitleLarge}"
                                                                            TextColor="{StaticResource Primary}"
-                                                                           HorizontalOptions="End"/>
-                                                                    <Border BackgroundColor="#DCFCE7" StrokeShape="RoundRectangle 8" StrokeThickness="0" Padding="8,4" IsVisible="{Binding IsAvailable}" HorizontalOptions="End">
-                                                                        <Label Text="{Binding BindingContext.InStockLabel, Source={x:Reference Name=this}}" Style="{StaticResource LabelCaption}" TextColor="{StaticResource Success}" FontFamily="PoppinsBold"/>
+                                                                           FontSize="17"
+                                                                           Margin="0,4,0,0"
+                                                                           FontFamily="BeVietnamProBold"/>
+                                                                </VerticalStackLayout>
+
+                                                                <VerticalStackLayout Grid.Column="2"
+                                                                                     HorizontalOptions="End"
+                                                                                     VerticalOptions="Start">
+                                                                    <Border BackgroundColor="#DCFCE7"
+                                                                            StrokeShape="RoundRectangle 8"
+                                                                            StrokeThickness="0"
+                                                                            Padding="8,4"
+                                                                            IsVisible="{Binding IsAvailable}">
+                                                                        <Label Text="{Binding BindingContext.InStockLabel, Source={x:Reference Name=this}}"
+                                                                               Style="{StaticResource LabelCaption}"
+                                                                               TextColor="{StaticResource Success}"
+                                                                               FontSize="11"
+                                                                               FontFamily="BeVietnamProBold"/>
                                                                     </Border>
                                                                 </VerticalStackLayout>
                                                             </Grid>
                                                         </Border>
                                                     </DataTemplate>
-                                                </CollectionView.ItemTemplate>
-                                            </CollectionView>
+                                                </BindableLayout.ItemTemplate>
+                                            </VerticalStackLayout>
                                         </VerticalStackLayout>
                                     </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
                         </VerticalStackLayout>
 
                     </VerticalStackLayout>
@@ -247,7 +302,7 @@
             </Border.GestureRecognizers>
             <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="12">
                 <Label Text="🎧" FontSize="26" TextColor="White" VerticalOptions="Center"/>
-                <Label Text="{Binding ListenNowLabel}" FontFamily="PoppinsBold" FontSize="17" TextColor="White" VerticalOptions="Center"/>
+                <Label Text="{Binding ListenNowLabel}" FontFamily="BeVietnamProBold" FontSize="17" TextColor="White" VerticalOptions="Center"/>
             </HorizontalStackLayout>
         </Border>
     </Grid>

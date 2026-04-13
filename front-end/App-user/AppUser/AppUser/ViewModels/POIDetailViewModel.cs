@@ -42,8 +42,11 @@ namespace AppUser.ViewModels
         [ObservableProperty]
         private string noAudioLabel = "Chưa có audio thuyết minh cho ngôn ngữ này";
 
-        public string DisplayName => POI?.DisplayName(CurrentLanguage) ?? string.Empty;
-        public string DisplayDescription => POI?.DisplayDescription(CurrentLanguage) ?? string.Empty;
+        [ObservableProperty]
+        private List<string> menuGalleryImages = new();
+
+        public string DisplayName => POI?.DisplayName ?? string.Empty;
+        public string DisplayDescription => POI?.DisplayDescription ?? string.Empty;
 
         public POIDetailViewModel(AudioService audio, POIService poiService, AuthService authService, SubscriptionService subscriptionService)
         {
@@ -96,6 +99,7 @@ namespace AppUser.ViewModels
             {
                 CurrentAudioGuide = _audioService.GetGuideForPOI(value);
                 HasAudio = CurrentAudioGuide != null;
+                UpdateMenuGalleryImages();
                 OnPropertyChanged(nameof(DisplayName));
                 OnPropertyChanged(nameof(DisplayDescription));
 
@@ -193,6 +197,13 @@ namespace AppUser.ViewModels
                 var latestPoi = await _poiService.GetPOIByIdAsync(poiId, "vi");
                 if (latestPoi == null) return;
 
+                // Always refresh the detail payload so seller updates
+                // (intro/menu images/menu items) are visible immediately.
+                POI = latestPoi;
+                UpdateMenuGalleryImages();
+                OnPropertyChanged(nameof(DisplayName));
+                OnPropertyChanged(nameof(DisplayDescription));
+
                 var viGuide = latestPoi.AudioGuides.FirstOrDefault(g => g.LanguageCode == "vi")
                     ?? latestPoi.AudioGuides.FirstOrDefault();
                 if (viGuide == null) return;
@@ -208,6 +219,28 @@ namespace AppUser.ViewModels
             {
                 _isResolvingAudio = false;
             }
+        }
+
+        private void UpdateMenuGalleryImages()
+        {
+            if (POI == null)
+            {
+                MenuGalleryImages = new List<string>();
+                return;
+            }
+
+            var itemImages = POI.Shop?.Menus?
+                .SelectMany(menu => menu.Items)
+                .Select(item => item.ImageUrl)
+                .Where(url => !string.IsNullOrWhiteSpace(url))
+                .Cast<string>()
+                .Distinct()
+                .ToList() ?? new List<string>();
+
+            // Prefer real menu item images from shop menu list.
+            MenuGalleryImages = itemImages.Count > 0
+                ? itemImages
+                : POI.MenuImages;
         }
     }
 }

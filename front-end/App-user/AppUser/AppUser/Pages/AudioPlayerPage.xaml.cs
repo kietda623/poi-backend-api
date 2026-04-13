@@ -248,7 +248,7 @@ namespace AppUser.Pages
             if (string.IsNullOrWhiteSpace(url)) return;
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                var safeUrl = Uri.EscapeUriString(url);
+                var safeUrl = Uri.EscapeDataString(url);
                 var html = $"""
                     <html>
                       <body style="margin:0;background:#101828;color:white;font-family:Segoe UI;">

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
     x:Class="AppUser.Pages.HomePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -19,7 +19,7 @@
                     <Grid.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="{StaticResource Primary}" Offset="0.1" />
-                            <GradientStop Color="{StaticResource PrimaryLight}" Offset="1.0" />
+                            <GradientStop Color="#6366F1" Offset="1.0" />
                         </LinearGradientBrush>
                     </Grid.Background>
                     <Grid.RowDefinitions>
@@ -27,52 +27,59 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,20">
-                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,24">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
                             <Label Text="{Binding GreetingText}"
                                    Style="{StaticResource BodyMedium}"
                                    TextColor="#CCFFFFFF"
-                                   FontFamily="PoppinsMedium"/>
+                                   FontFamily="BeVietnamProMedium"/>
                             <Label Text="{Binding PageTitle}"
                                    Style="{StaticResource HeadlineMedium}"
                                    TextColor="White"
-                                   FontSize="24"/>
+                                   FontSize="26"/>
                         </VerticalStackLayout>
 
                         <Border Grid.Column="1"
-                                BackgroundColor="#30FFFFFF"
-                                StrokeShape="RoundRectangle 18"
-                                StrokeThickness="0"
-                                Padding="12,6"
+                                BackgroundColor="#20FFFFFF"
+                                StrokeShape="RoundRectangle 20"
+                                StrokeThickness="0.8"
+                                Stroke="#40FFFFFF"
+                                Padding="14,8"
                                 VerticalOptions="Center">
-                            <Button Text="{Binding CurrentLanguage, StringFormat='{0} ▼'}"
-                                    Command="{Binding ToggleLanguageCommand}"
-                                    BackgroundColor="Transparent"
-                                    TextColor="White"
-                                    FontFamily="PoppinsBold"
-                                    FontSize="13"
-                                    Padding="0"
-                                    HeightRequest="32"/>
+                            <HorizontalStackLayout Spacing="6">
+                                <Label Text="🌐" FontFamily="{x:Null}" TextColor="White" FontSize="12" VerticalOptions="Center"/>
+                                <Button Text="{Binding CurrentLanguage}"
+                                        Command="{Binding ToggleLanguageCommand}"
+                                        BackgroundColor="Transparent"
+                                        TextColor="White"
+                                        FontFamily="BeVietnamProBold"
+                                        FontSize="13"
+                                        Padding="0"
+                                        HeightRequest="24"/>
+                            </HorizontalStackLayout>
                         </Border>
                     </Grid>
 
                     <Border Grid.Row="1"
-                            BackgroundColor="White"
-                            StrokeShape="RoundRectangle 18"
-                            StrokeThickness="0"
-                            Padding="16,12"
-                            Margin="0,0,0,-20"
-                            HeightRequest="60">
+                            Style="{StaticResource GlassBorder}"
+                            Padding="20,12"
+                            Margin="0,0,0,-24"
+                            HeightRequest="64">
                         <Border.Shadow>
-                            <Shadow Brush="#20000000" Offset="0,10" Radius="20" Opacity="0.5"/>
+                            <Shadow Brush="Black" Offset="0,12" Radius="24" Opacity="0.15"/>
                         </Border.Shadow>
-                        <HorizontalStackLayout Spacing="12">
-                            <Label Text="🔍" FontSize="18" VerticalOptions="Center"/>
+                        <HorizontalStackLayout Spacing="14">
+                            <Label Text="{StaticResource IconSearch}" 
+                                   Style="{StaticResource IconLabel}"
+                                   TextColor="White"
+                                   FontSize="18" 
+                                   VerticalOptions="Center"/>
                             <Label Text="{Binding SearchPlaceholder}"
                                    Style="{StaticResource BodyMedium}"
-                                   TextColor="{StaticResource TextHint}"
+                                   TextColor="#E0FFFFFF"
                                    VerticalOptions="Center"
-                                   FontSize="15">
+                                   FontSize="15"
+                                   FontFamily="{x:Null}">
                                 <Label.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding NavigateToAllPOIsCommand}"/>
                                 </Label.GestureRecognizers>
@@ -81,17 +88,17 @@
                     </Border>
                 </Grid>
 
-                <VerticalStackLayout Padding="20,12,20,0" Spacing="16">
+                <VerticalStackLayout Padding="20,16,20,0" Spacing="20">
                     <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
                         <Label Grid.Column="0"
                                Text="{Binding FeaturedSectionTitle}"
                                Style="{StaticResource TitleLarge}"
-                               FontSize="18"/>
+                               FontSize="19"/>
                         <Label Grid.Column="1"
                                Text="{Binding SeeAllText}"
                                Style="{StaticResource BodySmall}"
                                TextColor="{StaticResource Primary}"
-                               FontFamily="PoppinsBold"
+                               FontFamily="BeVietnamProBold"
                                VerticalOptions="Center"
                                Margin="0,0,4,0">
                             <Label.GestureRecognizers>
@@ -104,15 +111,15 @@
                                 Margin="-20,0"
                                 IsVisible="{Binding IsLoading, Converter={StaticResource BoolInverterConverter}}">
                         <HorizontalStackLayout x:Name="FeaturedList"
-                                               Spacing="16" Padding="20,8">
+                                               Spacing="18" Padding="20,10">
                             <BindableLayout.ItemsSource>
                                 <Binding Path="FeaturedPOIs"/>
                             </BindableLayout.ItemsSource>
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:POIDto">
                                     <Border Style="{StaticResource PremiumBorder}"
-                                            WidthRequest="240"
-                                            HeightRequest="300"
+                                            WidthRequest="260"
+                                            HeightRequest="340"
                                             Padding="0">
                                         <Border.GestureRecognizers>
                                             <TapGestureRecognizer
@@ -123,63 +130,78 @@
                                         <Grid>
                                             <Image Source="{Binding ImageUrl}"
                                                    Aspect="AspectFill"
-                                                   HeightRequest="300"/>
+                                                   HeightRequest="340"/>
 
-                                            <BoxView VerticalOptions="End" HeightRequest="120">
+                                            <BoxView VerticalOptions="End" HeightRequest="160">
                                                 <BoxView.Background>
                                                     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                                                         <GradientStop Color="Transparent" Offset="0" />
-                                                        <GradientStop Color="#CC0F172A" Offset="1" />
+                                                        <GradientStop Color="#E00F172A" Offset="1" />
                                                     </LinearGradientBrush>
                                                 </BoxView.Background>
                                             </BoxView>
 
                                             <Border BackgroundColor="{StaticResource Accent}"
-                                                    StrokeShape="RoundRectangle 8"
+                                                    StrokeShape="RoundRectangle 10"
                                                     StrokeThickness="0"
-                                                    Padding="8,4"
+                                                    Padding="10,5"
                                                     HorizontalOptions="End"
                                                     VerticalOptions="Start"
-                                                    Margin="12">
-                                                <Label Text="🎧 VOX"
-                                                       Style="{StaticResource LabelCaption}"
-                                                       TextColor="{StaticResource TextPrimary}"
-                                                       FontFamily="PoppinsBold"
-                                                       FontSize="10"/>
+                                                    Margin="14">
+                                                <HorizontalStackLayout Spacing="4">
+                                                    <Label Text="🔊" FontFamily="{x:Null}" FontSize="10" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center"/>
+                                                    <Label Text="VOX"
+                                                           Style="{StaticResource LabelCaption}"
+                                                           TextColor="{StaticResource TextPrimary}"
+                                                           FontFamily="BeVietnamProBold"
+                                                           FontSize="10"
+                                                           VerticalOptions="Center"/>
+                                                </HorizontalStackLayout>
                                             </Border>
 
-                                            <Border BackgroundColor="{StaticResource Primary}"
-                                                    StrokeShape="RoundRectangle 24"
+                                            <Border BackgroundColor="White"
+                                                    StrokeShape="RoundRectangle 28"
                                                     StrokeThickness="0"
-                                                    WidthRequest="48" HeightRequest="48"
+                                                    WidthRequest="54" HeightRequest="54"
                                                     HorizontalOptions="End"
                                                     VerticalOptions="End"
-                                                    Margin="0,0,16,72">
+                                                    Margin="0,0,18,80">
                                                 <Border.Shadow>
-                                                    <Shadow Brush="{StaticResource Primary}" Offset="0,4" Radius="8" Opacity="0.4"/>
+                                                    <Shadow Brush="Black" Offset="0,6" Radius="12" Opacity="0.2"/>
                                                 </Border.Shadow>
                                                 <Border.GestureRecognizers>
                                                     <TapGestureRecognizer
                                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=PlayAudioDirectCommand}"
                                                         CommandParameter="{Binding .}"/>
                                                 </Border.GestureRecognizers>
-                                                <Label Text="▶" FontSize="22" TextColor="White"
-                                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                <Label Text="{StaticResource IconPlay}" 
+                                                       FontFamily="{x:Null}"
+                                                       FontSize="20" 
+                                                       TextColor="{StaticResource Primary}"
+                                                       HorizontalOptions="Center" VerticalOptions="Center"
+                                                       Margin="4,0,0,0"/>
                                             </Border>
 
-                                            <VerticalStackLayout VerticalOptions="End" Padding="16" Spacing="4">
+                                            <VerticalStackLayout VerticalOptions="End" Padding="18" Spacing="6">
                                                 <Label Text="{Binding Shop.Name}"
                                                        Style="{StaticResource TitleLarge}"
                                                        TextColor="White"
+                                                       FontSize="19"
                                                        LineBreakMode="TailTruncation"
                                                        MaxLines="1"/>
-                                                <HorizontalStackLayout Spacing="6">
-                                                    <Label Text="📍" FontSize="12"/>
+                                                <HorizontalStackLayout Spacing="8">
+                                                    <Label Text="{StaticResource IconMapMarker}" 
+                                                           FontFamily="{x:Null}" 
+                                                           FontSize="12"
+                                                           TextColor="#CCFFFFFF"
+                                                           VerticalOptions="Center"/>
                                                     <Label Text="{Binding Location}"
                                                            Style="{StaticResource BodySmall}"
-                                                           TextColor="#BBFFFFFF"
+                                                           TextColor="#CCFFFFFF"
+                                                           FontSize="13"
                                                            LineBreakMode="TailTruncation"
-                                                           MaxLines="1"/>
+                                                           MaxLines="1"
+                                                           VerticalOptions="Center"/>
                                                 </HorizontalStackLayout>
                                             </VerticalStackLayout>
                                         </Grid>
@@ -259,7 +281,7 @@
                                                         <Label Text="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=ListenNowText}"
                                                                Style="{StaticResource LabelCaption}"
                                                                TextColor="White"
-                                                               FontFamily="PoppinsBold"
+                                                               FontFamily="BeVietnamProBold"
                                                                VerticalOptions="Center"/>
                                                     </HorizontalStackLayout>
                                                 </Border>

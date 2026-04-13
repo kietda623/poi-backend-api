@@ -10,6 +10,8 @@ namespace AppUser.Models
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
         public string? AudioUrl { get; set; }
+        public string? MenuImagesUrl { get; set; }
+        public List<MenuDto> Menus { get; set; } = new();
         public List<AppLanguageDto> AvailableLanguages { get; set; } = new();
     }
 }

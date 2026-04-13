@@ -5,6 +5,7 @@ namespace AppUser.Pages;
 public partial class SubscriptionPage : ContentPage
 {
     private readonly SubscriptionViewModel _viewModel;
+    private bool _isInitializing;
 
     public SubscriptionPage(SubscriptionViewModel viewModel)
     {
@@ -15,6 +16,20 @@ public partial class SubscriptionPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.InitializeAsync();
+        if (_isInitializing) return;
+
+        try
+        {
+            _isInitializing = true;
+            await _viewModel.InitializeAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"SubscriptionPage.OnAppearing error: {ex}");
+        }
+        finally
+        {
+            _isInitializing = false;
+        }
     }
 }

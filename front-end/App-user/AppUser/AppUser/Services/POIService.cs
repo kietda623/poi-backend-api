@@ -247,7 +247,36 @@ namespace AppUser.Services
                 });
             }
 
+            poi.ImageUrl = AppConfig.ResolveUrl(api.ImageUrl);
+            poi.MenuImagesUrl = api.MenuImagesUrl;
+            
+            if (!string.IsNullOrEmpty(api.MenuImagesUrl))
+            {
+                poi.MenuImages = api.MenuImagesUrl.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(url => AppConfig.ResolveUrl(url.Trim()))
+                    .ToList();
+            }
+
             poi.AvailableLanguages = api.AvailableLanguages;
+
+            // Map Menus and MenuItems
+            if (api.Menus != null)
+            {
+                poi.Shop.Menus = api.Menus.Select(m => new MenuDto
+                {
+                    Id = m.Id,
+                    Name = m.Name,
+                    Items = m.Items.Select(i => new MenuItemDto
+                    {
+                        Id = i.Id,
+                        Name = i.Name,
+                        Description = i.Description,
+                        Price = i.Price,
+                        IsAvailable = i.IsAvailable,
+                        ImageUrl = AppConfig.ResolveUrl(i.ImageUrl)
+                    }).ToList()
+                }).ToList();
+            }
 
             return poi;
         }

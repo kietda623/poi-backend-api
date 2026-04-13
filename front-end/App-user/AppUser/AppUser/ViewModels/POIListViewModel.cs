@@ -272,7 +272,7 @@ namespace AppUser.ViewModels
             var filtered = string.IsNullOrEmpty(query)
                 ? _allPOIs
                 : _allPOIs.Where(p =>
-                    p.DisplayName(CurrentLanguage).ToLower().Contains(query) ||
+                    p.DisplayName.ToLower().Contains(query) ||
                     (p.Location?.ToLower().Contains(query) ?? false) ||
                     (p.Shop?.Name.ToLower().Contains(query) ?? false)).ToList();
 

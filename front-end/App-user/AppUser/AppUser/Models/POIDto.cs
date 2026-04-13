@@ -15,6 +15,8 @@ namespace AppUser.Models
     {
         public int Id { get; set; }
         public string? ImageUrl { get; set; }
+        public string? MenuImagesUrl { get; set; }
+        public List<string> MenuImages { get; set; } = new();
         public string? Location { get; set; }
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
@@ -30,10 +32,17 @@ namespace AppUser.Models
             => Translations.FirstOrDefault(t => t.LanguageCode == langCode)
             ?? Translations.FirstOrDefault();
 
-        public string DisplayName(string lang = "vi")
-            => GetTranslation(lang)?.Name ?? Shop?.Name ?? $"POI #{Id}";
+        // Helpers: converted to properties for XAML binding
+        public string DisplayName => GetTranslation("vi")?.Name ?? Shop?.Name ?? $"POI #{Id}";
 
-        public string DisplayDescription(string lang = "vi")
-            => GetTranslation(lang)?.Description ?? Shop?.Description ?? string.Empty;
+        public string DisplayDescription
+        {
+            get
+            {
+                var tr = GetTranslation("vi")?.Description;
+                if (!string.IsNullOrWhiteSpace(tr)) return tr;
+                return Shop?.Description ?? string.Empty;
+            }
+        }
     }
 }

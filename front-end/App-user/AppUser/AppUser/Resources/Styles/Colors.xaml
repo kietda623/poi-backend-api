@@ -37,14 +37,31 @@
     <Color x:Key="Border">#E2E8F0</Color>
     <Color x:Key="Divider">#F1F5F9</Color>
 
-    <!-- ===== OVERLAY ===== -->
+    <!-- ===== OVERLAY & GRADIENTS ===== -->
     <Color x:Key="Overlay">#800F172A</Color>
-    <Color x:Key="CardShadow">#154F46E5</Color>
+    <Color x:Key="CardShadow">#0F4F46E5</Color>
+    
+    <LinearGradientBrush x:Key="LushPrimaryGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource Primary}" Offset="0.1" />
+        <GradientStop Color="{StaticResource PrimaryLight}" Offset="1.0" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="LushSecondaryGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource Secondary}" Offset="0.1" />
+        <GradientStop Color="{StaticResource SecondaryLight}" Offset="1.0" />
+    </LinearGradientBrush>
+
+    <RadialGradientBrush x:Key="LaminationGradient" Center="0.5,0.5" Radius="0.8">
+        <GradientStop Color="#40FFFFFF" Offset="0" />
+        <GradientStop Color="Transparent" Offset="1" />
+    </RadialGradientBrush>
 
     <!-- ===== SPECIFIC ===== -->
     <Color x:Key="NavBarBackground">#FFFFFF</Color>
     <Color x:Key="TabBarBackground">#FFFFFF</Color>
     <Color x:Key="PlayerBackground">#0F172A</Color>
     <Color x:Key="PlayerSurface">#1E293B</Color>
+    <Color x:Key="GlassBackground">#40FFFFFF</Color>
+    <Color x:Key="GlassBorder">#60FFFFFF</Color>
 
 </ResourceDictionary>

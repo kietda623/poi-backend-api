@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -179,6 +179,7 @@ public class AppPoisController : ControllerBase
         {
             Id = poi.Id,
             ImageUrl = poi.ImageUrl ?? string.Empty,
+            MenuImagesUrl = poi.MenuImagesUrl,
             Location = poi.Location ?? string.Empty,
             Latitude = poi.Latitude,
             Longitude = poi.Longitude,
@@ -189,16 +190,24 @@ public class AppPoisController : ControllerBase
                     ?? string.Empty)
                 : string.Empty,
             Name = translation.Name,
-            Description = translation.Description ?? string.Empty,
-            Menus = shop.Menus?.Select(m => new AppMenuDto
+            Description = !string.IsNullOrWhiteSpace(translation.Description) ? translation.Description : (shop.Description ?? string.Empty),
+            Menus = shop.Menus?
+                .Where(m => m.IsActive)
+                .OrderBy(m => m.DisplayOrder)
+                .Select(m => new AppMenuDto
             {
                 Id = m.Id,
                 Name = m.Name,
-                Items = m.MenuItems.Select(i => new AppMenuItemDto
+                Items = m.MenuItems
+                    .Where(i => i.IsAvailable)
+                    .OrderBy(i => i.DisplayOrder)
+                    .Select(i => new AppMenuItemDto
                 {
                     Id = i.Id,
                     Name = i.Name,
-                    Price = i.Price
+                    Description = i.Description,
+                    Price = i.Price,
+                    ImageUrl = i.ImageUrl
                 }).ToList()
             }).ToList() ?? new List<AppMenuDto>(),
             AvailableLanguages = new[] { "vi", "en", "zh" }.Select(code =>
@@ -271,7 +280,7 @@ public class AppPoisController : ControllerBase
         var userIdValue = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!int.TryParse(userIdValue, out var userId) || !await _subscriptionAccessService.HasAudioAccessAsync(userId))
         {
-            return StatusCode(403, new { success = false, message = "You need an active audio subscription to listen to narration." });
+            return StatusCode(403, await BuildAudioAccessDeniedPayloadAsync(userId));
         }
 
         shop.ListenCount++;
@@ -328,6 +337,13 @@ public class AppPoisController : ControllerBase
         _context.Reviews.Add(review);
         await _context.SaveChangesAsync();
 
+        // Recalculate denormalized AverageRating after new review
+        var avgRating = await _context.Reviews
+            .Where(r => r.ShopId == shop.Id)
+            .AverageAsync(r => (double)r.Rating);
+        shop.AverageRating = Math.Round(avgRating, 2);
+        await _context.SaveChangesAsync();
+
         return Ok(new { success = true });
     }
 
@@ -340,6 +356,29 @@ public class AppPoisController : ControllerBase
         }
 
         return await _subscriptionAccessService.HasAudioAccessAsync(userId);
+    }
+
+    private async Task<object> BuildAudioAccessDeniedPayloadAsync(int userId)
+    {
+        var info = await _subscriptionAccessService.GetUserSubscriptionInfoAsync(userId);
+        if (info == null)
+        {
+            return new
+            {
+                success = false,
+                message = "Bạn chưa có gói Tour đang hoạt động. Hãy thanh toán Tour Basic hoặc Tour Plus và đồng bộ thanh toán để nghe thuyết minh.",
+                reason = "no_active_subscription"
+            };
+        }
+
+        return new
+        {
+            success = false,
+            message = $"Gói hiện tại ({info.PackageName}) chưa cho phép nghe thuyết minh hoặc đã hết hạn. Vui lòng kiểm tra lại trạng thái gói.",
+            currentPackage = info.PackageName,
+            subscriptionEndDate = info.EndDate,
+            reason = "audio_not_available"
+        };
     }
 
     private static string GetLanguageName(string code) => code.ToLower() switch

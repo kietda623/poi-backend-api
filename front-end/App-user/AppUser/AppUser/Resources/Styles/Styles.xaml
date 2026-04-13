@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
+
+    <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
 
     <!-- ===== PAGE STYLE ===== -->
     <Style TargetType="ContentPage" ApplyToDerivedTypes="True">
@@ -22,80 +25,126 @@
         <Setter Property="Shell.TabBarTitleColor" Value="{StaticResource Primary}" />
     </Style>
     
-    <!-- ===== BORDER STYLES (NEW) ===== -->
+    <!-- ===== ICON SYSTEM (FontAwesome) ===== -->
+    <x:String x:Key="IconHome">🏠</x:String>
+    <x:String x:Key="IconMapMarker">📍</x:String>
+    <x:String x:Key="IconPlay">▶️</x:String>
+    <x:String x:Key="IconSearch">🔍</x:String>
+    <x:String x:Key="IconUser">👤</x:String>
+    <x:String x:Key="IconAudio">🔊</x:String>
+    <x:String x:Key="IconEye">👁️</x:String>
+    <x:String x:Key="IconEyeSlash">🙈</x:String>
+    <x:String x:Key="IconChevronRight">➡️</x:String>
+    <x:String x:Key="IconEmail">📧</x:String>
+
+    <Style x:Key="IconLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="{x:Null}" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="TextColor" Value="{StaticResource Primary}" />
+    </Style>
+
+    <!-- ===== BORDER STYLES ===== -->
     <Style x:Key="PremiumBorder" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 24" />
         <Setter Property="StrokeThickness" Value="0" />
         <Setter Property="Padding" Value="16" />
         <Setter Property="Shadow">
             <Setter.Value>
-                <Shadow Brush="#10000000" Offset="0,10" Radius="20" Opacity="0.8" />
+                <Shadow Brush="{StaticResource Primary}" Offset="0,12" Radius="24" Opacity="0.08" />
             </Setter.Value>
         </Setter>
     </Style>
 
     <Style x:Key="GlassBorder" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="{StaticResource Glass}" />
+        <Setter Property="BackgroundColor" Value="{StaticResource GlassBackground}" />
         <Setter Property="StrokeShape" Value="RoundRectangle 24" />
-        <Setter Property="StrokeThickness" Value="1" />
-        <Setter Property="Stroke" Value="#40FFFFFF" />
+        <Setter Property="StrokeThickness" Value="1.5" />
+        <Setter Property="Stroke" Value="{StaticResource GlassBorder}" />
         <Setter Property="Padding" Value="16" />
     </Style>
 
-    <!-- ===== LABEL STYLES ===== -->
+    <Style x:Key="StepIndicator" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource SurfaceVariant}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        <Setter Property="HeightRequest" Value="40" />
+        <Setter Property="Padding" Value="16,0" />
+        <Setter Property="StrokeThickness" Value="0" />
+    </Style>
+
+    <Style x:Key="AIGlow" TargetType="Border">
+        <Setter Property="StrokeThickness" Value="2" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 24" />
+        <Setter Property="Padding" Value="24" />
+        <Setter Property="Stroke">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="{StaticResource Primary}" Offset="0" />
+                    <GradientStop Color="{StaticResource Secondary}" Offset="1" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="{StaticResource Primary}" Offset="0,0" Radius="20" Opacity="0.15" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ===== LABEL STYLES (Be Vietnam Pro) ===== -->
     <Style x:Key="HeadlineLarge" TargetType="Label">
-        <Setter Property="FontFamily" Value="PoppinsBold" />
-        <Setter Property="FontSize" Value="30" />
+        <Setter Property="FontFamily" Value="BeVietnamProBold" />
+        <Setter Property="FontSize" Value="32" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
-        <Setter Property="LineBreakMode" Value="WordWrap" />
+        <Setter Property="LineHeight" Value="1.2" />
     </Style>
 
     <Style x:Key="HeadlineMedium" TargetType="Label">
-        <Setter Property="FontFamily" Value="PoppinsBold" />
-        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontFamily" Value="BeVietnamProBold" />
+        <Setter Property="FontSize" Value="26" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
     </Style>
 
     <Style x:Key="HeadlineSmall" TargetType="Label">
-        <Setter Property="FontFamily" Value="PoppinsSemiBold" />
-        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontFamily" Value="BeVietnamProSemiBold" />
+        <Setter Property="FontSize" Value="22" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
     </Style>
 
     <Style x:Key="TitleLarge" TargetType="Label">
-        <Setter Property="FontFamily" Value="PoppinsSemiBold" />
-        <Setter Property="FontSize" Value="17" />
+        <Setter Property="FontFamily" Value="BeVietnamProSemiBold" />
+        <Setter Property="FontSize" Value="18" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
     </Style>
 
     <Style x:Key="TitleMedium" TargetType="Label">
-        <Setter Property="FontFamily" Value="PoppinsSemiBold" />
+        <Setter Property="FontFamily" Value="BeVietnamProSemiBold" />
         <Setter Property="FontSize" Value="15" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
     </Style>
 
     <Style x:Key="BodyLarge" TargetType="Label">
-        <Setter Property="FontFamily" Value="Poppins" />
+        <Setter Property="FontFamily" Value="BeVietnamPro" />
         <Setter Property="FontSize" Value="16" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
-        <Setter Property="LineHeight" Value="1.4" />
+        <Setter Property="LineHeight" Value="1.5" />
     </Style>
 
     <Style x:Key="BodyMedium" TargetType="Label">
-        <Setter Property="FontFamily" Value="Poppins" />
+        <Setter Property="FontFamily" Value="BeVietnamPro" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+        <Setter Property="LineHeight" Value="1.4" />
     </Style>
 
     <Style x:Key="BodySmall" TargetType="Label">
-        <Setter Property="FontFamily" Value="Poppins" />
+        <Setter Property="FontFamily" Value="BeVietnamPro" />
         <Setter Property="FontSize" Value="12" />
         <Setter Property="TextColor" Value="{StaticResource TextHint}" />
     </Style>
 
     <Style x:Key="LabelCaption" TargetType="Label">
-        <Setter Property="FontFamily" Value="Poppins" />
+        <Setter Property="FontFamily" Value="BeVietnamProMedium" />
         <Setter Property="FontSize" Value="11" />
         <Setter Property="TextColor" Value="{StaticResource TextHint}" />
         <Setter Property="CharacterSpacing" Value="0.5" />
@@ -103,22 +152,22 @@
 
     <!-- ===== DEFAULT LABEL ===== -->
     <Style TargetType="Label">
-        <Setter Property="FontFamily" Value="Poppins" />
+        <Setter Property="FontFamily" Value="BeVietnamPro" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
     </Style>
 
     <!-- ===== BUTTON STYLES ===== -->
     <Style x:Key="PrimaryButton" TargetType="Button">
-        <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+        <Setter Property="Background" Value="{StaticResource LushPrimaryGradient}" />
         <Setter Property="TextColor" Value="White" />
-        <Setter Property="FontFamily" Value="PoppinsBold" />
-        <Setter Property="FontSize" Value="15" />
-        <Setter Property="CornerRadius" Value="16" />
-        <Setter Property="HeightRequest" Value="54" />
+        <Setter Property="FontFamily" Value="BeVietnamProBold" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="CornerRadius" Value="18" />
+        <Setter Property="HeightRequest" Value="56" />
         <Setter Property="Padding" Value="24,0" />
         <Setter Property="Shadow">
             <Setter.Value>
-                <Shadow Brush="{StaticResource Primary}" Offset="0,8" Radius="15" Opacity="0.4" />
+                <Shadow Brush="{StaticResource Primary}" Offset="0,8" Radius="15" Opacity="0.3" />
             </Setter.Value>
         </Setter>
     </Style>
@@ -126,19 +175,32 @@
     <Style x:Key="SecondaryButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="White" />
         <Setter Property="TextColor" Value="{StaticResource Primary}" />
-        <Setter Property="FontFamily" Value="PoppinsSemiBold" />
-        <Setter Property="FontSize" Value="15" />
-        <Setter Property="CornerRadius" Value="16" />
-        <Setter Property="HeightRequest" Value="54" />
+        <Setter Property="FontFamily" Value="BeVietnamProSemiBold" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="CornerRadius" Value="18" />
+        <Setter Property="HeightRequest" Value="56" />
         <Setter Property="BorderColor" Value="{StaticResource Border}" />
-        <Setter Property="BorderWidth" Value="1" />
+        <Setter Property="BorderWidth" Value="1.5" />
         <Setter Property="Padding" Value="24,0" />
+    </Style>
+
+    <Style x:Key="OutlineButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{StaticResource Primary}" />
+        <Setter Property="FontFamily" Value="BeVietnamProSemiBold" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="HeightRequest" Value="45" />
+        <Setter Property="BorderColor" Value="{StaticResource Primary}" />
+        <Setter Property="BorderWidth" Value="1.5" />
+        <Setter Property="Padding" Value="15,0" />
     </Style>
 
     <Style x:Key="IconButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="TextColor" Value="{StaticResource Primary}" />
-        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontFamily" Value="{x:Null}" />
+        <Setter Property="FontSize" Value="20" />
         <Setter Property="Padding" Value="8" />
         <Setter Property="CornerRadius" Value="24" />
         <Setter Property="WidthRequest" Value="48" />
@@ -147,7 +209,7 @@
 
     <!-- ===== ENTRY STYLES ===== -->
     <Style x:Key="InputEntry" TargetType="Entry">
-        <Setter Property="FontFamily" Value="Poppins" />
+        <Setter Property="FontFamily" Value="BeVietnamPro" />
         <Setter Property="FontSize" Value="15" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
         <Setter Property="PlaceholderColor" Value="{StaticResource TextHint}" />
@@ -187,7 +249,7 @@
 
     <!-- ===== SEARCH BAR ===== -->
     <Style TargetType="SearchBar">
-        <Setter Property="FontFamily" Value="Poppins" />
+        <Setter Property="FontFamily" Value="BeVietnamPro" />
         <Setter Property="PlaceholderColor" Value="{StaticResource TextHint}" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
         <Setter Property="BackgroundColor" Value="Transparent" />

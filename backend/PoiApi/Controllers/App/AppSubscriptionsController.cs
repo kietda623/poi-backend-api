@@ -15,15 +15,18 @@ public class AppSubscriptionsController : ControllerBase
     private readonly AppDbContext _context;
     private readonly PayOsService _payOsService;
     private readonly SubscriptionAccessService _subscriptionAccessService;
+    private readonly ILogger<AppSubscriptionsController> _logger;
 
     public AppSubscriptionsController(
         AppDbContext context,
         PayOsService payOsService,
-        SubscriptionAccessService subscriptionAccessService)
+        SubscriptionAccessService subscriptionAccessService,
+        ILogger<AppSubscriptionsController> logger)
     {
         _context = context;
         _payOsService = payOsService;
         _subscriptionAccessService = subscriptionAccessService;
+        _logger = logger;
     }
 
     [HttpGet("packages")]
@@ -119,13 +122,29 @@ public class AppSubscriptionsController : ControllerBase
             .Where(s => s.Status == SubscriptionConstants.Active || s.Status == SubscriptionConstants.PendingPayment || s.Status == SubscriptionConstants.Pending)
             .FirstOrDefaultAsync();
 
+        bool isUpgrade = false;
         if (existing != null)
         {
-            return BadRequest(new { message = "You already have an active or pending audio package." });
+            // Allow upgrade from TourBasic to TourPlus
+            if (existing.Status == SubscriptionConstants.Active && existing.ServicePackage.Tier == "TourBasic" && package.Tier == "TourPlus")
+            {
+                isUpgrade = true;
+            }
+            else
+            {
+                return BadRequest(new { message = "You already have an active or pending audio package." });
+            }
         }
 
         var now = DateTime.UtcNow;
         var price = ResolvePackagePrice(package, billingCycle);
+        
+        // Special logic for upgrade as per requested
+        if (isUpgrade)
+        {
+            price = 50000; // Fixed upgrade price requested by user
+        }
+
         if (price <= 0)
         {
             return BadRequest(new { message = "Audio package price is invalid." });
@@ -234,7 +253,17 @@ public class AppSubscriptionsController : ControllerBase
                 sub.PaymentLinkId = paymentInfo.Id;
             }
 
-            var effectiveStatus = ResolvePaymentStatus(paymentInfo.Status, paymentInfo.Amount, paymentInfo.AmountPaid);
+            var effectiveStatus = _subscriptionAccessService.ResolveEffectivePayOsState(
+                paymentInfo.Status,
+                paymentInfo.Amount,
+                paymentInfo.AmountPaid);
+            _logger.LogInformation(
+                "Sync payment for app subscription {SubscriptionId}: rawStatus={RawStatus}, amount={Amount}, amountPaid={AmountPaid}, effectiveStatus={EffectiveStatus}",
+                sub.Id,
+                paymentInfo.Status,
+                paymentInfo.Amount,
+                paymentInfo.AmountPaid,
+                effectiveStatus);
             await _subscriptionAccessService.ApplyPayOsPaymentStateAsync(sub, effectiveStatus);
             await _context.SaveChangesAsync();
             await MarkExpiredSubscriptionsAsync(userId);
@@ -347,21 +376,6 @@ public class AppSubscriptionsController : ControllerBase
         return long.Parse($"{seconds}{userId % 1000:D3}");
     }
 
-    private static string? ResolvePaymentStatus(string? paymentStatus, int amount, int amountPaid)
-    {
-        if (!string.IsNullOrWhiteSpace(paymentStatus))
-        {
-            return paymentStatus;
-        }
-
-        if (amount > 0 && amountPaid >= amount)
-        {
-            return "PAID";
-        }
-
-        return null;
-    }
-
     private static string? NormalizeBillingCycle(string? billingCycle)
     {
         if (string.Equals(billingCycle, "Daily", StringComparison.OrdinalIgnoreCase))
@@ -403,6 +417,8 @@ public class AppSubscriptionsController : ControllerBase
         "Basic" => "Daily",
         "Premium" => "Monthly",
         "VIP" => "Yearly",
+        "TourBasic" => "Daily",
+        "TourPlus" => "Daily",
         _ => "Monthly"
     };
 
@@ -411,12 +427,16 @@ public class AppSubscriptionsController : ControllerBase
         "Basic" => "Theo ngay",
         "Premium" => "Theo thang",
         "VIP" => "Theo nam",
+        "TourBasic" => "Theo ngay",
+        "TourPlus" => "Theo ngay",
         _ => "Theo thang"
     };
 
     private static decimal ResolveDisplayPrice(string packageTier, decimal monthlyPrice, decimal yearlyPrice) => packageTier switch
     {
         "VIP" => yearlyPrice > 0 ? yearlyPrice : monthlyPrice,
+        "TourBasic" => monthlyPrice,  // Daily price stored in MonthlyPrice
+        "TourPlus" => monthlyPrice,   // Daily price stored in MonthlyPrice
         _ => monthlyPrice
     };
 
