@@ -6,17 +6,21 @@
 
 <PageTitle>Đăng nhập - FoodStreet</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Small"
-              Class="d-flex align-center justify-center"
-              Style="min-height:100vh; background:linear-gradient(135deg,#1565C0 0%,#1a237e 100%)">
-    <MudPaper Class="pa-8" Elevation="6"
-              Style="width:100%; border-radius:16px; max-width:440px">
-        <MudStack AlignItems="AlignItems.Center" Class="mb-6">
-            <MudAvatar Style="width:72px;height:72px;background:#1565C0" Variant="Variant.Filled">
-                <MudIcon Icon="@Icons.Material.Filled.Storefront" Style="font-size:2.5rem;color:white" />
+<MudContainer MaxWidth="MaxWidth.False" 
+              Class="d-flex align-center justify-center pa-0" 
+              Style="min-height: 100vh; width: 100vw; background: linear-gradient(135deg, #1565C0 0%, #1a237e 100%)">
+
+    <MudPaper Class="pa-8 py-10" Elevation="6" 
+              Style="width:100%; border-radius:16px; max-width:480px; background-color: white">
+        
+        <MudStack AlignItems="AlignItems.Center" Class="mb-5">
+            <MudAvatar Style="width:64px;height:64px;background:#2E7D32">
+                <MudIcon Icon="@Icons.Material.Filled.PersonAdd" Style="font-size:2rem;color:white" />
             </MudAvatar>
-            <MudText Typo="Typo.h5" Style="font-weight:700; margin-top:8px">FoodStreet</MudText>
-            <MudText Typo="Typo.body2" Color="Color.Secondary">Đăng nhập vào tài khoản của bạn</MudText>
+            <MudText Typo="Typo.h5" Style="font-weight:700; margin-top:8px">Đăng ký Seller</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                Tạo tài khoản để bắt đầu bán hàng
+            </MudText>
         </MudStack>
 
         @if (!string.IsNullOrEmpty(_error))
