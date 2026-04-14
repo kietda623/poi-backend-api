@@ -33,12 +33,12 @@
                             HorizontalOptions="Start" TextColor="White" FontSize="24"
                             Command="{Binding GoBackToLoginCommand}" />
                     
-                    <Label Text="Tạo tài khoản"
+                    <Label Text="Create an account"
                            Style="{StaticResource HeadlineMedium}"
                            TextColor="White"
                            HorizontalOptions="Center"
                            FontFamily="BeVietnamProBold"/>
-                    <Label Text="Tham gia cộng đồng FoodTour"
+                    <Label Text="Join the FoodTour community"
                            Style="{StaticResource BodyMedium}"
                            TextColor="#E8FFFFFF"
                            HorizontalOptions="Center"
@@ -73,14 +73,14 @@
                     </Border>
 
                     <!-- Full Name Field -->
-                    <Label Text="Họ và Tên" Style="{StaticResource TitleMedium}" Margin="0,0,0,6"/>
+                    <Label Text="Full Name" Style="{StaticResource TitleMedium}" Margin="0,0,0,6"/>
                     <Border BackgroundColor="{StaticResource SurfaceVariant}"
                             StrokeShape="RoundRectangle 12" StrokeThickness="1.5" Stroke="{StaticResource Border}"
                             Padding="16,4" Margin="0,0,0,16">
                         <Grid ColumnDefinitions="*,Auto">
                             <Entry Grid.Column="0"
                                    Style="{StaticResource InputEntry}"
-                                   Placeholder="Như Nguyễn"
+                                   Placeholder="John Doe"
                                    Text="{Binding FullName}"
                                    ReturnType="Next"/>
                             <Label Grid.Column="1" Text="👤" FontSize="18" VerticalOptions="Center"/>
@@ -104,14 +104,14 @@
                     </Border>
 
                     <!-- Password Field -->
-                    <Label Text="Mật khẩu" Style="{StaticResource TitleMedium}" Margin="0,0,0,6"/>
+                    <Label Text="Password" Style="{StaticResource TitleMedium}" Margin="0,0,0,6"/>
                     <Border BackgroundColor="{StaticResource SurfaceVariant}"
                             StrokeShape="RoundRectangle 12" StrokeThickness="1.5" Stroke="{StaticResource Border}"
                             Padding="16,4" Margin="0,0,0,16">
                         <Grid ColumnDefinitions="*,Auto">
                             <Entry Grid.Column="0"
                                    Style="{StaticResource InputEntry}"
-                                   Placeholder="Ít nhất 6 ký tự"
+                                   Placeholder="At least 6 characters"
                                    Text="{Binding Password}"
                                    IsPassword="{Binding IsPasswordVisible, Converter={StaticResource BoolInverterConverter}}"
                                    ReturnType="Next" />
@@ -121,14 +121,14 @@
                     </Border>
 
                     <!-- Confirm Password Field -->
-                    <Label Text="Xác nhận mật khẩu" Style="{StaticResource TitleMedium}" Margin="0,0,0,6"/>
+                    <Label Text="Confirm password" Style="{StaticResource TitleMedium}" Margin="0,0,0,6"/>
                     <Border BackgroundColor="{StaticResource SurfaceVariant}"
                             StrokeShape="RoundRectangle 12" StrokeThickness="1.5" Stroke="{StaticResource Border}"
                             Padding="16,4" Margin="0,0,0,28">
                         <Grid ColumnDefinitions="*,Auto">
                             <Entry Grid.Column="0"
                                    Style="{StaticResource InputEntry}"
-                                   Placeholder="Nhập lại mật khẩu"
+                                   Placeholder="Re-enter password"
                                    Text="{Binding ConfirmPassword}"
                                    IsPassword="{Binding IsPasswordVisible, Converter={StaticResource BoolInverterConverter}}"
                                    ReturnType="Done"
@@ -138,7 +138,7 @@
                     </Border>
 
                     <!-- Register Button -->
-                    <Button Text="Đăng ký"
+                    <Button Text="Sign Up"
                             Command="{Binding RegisterCommand}"
                             Style="{StaticResource PrimaryButton}"
                             IsEnabled="{Binding IsLoading, Converter={StaticResource BoolInverterConverter}}"
@@ -158,8 +158,8 @@
                                  Padding="28,20"
                                  BackgroundColor="{StaticResource Surface}">
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="4">
-                    <Label Text="Đã có tài khoản?" Style="{StaticResource BodyMedium}" />
-                    <Label Text="Đăng nhập" TextColor="{StaticResource Primary}" Style="{StaticResource TitleMedium}">
+                    <Label Text="Already have an account?" Style="{StaticResource BodyMedium}" />
+                    <Label Text="Sign In" TextColor="{StaticResource Primary}" Style="{StaticResource TitleMedium}">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoBackToLoginCommand}" />
                         </Label.GestureRecognizers>

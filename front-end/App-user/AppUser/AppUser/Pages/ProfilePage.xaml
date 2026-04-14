@@ -107,6 +107,9 @@
                                 StrokeShape="RoundRectangle 16"
                                 StrokeThickness="0"
                                 Padding="12,16">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ChangeLanguageCommand}"/>
+                            </Border.GestureRecognizers>
                             <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
                                 <Label Text="{Binding CurrentLanguageDisplay}"
                                        Style="{StaticResource TitleLarge}"
@@ -142,7 +145,7 @@
                                 Padding="16,14">
                             <Grid ColumnDefinitions="Auto,*,Auto">
                                 <Grid.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding ToggleLanguageCommand}"/>
+                                    <TapGestureRecognizer Command="{Binding ChangeLanguageCommand}"/>
                                 </Grid.GestureRecognizers>
                                 <Border Grid.Column="0"
                                         BackgroundColor="{StaticResource SurfaceVariant}"

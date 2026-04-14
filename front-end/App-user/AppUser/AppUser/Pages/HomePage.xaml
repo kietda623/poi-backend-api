@@ -46,16 +46,16 @@
                                 Stroke="#40FFFFFF"
                                 Padding="14,8"
                                 VerticalOptions="Center">
-                            <HorizontalStackLayout Spacing="6">
-                                <Label Text="🌐" FontFamily="{x:Null}" TextColor="White" FontSize="12" VerticalOptions="Center"/>
-                                <Button Text="{Binding CurrentLanguage}"
-                                        Command="{Binding ToggleLanguageCommand}"
-                                        BackgroundColor="Transparent"
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ChangeLanguageCommand}"/>
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="🌐" FontFamily="{x:Null}" TextColor="White" FontSize="14" VerticalOptions="Center"/>
+                                <Label Text="{Binding CurrentLanguage}"
                                         TextColor="White"
                                         FontFamily="BeVietnamProBold"
-                                        FontSize="13"
-                                        Padding="0"
-                                        HeightRequest="24"/>
+                                        FontSize="14"
+                                        VerticalOptions="Center"/>
                             </HorizontalStackLayout>
                         </Border>
                     </Grid>

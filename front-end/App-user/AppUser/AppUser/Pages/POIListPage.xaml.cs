@@ -26,6 +26,11 @@ namespace AppUser.Pages
                     LoadMapHtml();
                 }
             };
+
+            if (_vm.IsMapView && !_isMapLoaded)
+            {
+                LoadMapHtml();
+            }
         }
 
         private async void LoadMapHtml()

@@ -4,7 +4,7 @@
              xmlns:vm="clr-namespace:AppUser.ViewModels"
              x:Class="AppUser.Pages.ChatPage"
              x:DataType="vm:ChatViewModel"
-             Title="Thổ Địa Vĩnh Khánh"
+             Title="{Binding PageTitle}"
              BackgroundColor="White">
 
 
@@ -28,10 +28,10 @@
                        TextColor="{StaticResource Primary}"/>
             </Border>
             <VerticalStackLayout Grid.Column="1" Margin="15,0,0,0" VerticalOptions="Center">
-                <Label Text="Thổ Địa Vĩnh Khánh" TextColor="White" Style="{StaticResource TitleLarge}"/>
+                <Label Text="{Binding PageTitle}" TextColor="White" Style="{StaticResource TitleLarge}"/>
                 <HorizontalStackLayout Spacing="6">
                     <Ellipse Fill="#4ADE80" WidthRequest="8" HeightRequest="8" VerticalOptions="Center"/>
-                    <Label Text="Đang trực tuyến" TextColor="#CCFFFFFF" FontSize="12" FontFamily="BeVietnamProMedium"/>
+                    <Label Text="{Binding OnlineStatus}" TextColor="#CCFFFFFF" FontSize="12" FontFamily="BeVietnamProMedium"/>
                 </HorizontalStackLayout>
             </VerticalStackLayout>
         </Grid>
@@ -63,7 +63,7 @@
         <Grid Grid.Row="2" ColumnDefinitions="*, auto" Padding="16,12" BackgroundColor="White">
             <Border StrokeShape="RoundRectangle 24" Padding="18,0" HeightRequest="52" 
                     StrokeThickness="1" Stroke="{StaticResource Border}" BackgroundColor="{StaticResource Background}">
-                <Entry Placeholder="Hỏi Thổ Địa cái gì hay ho..." 
+                <Entry Placeholder="{Binding InputPlaceholder}" 
                        Text="{Binding UserMessage}"
                        Style="{StaticResource InputEntry}"
                        VerticalOptions="Center"
@@ -89,7 +89,7 @@
                 </Border.Shadow>
                 <HorizontalStackLayout Spacing="8">
                     <ActivityIndicator IsRunning="True" Color="{StaticResource Primary}" HeightRequest="18" WidthRequest="18"/>
-                    <Label Text="Thổ Địa đang gõ..." Style="{StaticResource BodySmall}" VerticalOptions="Center"/>
+                    <Label Text="{Binding TypingIndicator}" Style="{StaticResource BodySmall}" VerticalOptions="Center"/>
                 </HorizontalStackLayout>
             </Border>
         </Grid>
@@ -100,11 +100,11 @@
                 <VerticalStackLayout Spacing="24" HorizontalOptions="Center">
                     <Label Text="🤖" FontFamily="{x:Null}" FontSize="72" 
                            TextColor="{StaticResource Primary}" HorizontalOptions="Center" Opacity="0.8"/>
-                    <Label Text="Trò chuyện với Thổ Địa" Style="{StaticResource HeadlineSmall}" HorizontalOptions="Center"/>
-                    <Label Text="Tính năng Chatbot AI dành cho người dùng Tour Basic hoặc Tour Plus để tư vấn ẩm thực đường phố." 
+                    <Label Text="{Binding AccessDeniedTitle}" Style="{StaticResource HeadlineSmall}" HorizontalOptions="Center"/>
+                    <Label Text="{Binding AccessDeniedDescription}" 
                            HorizontalTextAlignment="Center"
                            Style="{StaticResource BodyMedium}"/>
-                    <Button Text="Nâng cấp ngay" 
+                    <Button Text="{Binding UpgradeButtonText}" 
                             Command="{Binding UpgradeCommand}"
                             Style="{StaticResource PrimaryButton}"/>
                 </VerticalStackLayout>

@@ -18,10 +18,5 @@ namespace AppUser.Pages
             base.OnAppearing();
             _vm.Initialize();
         }
-
-        private void OnLanguageToggled(object sender, ToggledEventArgs e)
-        {
-            _vm.ToggleLanguageCommand.Execute(null);
-        }
     }
 }

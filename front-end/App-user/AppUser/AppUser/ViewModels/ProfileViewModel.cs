@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AppUser.Models;
 using AppUser.Services;
@@ -21,7 +21,7 @@ namespace AppUser.ViewModels
         private int totalListened = 0;
 
         [ObservableProperty]
-        private string currentLanguageDisplay = "🇻🇳 Tiếng Việt";
+        private string currentLanguageDisplay = "🇬🇧 English";
 
         [ObservableProperty]
         private string pageTitle = "👤 Hồ sơ của tôi";
@@ -205,15 +205,38 @@ namespace AppUser.ViewModels
         }
 
         [RelayCommand]
-        private void ToggleLanguage()
+        private async Task ChangeLanguageAsync()
         {
-            var newLang = _audioService.CurrentLanguage switch
+            // Show ActionSheet (Dropdown-like menu from bottom)
+            string[] languages = { "🇻🇳 Tiếng Việt", "🇬🇧 English", "🇨🇳 中文" };
+            string title = _audioService.CurrentLanguage switch
             {
-                "vi" => "en",
-                "en" => "zh",
-                _ => "vi"
+                "en" => "Select Language",
+                "zh" => "选择语言",
+                _ => "Chọn ngôn ngữ"
             };
-            _audioService.SetLanguage(newLang);
+            string cancel = _audioService.CurrentLanguage switch
+            {
+                "en" => "Cancel",
+                "zh" => "取消",
+                _ => "Hủy"
+            };
+
+            var action = await Shell.Current.DisplayActionSheet(title, cancel, null, languages);
+
+            if (action == "🇻🇳 Tiếng Việt")
+            {
+                _audioService.SetLanguage("vi");
+            }
+            else if (action == "🇬🇧 English")
+            {
+                _audioService.SetLanguage("en");
+            }
+            else if (action == "🇨🇳 中文")
+            {
+                _audioService.SetLanguage("zh");
+            }
+
             UpdateLanguageDisplay();
             UpdateLocalizedTexts();
         }

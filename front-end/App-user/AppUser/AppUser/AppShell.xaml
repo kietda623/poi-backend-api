@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Shell
     x:Class="AppUser.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -22,7 +22,7 @@
         <ShellContent
             x:Name="HomeTab"
             Route="home"
-            Title="Trang chủ"
+            Title="Home"
             ContentTemplate="{DataTemplate pages:HomePage}">
             <ShellContent.Icon>
                 <FontImageSource FontFamily="{x:Null}" Glyph="🏠" Size="20" />
@@ -32,7 +32,7 @@
         <ShellContent
             x:Name="ExploreTab"
             Route="poiList"
-            Title="Khám phá"
+            Title="Explore"
             ContentTemplate="{DataTemplate pages:POIListPage}">
             <ShellContent.Icon>
                 <FontImageSource FontFamily="{x:Null}" Glyph="🔍" Size="20" />
@@ -62,7 +62,7 @@
         <ShellContent
             x:Name="ProfileTab"
             Route="profile"
-            Title="Hồ sơ"
+            Title="Profile"
             ContentTemplate="{DataTemplate pages:ProfilePage}">
             <ShellContent.Icon>
                 <FontImageSource FontFamily="{x:Null}" Glyph="👤" Size="20" />

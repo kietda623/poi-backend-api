@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AppUser.Models;
 using AppUser.Services;
@@ -26,7 +26,7 @@ namespace AppUser.ViewModels
         private string userEmail = string.Empty;
 
         [ObservableProperty]
-        private string currentLanguage = "vi";
+        private string currentLanguage = "en";
 
         [ObservableProperty]
         private string pageTitle = "Khám phá ẩm thực";
@@ -160,19 +160,41 @@ namespace AppUser.ViewModels
         }
 
         [RelayCommand]
-        private async Task ToggleLanguageAsync()
+        private async Task ChangeLanguageAsync()
         {
-            CurrentLanguage = CurrentLanguage switch
-            {
-                "vi" => "en",
-                "en" => "zh",
-                _ => "vi"
+            string currentDisplay = CurrentLanguage switch {
+                "vi" => "🇻🇳 Tiếng Việt",
+                "en" => "🇬🇧 English",
+                "zh" => "🇨🇳 中文",
+                _ => "🇬🇧 English"
             };
 
-            _audioService.SetLanguage(CurrentLanguage);
-            UpdateGreeting();
-            UpdateLocalizedTexts();
-            await LoadFeaturedPOIsAsync();
+            string title = CurrentLanguage == "vi" ? "Chọn Ngôn Ngữ" : 
+                           (CurrentLanguage == "en" ? "Select Language" : "选择语言");
+            string cancel = CurrentLanguage == "vi" ? "Hủy" : 
+                            (CurrentLanguage == "en" ? "Cancel" : "取消");
+
+            var action = await Shell.Current.DisplayActionSheet(
+                $"{title} (Current: {currentDisplay})", 
+                cancel, null, 
+                "🇻🇳 Tiếng Việt", "🇬🇧 English", "🇨🇳 中文");
+
+            string newLang = action switch
+            {
+                "🇻🇳 Tiếng Việt" => "vi",
+                "🇬🇧 English" => "en",
+                "🇨🇳 中文" => "zh",
+                _ => CurrentLanguage
+            };
+
+            if (newLang != CurrentLanguage && !string.IsNullOrEmpty(newLang) && newLang != cancel)
+            {
+                CurrentLanguage = newLang;
+                _audioService.SetLanguage(CurrentLanguage);
+                UpdateGreeting();
+                UpdateLocalizedTexts();
+                await LoadFeaturedPOIsAsync();
+            }
         }
 
         private void UpdateGreeting()
