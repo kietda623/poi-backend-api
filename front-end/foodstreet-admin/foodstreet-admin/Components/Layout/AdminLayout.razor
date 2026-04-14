@@ -61,35 +61,40 @@
 
             <div class="flex-grow-1" style="overflow-y: auto; overflow-x: hidden;">
                 <MudNavMenu Class="pa-1">
-                    <MudNavLink Href="/admin/dashboard" Match="NavLinkMatch.All"
-                                Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+    <MudNavLink Href="/admin/dashboard" Match="NavLinkMatch.All"
+                Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
 
-                    <MudNavGroup Title="Quản lý" Icon="@Icons.Material.Filled.ManageAccounts" @bind-Expanded="_manageExpanded">
-                        <MudNavLink Href="/admin/manage-user" Icon="@Icons.Material.Filled.Group">Tất cả Người dùng</MudNavLink>
-                        <MudNavLink Href="/admin/manage-seller" Icon="@Icons.Material.Filled.SupervisorAccount">
-                            <MudStack Row="true" AlignItems="AlignItems.Center">
-                                <MudText>Người bán (Seller)</MudText>
-                                @if (_pendingCount > 0)
-                                {
-                                    <MudChip T="string" Size="Size.Small" Color="Color.Warning"
-                                             Style="height:16px;font-size:10px;min-width:0;padding:0 6px">
-                                        @_pendingCount
-                                    </MudChip>
-                                }
-                            </MudStack>
-                        </MudNavLink>
-                        <MudNavLink Href="/admin/manage-store" Icon="@Icons.Material.Filled.Storefront">Gian hàng (Store)</MudNavLink>
-                        <MudNavLink Href="/admin/manage-poi" Icon="@Icons.Material.Filled.Place">Điểm tham quan (POI)</MudNavLink>
-                        <MudNavLink Href="/admin/manage-customer" Icon="@Icons.Material.Filled.People">Khách tham quan</MudNavLink>
-                        <MudNavLink Href="/admin/manage-category" Icon="@Icons.Material.Filled.Category">Danh mục quán</MudNavLink>
-                        <MudNavLink Href="/admin/manage-service-package" Icon="@Icons.Material.Filled.Inventory2">Gói dịch vụ & đăng ký</MudNavLink>
-                        <MudNavLink Href="/admin/manage-language" Icon="@Icons.Material.Filled.LibraryMusic">File Audio Gian Hàng</MudNavLink>
-                        <MudNavLink Href="/admin/usage-history" Icon="@Icons.Material.Filled.History">Lịch sử nghe</MudNavLink>
-                    </MudNavGroup>
+    <MudNavGroup Title="Quản lý Người dùng" Icon="@Icons.Material.Filled.People" Expanded="true">
+        <MudNavLink Href="/admin/manage-user" Icon="@Icons.Material.Filled.Group" Class="pl-6">Tất cả Người dùng</MudNavLink>
+        <MudNavLink Href="/admin/manage-seller" Icon="@Icons.Material.Filled.SupervisorAccount" Class="pl-6">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudText>Người bán (Seller)</MudText>
+                @if (_pendingCount > 0)
+                {
+                    <MudChip T="string" Size="Size.Small" Color="Color.Warning"
+                             Style="height:16px;font-size:10px;min-width:0;padding:0 6px">
+                        @_pendingCount
+                    </MudChip>
+                }
+            </MudStack>
+        </MudNavLink>
+        <MudNavLink Href="/admin/manage-customer" Icon="@Icons.Material.Filled.PersonOutline" Class="pl-6">Khách tham quan</MudNavLink>
+    </MudNavGroup>
 
-                    <MudNavLink Href="/admin/stats" Icon="@Icons.Material.Filled.BarChart">Thống kê doanh thu</MudNavLink>
-                    <MudNavLink Href="/admin/settings" Icon="@Icons.Material.Filled.Settings">Cài đặt hệ thống</MudNavLink>
-                </MudNavMenu>
+    <MudNavGroup Title="Quản lý Dịch vụ" Icon="@Icons.Material.Filled.Storefront" Expanded="true">
+        <MudNavLink Href="/admin/manage-store" Icon="@Icons.Material.Filled.Store" Class="pl-6">Gian hàng (Store)</MudNavLink>
+        <MudNavLink Href="/admin/manage-poi" Icon="@Icons.Material.Filled.Place" Class="pl-6">Điểm tham quan (POI)</MudNavLink>
+        <MudNavLink Href="/admin/manage-category" Icon="@Icons.Material.Filled.Category" Class="pl-6">Danh mục quán</MudNavLink>
+        <MudNavLink Href="/admin/manage-service-package" Icon="@Icons.Material.Filled.Inventory2" Class="pl-6">Gói dịch vụ & đăng ký</MudNavLink>
+        <MudNavLink Href="/admin/manage-language" Icon="@Icons.Material.Filled.LibraryMusic" Class="pl-6">File Audio Gian Hàng</MudNavLink>
+        <MudNavLink Href="/admin/usage-history" Icon="@Icons.Material.Filled.History" Class="pl-6">Lịch sử nghe</MudNavLink>
+    </MudNavGroup>
+
+    <MudDivider Class="my-2" />
+
+    <MudNavLink Href="/admin/stats" Icon="@Icons.Material.Filled.BarChart">Thống kê doanh thu</MudNavLink>
+    <MudNavLink Href="/admin/settings" Icon="@Icons.Material.Filled.Settings">Cài đặt hệ thống</MudNavLink>
+</MudNavMenu>
             </div>
 
             <div class="pa-2">
