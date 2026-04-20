@@ -19,10 +19,9 @@ namespace AppUser.Pages
             _vm.Initialize();
         }
 
-        // Floating chatbot bubble tap handler
-        private async void OnChatbotTapped(object sender, EventArgs e)
+        private void OnLanguageToggled(object sender, ToggledEventArgs e)
         {
-            await Shell.Current.GoToAsync("chat");
+            _vm.ToggleLanguageCommand.Execute(null);
         }
     }
 }
