@@ -12,11 +12,8 @@
     Shell.TabBarForegroundColor="{StaticResource Primary}"
     Shell.TabBarUnselectedColor="{StaticResource TextHint}">
 
-    <ShellContent
-        x:Name="LoginContent"
-        Route="login"
-        ContentTemplate="{DataTemplate pages:LoginPage}"
-        Shell.TabBarIsVisible="False" />
+    <!-- Login không còn là trang mặc định - App mở thẳng vào Home (Guest Access) -->
+    <!-- LoginPage vẫn được đăng ký như route trong AppShell.xaml.cs -->
 
     <TabBar x:Name="MainTabBar">
         <ShellContent
@@ -39,13 +36,17 @@
             </ShellContent.Icon>
         </ShellContent>
 
+        <!-- ========================================== -->
+        <!--  🟠 CENTER FAB: Scan QR (Tab placeholder) -->
+        <!--  Tapping this tab triggers QrScannerPage   -->
+        <!-- ========================================== -->
         <ShellContent
-            x:Name="ChatTab"
-            Route="chat"
-            Title="Chatbot"
-            ContentTemplate="{DataTemplate pages:ChatPage}">
+            x:Name="ScanQrTab"
+            Route="scanQrPlaceholder"
+            Title="Scan QR"
+            ContentTemplate="{DataTemplate pages:ScanQrPlaceholderPage}">
             <ShellContent.Icon>
-                <FontImageSource FontFamily="{x:Null}" Glyph="🤖" Size="20" />
+                <FontImageSource FontFamily="{x:Null}" Glyph="📷" Size="28" />
             </ShellContent.Icon>
         </ShellContent>
 

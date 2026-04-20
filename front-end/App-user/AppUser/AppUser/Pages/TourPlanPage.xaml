@@ -174,5 +174,31 @@
                 <Button Text="{Binding UpgradeButtonText}" Command="{Binding UpgradeCommand}" Style="{StaticResource PrimaryButton}" />
             </VerticalStackLayout>
         </Grid>
+        <!-- 🤖 Floating Chatbot Bubble -->
+        <Border WidthRequest="58"
+                HeightRequest="58"
+                StrokeShape="RoundRectangle 29"
+                StrokeThickness="0"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="0,0,20,28">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#FF6B35" Offset="0.0" />
+                    <GradientStop Color="#FF4500" Offset="1.0" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Shadow>
+                <Shadow Brush="#FF6B35" Offset="0,6" Radius="14" Opacity="0.5"/>
+            </Border.Shadow>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnChatbotTapped"/>
+            </Border.GestureRecognizers>
+            <Label Text="🤖"
+                   FontSize="26"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   FontFamily="{x:Null}"/>
+        </Border>
     </Grid>
 </ContentPage>

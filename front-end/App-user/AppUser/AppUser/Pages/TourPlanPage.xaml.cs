@@ -45,4 +45,10 @@ public partial class TourPlanPage : ContentPage
             _isInitializing = false;
         }
     }
+
+    // Floating chatbot bubble tap handler
+    private async void OnChatbotTapped(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("chat");
+    }
 }

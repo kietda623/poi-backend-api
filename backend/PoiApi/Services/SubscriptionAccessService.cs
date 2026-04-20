@@ -32,6 +32,61 @@ public class SubscriptionAccessService
             .FirstOrDefaultAsync();
     }
 
+    // === CÁC METHOD MỚI CHO GUEST (DeviceId-based) ===
+
+    /// <summary>
+    /// Tìm subscription đang hoạt động dựa trên DeviceId (cho Guest).
+    /// </summary>
+    public async Task<Subscription?> GetActiveSubscriptionByDeviceAsync(string deviceId, string audience)
+    {
+        if (string.IsNullOrWhiteSpace(deviceId)) return null;
+
+        var now = DateTime.UtcNow;
+        return await _context.Subscriptions
+            .Include(s => s.ServicePackage)
+            .Where(s =>
+                s.DeviceId == deviceId &&
+                s.UserId == null && // Chỉ tìm subscription của Guest (không có UserId)
+                s.Status == SubscriptionConstants.Active &&
+                s.EndDate > now &&
+                s.ServicePackage.Audience == audience)
+            .OrderByDescending(s => s.ActivatedAt.HasValue)
+            .ThenByDescending(s => s.ActivatedAt)
+            .ThenByDescending(s => s.EndDate)
+            .ThenByDescending(s => s.CreatedAt)
+            .FirstOrDefaultAsync();
+    }
+
+    /// <summary>
+    /// Kiểm tra Guest có quyền nghe audio dựa trên DeviceId.
+    /// </summary>
+    public async Task<bool> HasAudioAccessByDeviceAsync(string deviceId)
+    {
+        var sub = await GetActiveSubscriptionByDeviceAsync(deviceId, RoleConstants.User);
+        return sub?.ServicePackage.AllowAudioAccess == true;
+    }
+
+    /// <summary>
+    /// Lấy thông tin subscription của Guest dựa trên DeviceId.
+    /// </summary>
+    public async Task<UserSubscriptionInfo?> GetSubscriptionInfoByDeviceAsync(string deviceId)
+    {
+        var sub = await GetActiveSubscriptionByDeviceAsync(deviceId, RoleConstants.User);
+        if (sub == null) return null;
+        return new UserSubscriptionInfo
+        {
+            Tier = sub.ServicePackage.Tier,
+            PackageName = sub.ServicePackage.Name,
+            EndDate = sub.EndDate,
+            AllowAudio = sub.ServicePackage.AllowAudioAccess,
+            AllowTinder = sub.ServicePackage.AllowTinderAccess,
+            AllowAiPlan = sub.ServicePackage.AllowAiPlanAccess,
+            AllowChatbot = sub.ServicePackage.AllowChatbotAccess
+        };
+    }
+
+    // === END GUEST METHODS ===
+
     public async Task<bool> HasAudioAccessAsync(int userId)
     {
         var sub = await GetActiveSubscriptionAsync(userId, RoleConstants.User);

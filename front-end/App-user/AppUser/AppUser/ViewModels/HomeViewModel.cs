@@ -69,22 +69,41 @@ namespace AppUser.ViewModels
 
         public async Task InitializeAsync()
         {
-            if (_authService.IsLoggedIn)
+            // Tự động init Guest session nếu chưa đăng nhập
+            if (!_authService.IsLoggedIn)
+            {
+                await _authService.InitGuestSessionAsync();
+            }
+            else
             {
                 var (success, _) = await _authService.RefreshMeAsync();
                 if (!success)
                 {
                     await _authService.LogoutAsync();
-                    await Shell.Current.GoToAsync("//login");
-                    return;
+                    // Không redirect về login nữa - vẫn ở Home với Guest mode
+                    await _authService.InitGuestSessionAsync();
                 }
             }
 
             CurrentLanguage = _audioService.CurrentLanguage;
             UpdateGreeting();
             UpdateLocalizedTexts();
-            UserEmail = _authService.CurrentUser?.Email ?? string.Empty;
+            UserEmail = _authService.CurrentUser?.Email ?? (_authService.IsGuest ? "Khách tham quan" : string.Empty);
             await LoadFeaturedPOIsAsync();
+        }
+
+        // Navigate đến trang quét QR Code
+        [RelayCommand]
+        private async Task ScanQrAsync()
+        {
+            await Shell.Current.GoToAsync("qrScanner");
+        }
+
+        // Mở Chatbot từ floating bubble
+        [RelayCommand]
+        private async Task OpenChatAsync()
+        {
+            await Shell.Current.GoToAsync("chat");
         }
 
         [RelayCommand]
@@ -124,16 +143,13 @@ namespace AppUser.ViewModels
         {
             if (poi == null) return;
 
-            if (!_authService.IsLoggedIn)
-            {
-                await Shell.Current.DisplayAlert("Dang nhap", "Ban can dang nhap de dang ky goi nghe thuyet minh.", OkText);
-                await Shell.Current.GoToAsync("//login");
-                return;
-            }
-
+            // Guest hoặc User chưa mua gói: hướng dẫn mua gói (không bắt đăng nhập)
             if (!await _subscriptionService.CanAccessAudioAsync())
             {
-                var goToPackages = await Shell.Current.DisplayAlert("Can goi audio", "Ban can goi audio dang hoat dong de nghe thuyet minh.", "Dang ky goi", "De sau");
+                var goToPackages = await Shell.Current.DisplayAlert(
+                    "Cần gói Tour",
+                    "Bạn cần mua gói Tour Basic hoặc Tour Plus để nghe thuyết minh.",
+                    "Đăng ký gói", "Để sau");
                 if (goToPackages)
                 {
                     await Shell.Current.GoToAsync("subscriptionPackages");

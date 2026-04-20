@@ -3,6 +3,7 @@ using AppUser.ViewModels;
 using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
+using ZXing.Net.Maui.Controls;
 
 namespace AppUser
 {
@@ -15,6 +16,7 @@ namespace AppUser
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
                 .UseMauiCommunityToolkitMediaElement()
+                .UseBarcodeReader() // ZXing.Net.Maui cho quét QR Code
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -30,6 +32,7 @@ namespace AppUser
 
             // Register Services
             builder.Services.AddSingleton<HttpClient>();
+            builder.Services.AddSingleton<GuestService>(); // Guest session service
             builder.Services.AddSingleton<AuthService>();
             builder.Services.AddSingleton<POIService>();
             builder.Services.AddSingleton<AudioService>();
@@ -50,6 +53,7 @@ namespace AppUser
             builder.Services.AddTransient<TinderViewModel>();
             builder.Services.AddTransient<ChatViewModel>();
             builder.Services.AddTransient<TourPlanViewModel>();
+            builder.Services.AddTransient<QrScannerViewModel>(); // QR scanner
 
             // Register Pages
             builder.Services.AddTransient<Pages.LoginPage>();
@@ -64,6 +68,8 @@ namespace AppUser
             builder.Services.AddTransient<Pages.TinderPage>();
             builder.Services.AddTransient<Pages.ChatPage>();
             builder.Services.AddTransient<Pages.TourPlanPage>();
+            builder.Services.AddTransient<Pages.QrScannerPage>(); // QR scanner page
+            builder.Services.AddTransient<Pages.ScanQrPlaceholderPage>(); // Center FAB tab placeholder
 
 #if DEBUG
             builder.Logging.AddDebug();

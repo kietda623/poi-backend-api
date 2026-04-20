@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using foodstreet_admin.Models;
 
 namespace foodstreet_admin.Services;
@@ -129,6 +129,24 @@ public class StoreService
     public async Task<bool> DeleteStoreAsync(int id)
     {
         return await _api.DeleteAsync($"owner/shops/{id}");
+    }
+
+    /// <summary>Calls POST /api/owner/shops/{id}/regenerate-qr and returns the new QrCodeUrl or null on failure.</summary>
+    public async Task<string?> RegenerateQrCodeAsync(int storeId)
+    {
+        try
+        {
+            var response = await _api.PostAsync<object, JsonElement>($"owner/shops/{storeId}/regenerate-qr", new { });
+            if (response.ValueKind != JsonValueKind.Undefined && response.TryGetProperty("qrCodeUrl", out var urlProp))
+            {
+                return urlProp.GetString();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "RegenerateQrCodeAsync failed for store {StoreId}", storeId);
+        }
+        return null;
     }
 
     public async Task<bool> ApproveStoreAsync(int id)

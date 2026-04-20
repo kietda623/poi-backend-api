@@ -267,7 +267,9 @@ public class AppPoisController : ControllerBase
         return Ok(new { success = true });
     }
 
-    [Authorize(Roles = RoleConstants.User)]
+    // Cho phép cả USER (đăng nhập) và GUEST (ẩn danh) nghe thuyết minh
+    // Kiểm tra quyền audio dựa trên UserId hoặc DeviceId
+    [Authorize]
     [HttpPost("{id}/listen")]
     public async Task<IActionResult> TrackListen(int id, [FromQuery] string deviceId = "anonymous")
     {
@@ -277,21 +279,49 @@ public class AppPoisController : ControllerBase
             return NotFound();
         }
 
+        var isGuest = GuestTokenService.IsGuest(User);
         var userIdValue = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (!int.TryParse(userIdValue, out var userId) || !await _subscriptionAccessService.HasAudioAccessAsync(userId))
+
+        // Kiểm tra quyền audio: User bằng UserId, Guest bằng DeviceId
+        if (isGuest)
         {
-            return StatusCode(403, await BuildAudioAccessDeniedPayloadAsync(userId));
+            var guestDeviceId = GuestTokenService.GetDeviceId(User) ?? deviceId;
+            if (!await _subscriptionAccessService.HasAudioAccessByDeviceAsync(guestDeviceId))
+            {
+                return StatusCode(403, await BuildAudioAccessDeniedForGuestAsync(guestDeviceId));
+            }
+        }
+        else
+        {
+            if (!int.TryParse(userIdValue, out var userId) || !await _subscriptionAccessService.HasAudioAccessAsync(userId))
+            {
+                int.TryParse(userIdValue, out var uid);
+                return StatusCode(403, await BuildAudioAccessDeniedPayloadAsync(uid));
+            }
         }
 
         shop.ListenCount++;
         shop.ViewCount++;
-        var usageDeviceId = !string.IsNullOrWhiteSpace(userIdValue)
-            ? $"user:{userIdValue}"
-            : deviceId;
+
+        // Xác định DeviceId cho usage history
+        string usageDeviceId;
+        string? guestId = null;
+        if (isGuest)
+        {
+            usageDeviceId = GuestTokenService.GetDeviceId(User) ?? deviceId;
+            guestId = GuestTokenService.GetGuestId(User);
+        }
+        else
+        {
+            usageDeviceId = !string.IsNullOrWhiteSpace(userIdValue)
+                ? $"user:{userIdValue}"
+                : deviceId;
+        }
 
         var usage = new UsageHistory
         {
             DeviceId = usageDeviceId,
+            GuestId = guestId,
             ShopId = shop.Id,
             ListenedAt = DateTime.UtcNow,
             DurationSeconds = 0
@@ -302,6 +332,7 @@ public class AppPoisController : ControllerBase
         return Ok(new { success = true, shop.ListenCount });
     }
 
+    // Cho phép cả User đã đăng nhập và Guest gửi review
     [Authorize]
     [HttpPost("{id}/reviews")]
     public async Task<IActionResult> SubmitReview(int id, [FromBody] AppReviewDto dto)
@@ -312,17 +343,31 @@ public class AppPoisController : ControllerBase
             return NotFound();
         }
 
+        var isGuest = GuestTokenService.IsGuest(User);
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
         if (string.IsNullOrWhiteSpace(userId))
         {
-            return Unauthorized(new { success = false, message = "You need to sign in before submitting a review." });
+            return Unauthorized(new { success = false, message = "Bạn cần xác thực trước khi gửi đánh giá." });
         }
 
-        var hasListened = await _context.UsageHistories
-            .AnyAsync(x => x.ShopId == shop.Id && x.DeviceId == $"user:{userId}");
+        // Kiểm tra đã nghe chưa: Guest dùng DeviceId, User dùng userId
+        bool hasListened;
+        if (isGuest)
+        {
+            var guestDeviceId = GuestTokenService.GetDeviceId(User) ?? "";
+            hasListened = await _context.UsageHistories
+                .AnyAsync(x => x.ShopId == shop.Id && x.DeviceId == guestDeviceId);
+        }
+        else
+        {
+            hasListened = await _context.UsageHistories
+                .AnyAsync(x => x.ShopId == shop.Id && x.DeviceId == $"user:{userId}");
+        }
+
         if (!hasListened)
         {
-            return StatusCode(403, new { success = false, message = "You need to listen to the POI before submitting a review." });
+            return StatusCode(403, new { success = false, message = "Bạn cần nghe thuyết minh POI trước khi gửi đánh giá." });
         }
 
         var review = new Review
@@ -330,7 +375,7 @@ public class AppPoisController : ControllerBase
             ShopId = shop.Id,
             Rating = dto.Rating,
             Comment = dto.Comment,
-            CustomerName = dto.CustomerName ?? "Khach hang",
+            CustomerName = dto.CustomerName ?? (isGuest ? "Khách tham quan" : "Khach hang"),
             CreatedAt = DateTime.UtcNow
         };
 
@@ -347,8 +392,18 @@ public class AppPoisController : ControllerBase
         return Ok(new { success = true });
     }
 
+    // Kiểm tra quyền audio: hỗ trợ cả User (UserId) và Guest (DeviceId)
     private async Task<bool> CanCurrentUserAccessAudioAsync()
     {
+        // Guest: kiểm tra bằng DeviceId
+        if (GuestTokenService.IsGuest(User))
+        {
+            var deviceId = GuestTokenService.GetDeviceId(User);
+            if (string.IsNullOrWhiteSpace(deviceId)) return false;
+            return await _subscriptionAccessService.HasAudioAccessByDeviceAsync(deviceId);
+        }
+
+        // User đã đăng nhập: kiểm tra bằng UserId
         var userIdValue = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!int.TryParse(userIdValue, out var userId))
         {
@@ -375,6 +430,30 @@ public class AppPoisController : ControllerBase
         {
             success = false,
             message = $"Gói hiện tại ({info.PackageName}) chưa cho phép nghe thuyết minh hoặc đã hết hạn. Vui lòng kiểm tra lại trạng thái gói.",
+            currentPackage = info.PackageName,
+            subscriptionEndDate = info.EndDate,
+            reason = "audio_not_available"
+        };
+    }
+
+    // Payload từ chối audio cho Guest (dựa trên DeviceId)
+    private async Task<object> BuildAudioAccessDeniedForGuestAsync(string deviceId)
+    {
+        var info = await _subscriptionAccessService.GetSubscriptionInfoByDeviceAsync(deviceId);
+        if (info == null)
+        {
+            return new
+            {
+                success = false,
+                message = "Bạn chưa có gói Tour. Hãy mua gói Tour Basic hoặc Tour Plus để nghe thuyết minh.",
+                reason = "no_active_subscription"
+            };
+        }
+
+        return new
+        {
+            success = false,
+            message = $"Gói hiện tại ({info.PackageName}) chưa cho phép nghe thuyết minh hoặc đã hết hạn.",
             currentPackage = info.PackageName,
             subscriptionEndDate = info.EndDate,
             reason = "audio_not_available"

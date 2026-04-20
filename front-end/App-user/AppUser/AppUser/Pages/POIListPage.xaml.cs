@@ -124,5 +124,11 @@ namespace AppUser.Pages
             base.OnDisappearing();
             _vm.StopTracking();
         }
+
+        // Floating chatbot bubble tap handler
+        private async void OnChatbotTapped(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("chat");
+        }
     }
 }

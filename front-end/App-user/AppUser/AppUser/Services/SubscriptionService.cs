@@ -136,17 +136,18 @@ public class SubscriptionService
         return current.CanAccessAudio;
     }
 
+    // Cho phép cả User Token và Guest Token (từ AuthService)
     private void EnsureAuthenticated()
     {
         if (string.IsNullOrWhiteSpace(_authService.Token))
         {
-            throw new InvalidOperationException("Vui long dang nhap de dang ky goi audio.");
+            throw new InvalidOperationException("Bạn cần xác thực để sử dụng tính năng này.");
         }
     }
 
     private void ApplyAuthorizationHeader()
     {
-        var token = _authService.Token;
+        var token = _authService.Token; // AuthService tự fallback sang Guest Token
         _httpClient.DefaultRequestHeaders.Authorization = string.IsNullOrWhiteSpace(token)
             ? null
             : new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);

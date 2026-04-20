@@ -71,6 +71,16 @@ namespace AppUser.ViewModels
         [ObservableProperty]
         private string cancelText = "Hủy";
 
+        // Guest mode: hiện nút đăng nhập thay vì thông tin profile
+        [ObservableProperty]
+        private bool isGuest = false;
+
+        [ObservableProperty]
+        private string loginButtonText = "🔑  Đăng nhập / Đăng ký";
+
+        [ObservableProperty]
+        private string guestMessage = "Bạn đang sử dụng ứng dụng với tư cách khách. Đăng nhập để lưu lịch sử và đồng bộ dữ liệu.";
+
         public ProfileViewModel(AuthService auth, AudioService audio)
         {
             _authService = auth;
@@ -82,19 +92,29 @@ namespace AppUser.ViewModels
 
         public void Initialize()
         {
-            var user = _authService.GetCurrentUser();
-            if (user != null)
+            IsGuest = _authService.IsGuest;
+
+            if (_authService.IsLoggedIn)
             {
-                CurrentUser = new UserDto
+                var user = _authService.GetCurrentUser();
+                if (user != null)
                 {
-                    Id = user.Id,
-                    Email = user.Email,
-                    FullName = user.FullName,
-                    Role = user.Role,
-                    IsActive = user.IsActive,
-                    CreatedAt = user.CreatedAt
-                };
+                    CurrentUser = new UserDto
+                    {
+                        Id = user.Id,
+                        Email = user.Email,
+                        FullName = user.FullName,
+                        Role = user.Role,
+                        IsActive = user.IsActive,
+                        CreatedAt = user.CreatedAt
+                    };
+                }
             }
+            else
+            {
+                CurrentUser = null;
+            }
+
             LoadHistory();
             UpdateLanguageDisplay();
             UpdateLocalizedTexts();
@@ -195,7 +215,17 @@ namespace AppUser.ViewModels
             if (!confirm) return;
 
             await _authService.LogoutAsync();
-            await Shell.Current.GoToAsync("//login");
+            // Quay về Home với Guest mode (không redirect về Login nữa)
+            IsGuest = true;
+            CurrentUser = null;
+            await Shell.Current.GoToAsync("//home");
+        }
+
+        // Navigate đến trang Login (cho Guest muốn đăng nhập)
+        [RelayCommand]
+        private async Task GoToLoginAsync()
+        {
+            await Shell.Current.GoToAsync("login");
         }
 
         [RelayCommand]
