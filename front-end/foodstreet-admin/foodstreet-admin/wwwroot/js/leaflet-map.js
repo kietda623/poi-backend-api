@@ -160,3 +160,25 @@ window.leafletInterop = {
         this.userLocationFixed = false;
     }
 };
+
+// ── QR Code Download Helper ──────────────────────────────────────────────────
+// Called by Blazor JS interop: JS.InvokeVoidAsync("downloadFileFromUrl", url, fileName)
+window.downloadFileFromUrl = async function (url, fileName) {
+    try {
+        const response = await fetch(url, { mode: 'cors' });
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = fileName || 'qr-code.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Cleanup the blob URL after a short delay
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+    } catch (e) {
+        console.error('downloadFileFromUrl failed:', e);
+    }
+};

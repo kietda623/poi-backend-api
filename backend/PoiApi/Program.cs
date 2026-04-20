@@ -28,6 +28,10 @@ builder.Services.AddScoped<AzureTranslationService>();
 builder.Services.AddScoped<SubscriptionAccessService>();
 builder.Services.AddScoped<PayOsService>();
 builder.Services.AddScoped<GroqService>();
+// Guest token service - Cấp JWT ẩn danh cho khách vãng lai
+builder.Services.AddScoped<GuestTokenService>();
+// QR Code generation service
+builder.Services.AddScoped<QrCodeService>();
 builder.Services.Configure<PayOsOptions>(builder.Configuration.GetSection("PayOS"));
 
 // AUTH
@@ -117,6 +121,14 @@ app.Use(async (context, next) =>
     }
 
     var userIdString = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    // Guest (khách vãng lai) không có record trong bảng Users → bỏ qua kiểm tra IsActive
+    if (userIdString != null && userIdString.StartsWith("guest:"))
+    {
+        await next();
+        return;
+    }
+
     if (!int.TryParse(userIdString, out var userId))
     {
         await next();

@@ -21,49 +21,49 @@ public partial class SubscriptionViewModel : ObservableObject
     private AppSubscriptionEnvelopeDto current = new();
 
     [ObservableProperty]
-    private string title = "Goi dich vu";
+    private string title = "Gói dịch vụ";
 
     [ObservableProperty]
-    private string pageHeading = "Goi kham pha am thuc";
+    private string pageHeading = "Gói khám phá ẩm thực";
 
     [ObservableProperty]
-    private string currentPackageHeading = "Goi hien tai";
+    private string currentPackageHeading = "Gói hiện tại";
 
     [ObservableProperty]
-    private string noActivePackageText = "Ban chua co goi Tour nao dang hoat dong.";
+    private string noActivePackageText = "Bạn chưa có gói Tour nào đang hoạt động.";
 
     [ObservableProperty]
-    private string reloadText = "Kiem tra lai";
+    private string reloadText = "Kiểm tra lại";
 
     [ObservableProperty]
-    private string continuePaymentText = "Tiep tuc thanh toan";
+    private string continuePaymentText = "Tiếp tục thanh toán";
 
     [ObservableProperty]
-    private string paymentCompletedText = "Toi da thanh toan";
+    private string paymentCompletedText = "Tôi đã thanh toán";
 
     [ObservableProperty]
-    private string cancelPackageText = "Huy goi";
+    private string cancelPackageText = "Hủy gói";
 
     [ObservableProperty]
-    private string choosePackageHeading = "Chon goi phu hop";
+    private string choosePackageHeading = "Chọn gói phù hợp";
 
     [ObservableProperty]
-    private string emptyPackagesText = "Hien tai chua co goi nao kha dung.";
+    private string emptyPackagesText = "Hiện tại chưa có gói nào khả dụng.";
 
     [ObservableProperty]
-    private string qrDialogTitle = "Thanh toan goi Tour";
+    private string qrDialogTitle = "Thanh toán gói Tour";
 
     [ObservableProperty]
-    private string qrDialogHint = "Quet ma QR de thanh toan. Sau khi thanh toan xong, bam 'Toi da thanh toan' de cap nhat trang thai goi.";
+    private string qrDialogHint = "Quét mã QR để thanh toán. Sau khi thanh toán xong, bấm 'Tôi đã thanh toán' để cập nhật trạng thái gói.";
 
     [ObservableProperty]
-    private string openPayOsText = "Mo cong PayOS";
+    private string openPayOsText = "Mở cổng PayOS";
 
     [ObservableProperty]
-    private string closeQrText = "Dong QR";
+    private string closeQrText = "Đóng QR";
 
     [ObservableProperty]
-    private string expiresOnFormat = "Het han: {0:dd/MM/yyyy}";
+    private string expiresOnFormat = "Hết hạn: {0:dd/MM/yyyy}";
 
     public string CurrentStatusDisplay => Current.Subscription == null
         ? string.Empty
@@ -271,9 +271,9 @@ public partial class SubscriptionViewModel : ObservableObject
 
     private static string ResolveBillingCycleLabel(string? billingCycle) => billingCycle switch
     {
-        "Daily" => "Theo ngay",
-        "Yearly" => "Theo nam",
-        _ => "Theo thang"
+        "Daily" => "Theo ngày",
+        "Yearly" => "Theo năm",
+        _ => "Theo tháng"
     };
 
     private void NormalizeCurrentSubscription()
@@ -390,8 +390,8 @@ public partial class SubscriptionViewModel : ObservableObject
         ("en", "TourPlus") => "Full experience: narration + Food Tinder + AI itinerary + Chatbot. Valid for 1 day.",
         ("zh", "TourBasic") => "靠近摊位时自动播放美食讲解。有效期1天。",
         ("zh", "TourPlus") => "完整体验：讲解 + 美食Tinder + AI行程 + 聊天机器人。有效期1天。",
-        ("vi", "TourBasic") => "Mo khoa thuyet minh am thuc khi den gan quan. Su dung trong 1 ngay.",
-        ("vi", "TourPlus") => "Trai nghiem day du: thuyet minh + Tinder am thuc + AI lich trinh + Chatbot. Su dung trong 1 ngay.",
+        ("vi", "TourBasic") => "Mở khóa thuyết minh ẩm thực khi đến gần quán. Sử dụng trong 1 ngày.",
+        ("vi", "TourPlus") => "Trải nghiệm đầy đủ: thuyết minh + Tinder ẩm thực + AI lịch trình + Chatbot. Sử dụng trong 1 ngày.",
         _ => string.Empty
     };
 
@@ -418,11 +418,11 @@ public partial class SubscriptionViewModel : ObservableObject
         ("zh", "Pending") => "处理中",
         ("zh", "Cancelled") => "已取消",
         ("zh", "Expired") => "已过期",
-        ("vi", "Active") => "Dang hoat dong",
-        ("vi", "PendingPayment") => "Cho thanh toan",
-        ("vi", "Pending") => "Dang xu ly",
-        ("vi", "Cancelled") => "Da huy",
-        ("vi", "Expired") => "Het han",
+        ("vi", "Active") => "Đang hoạt động",
+        ("vi", "PendingPayment") => "Chờ thanh toán",
+        ("vi", "Pending") => "Đang xử lý",
+        ("vi", "Cancelled") => "Đã hủy",
+        ("vi", "Expired") => "Hết hạn",
         _ => status
     };
 
@@ -491,34 +491,34 @@ public partial class SubscriptionViewModel : ObservableObject
             ("zh", "payment_ready_link_message") => "已生成 PayOS 支付链接。你可以打开 PayOS 完成支付。",
             ("zh", "ok") => "确定",
 
-            (_, "page_title") => "Goi dich vu",
-            (_, "page_heading") => "Goi kham pha am thuc",
-            (_, "current_package_heading") => "Goi hien tai",
-            (_, "no_active_package") => "Ban chua co goi Tour nao dang hoat dong.",
-            (_, "reload") => "Kiem tra lai",
-            (_, "continue_payment") => "Tiep tuc thanh toan",
-            (_, "payment_completed") => "Toi da thanh toan",
-            (_, "cancel_package") => "Huy goi",
-            (_, "choose_package_heading") => "Chon goi phu hop",
-            (_, "empty_packages") => "Hien tai chua co goi nao kha dung.",
-            (_, "qr_dialog_title") => "Thanh toan goi Tour",
-            (_, "qr_dialog_hint") => "Quet ma QR de thanh toan. Sau khi thanh toan xong, bam 'Toi da thanh toan' de cap nhat trang thai goi.",
-            (_, "open_payos") => "Mo cong PayOS",
-            (_, "close_qr") => "Dong QR",
-            (_, "expires_on_format") => "Het han: {0:dd/MM/yyyy}",
-            (_, "payment_success_title") => "Thanh toan thanh cong",
-            (_, "payment_success_message") => "Goi Tour cua ban da duoc kich hoat.",
-            (_, "payment_cancelled_title") => "Da huy thanh toan",
-            (_, "payment_cancelled_message") => "Goi Tour da bi huy.",
-            (_, "payment_failed_title") => "Thanh toan that bai",
-            (_, "payment_failed_message") => "PayOS chua xac nhan thanh toan thanh cong.",
-            (_, "processing_title") => "Dang xu ly",
-            (_, "processing_message") => "He thong chua nhan duoc ket qua thanh toan. Vui long thu lai sau it giay.",
-            (_, "error_title") => "Loi",
-            (_, "cancel_failed_message") => "Khong huy duoc goi hien tai.",
-            (_, "payment_ready_title") => "San sang thanh toan",
-            (_, "payment_ready_qr_message") => "Ma QR da duoc tao trong app. Ban co the quet QR hoac mo cong PayOS de thanh toan.",
-            (_, "payment_ready_link_message") => "Lien ket thanh toan PayOS da duoc tao. Ban co the mo cong PayOS de thanh toan.",
+            (_, "page_title") => "Gói dịch vụ",
+            (_, "page_heading") => "Gói khám phá ẩm thực",
+            (_, "current_package_heading") => "Gói hiện tại",
+            (_, "no_active_package") => "Bạn chưa có gói Tour nào đang hoạt động.",
+            (_, "reload") => "Kiểm tra lại",
+            (_, "continue_payment") => "Tiếp tục thanh toán",
+            (_, "payment_completed") => "Tôi đã thanh toán",
+            (_, "cancel_package") => "Hủy gói",
+            (_, "choose_package_heading") => "Chọn gói phù hợp",
+            (_, "empty_packages") => "Hiện tại chưa có gói nào khả dụng.",
+            (_, "qr_dialog_title") => "Thanh toán gói Tour",
+            (_, "qr_dialog_hint") => "Quét mã QR để thanh toán. Sau khi thanh toán xong, bấm 'Tôi đã thanh toán' để cập nhật trạng thái gói.",
+            (_, "open_payos") => "Mở cổng PayOS",
+            (_, "close_qr") => "Đóng QR",
+            (_, "expires_on_format") => "Hết hạn: {0:dd/MM/yyyy}",
+            (_, "payment_success_title") => "Thanh toán thành công",
+            (_, "payment_success_message") => "Gói Tour của bạn đã được kích hoạt.",
+            (_, "payment_cancelled_title") => "Đã hủy thanh toán",
+            (_, "payment_cancelled_message") => "Gói Tour đã bị hủy.",
+            (_, "payment_failed_title") => "Thanh toán thất bại",
+            (_, "payment_failed_message") => "PayOS chưa xác nhận thanh toán thành công.",
+            (_, "processing_title") => "Đang xử lý",
+            (_, "processing_message") => "Hệ thống chưa nhận được kết quả thanh toán. Vui lòng thử lại sau ít giây.",
+            (_, "error_title") => "Lỗi",
+            (_, "cancel_failed_message") => "Không hủy được gói hiện tại.",
+            (_, "payment_ready_title") => "Sẵn sàng thanh toán",
+            (_, "payment_ready_qr_message") => "Mã QR đã được tạo trong app. Bạn có thể quét QR hoặc mở cổng PayOS để thanh toán.",
+            (_, "payment_ready_link_message") => "Liên kết thanh toán PayOS đã được tạo. Bạn có thể mở cổng PayOS để thanh toán.",
             (_, "ok") => "OK",
             _ => key
         };

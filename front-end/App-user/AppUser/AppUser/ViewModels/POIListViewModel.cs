@@ -30,13 +30,13 @@ namespace AppUser.ViewModels
         private bool isEmpty = false;
 
         [ObservableProperty]
-        private bool isMapView = false;
+        private bool isMapView = true;
 
         [ObservableProperty]
         private Location? userLocation;
 
         [ObservableProperty]
-        private string currentLanguage = "vi";
+        private string currentLanguage = "en";
 
         public POIListViewModel(POIService poi, AudioService audio, AuthService authService, SubscriptionService subscriptionService)
         {
@@ -106,10 +106,10 @@ namespace AppUser.ViewModels
                 Application.Current?.Dispatcher.Dispatch(async () =>
                 {
                     bool wantToListen = await Shell.Current.DisplayAlert(
-                        "Điểm ẩm thực gần bạn!",
-                        $"Bạn đang ở rất gần {nearestPoi.Poi.Shop?.Name}. Bạn có muốn nghe thuyết minh không?",
-                        "Nghe ngay",
-                        "Bỏ qua"
+                        "Nearby Food Spot!",
+                        $"You are very close to {nearestPoi.Poi.Shop?.Name}. Would you like to listen to the audio guide?",
+                        "Listen Now",
+                        "Skip"
                     );
 
                     if (wantToListen)
@@ -205,14 +205,14 @@ namespace AppUser.ViewModels
 
             if (!_authService.IsLoggedIn)
             {
-                await Shell.Current.DisplayAlert("Dang nhap", "Ban can dang nhap de dang ky goi nghe thuyet minh.", "OK");
+                await Shell.Current.DisplayAlert("Login Required", "You need to log in to subscribe to audio packages.", "OK");
                 await Shell.Current.GoToAsync("//login");
                 return;
             }
 
             if (!await _subscriptionService.CanAccessAudioAsync())
             {
-                var goToPackages = await Shell.Current.DisplayAlert("Can goi audio", "Ban can goi audio dang hoat dong de nghe thuyet minh.", "Dang ky goi", "De sau");
+                var goToPackages = await Shell.Current.DisplayAlert("Audio Package Needed", "You need an active audio package to listen to audio guides.", "Subscribe", "Later");
                 if (goToPackages)
                 {
                     await Shell.Current.GoToAsync("subscriptionPackages");
@@ -224,7 +224,7 @@ namespace AppUser.ViewModels
             var fullPoi = await _poiService.GetPOIByIdAsync(poi.Id, CurrentLanguage);
             if (fullPoi == null || !fullPoi.AudioGuides.Any())
             {
-                await Shell.Current.DisplayAlert("Không có audio", "Điểm ẩm thực này chưa có thuyết minh audio.", "OK");
+                await Shell.Current.DisplayAlert("No audio", "This food spot does not have an audio guide yet.", "OK");
                 return;
             }
 

@@ -32,3 +32,8 @@ Thumbs.db
 
 .agent/
 .git - copy/
+
+backend/PoiApi/appsettings.Development.json
+
+**/appsettings.Development.json
+**/appsettings.json

@@ -17,6 +17,9 @@
                VerticalOptions="Center"/>
     </Shell.TitleView>
 
+    <!-- Root Grid for floating chatbot bubble -->
+    <Grid>
+
     <ScrollView>
         <VerticalStackLayout Spacing="0">
 
@@ -45,20 +48,40 @@
                     </Border>
 
                     <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <!-- Khi là Guest: hiện 'Khách tham quan' -->
                         <Label Text="{Binding CurrentUser.FullName}"
+                               IsVisible="{Binding IsGuest, Converter={StaticResource BoolInverterConverter}}"
                                Style="{StaticResource HeadlineSmall}"
                                TextColor="White"
                                FontSize="22"
                                HorizontalOptions="Center"/>
                         <Label Text="{Binding CurrentUser.Email}"
+                               IsVisible="{Binding IsGuest, Converter={StaticResource BoolInverterConverter}}"
                                Style="{StaticResource BodyMedium}"
                                TextColor="#CCFFFFFF"
                                HorizontalOptions="Center"
                                FontFamily="BeVietnamPro"/>
+
+                        <!-- Guest mode header -->
+                        <Label Text="Khách tham quan"
+                               IsVisible="{Binding IsGuest}"
+                               Style="{StaticResource HeadlineSmall}"
+                               TextColor="White"
+                               FontSize="22"
+                               HorizontalOptions="Center"/>
+                        <Label Text="{Binding GuestMessage}"
+                               IsVisible="{Binding IsGuest}"
+                               Style="{StaticResource BodyMedium}"
+                               TextColor="#CCFFFFFF"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               FontFamily="BeVietnamPro"/>
                     </VerticalStackLayout>
 
+                    <!-- Nút Edit Profile (chỉ cho User) -->
                     <Button Text="{Binding EditProfileText}"
                             Command="{Binding GoToEditProfileCommand}"
+                            IsVisible="{Binding IsGuest, Converter={StaticResource BoolInverterConverter}}"
                             BackgroundColor="#20FFFFFF"
                             TextColor="White"
                             CornerRadius="20"
@@ -67,6 +90,20 @@
                             Padding="20,0"
                             FontFamily="BeVietnamProSemiBold"
                             FontSize="13"
+                            Margin="0,4,0,0"/>
+
+                    <!-- Nút Đăng nhập / Đăng ký (chỉ cho Guest) -->
+                    <Button Text="{Binding LoginButtonText}"
+                            Command="{Binding GoToLoginCommand}"
+                            IsVisible="{Binding IsGuest}"
+                            BackgroundColor="#FF6B35"
+                            TextColor="White"
+                            CornerRadius="20"
+                            HeightRequest="42"
+                            HorizontalOptions="Center"
+                            Padding="20,0"
+                            FontFamily="BeVietnamProSemiBold"
+                            FontSize="14"
                             Margin="0,4,0,0"/>
 
                     <Border BackgroundColor="#30FFFFFF"
@@ -107,6 +144,9 @@
                                 StrokeShape="RoundRectangle 16"
                                 StrokeThickness="0"
                                 Padding="12,16">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ChangeLanguageCommand}"/>
+                            </Border.GestureRecognizers>
                             <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
                                 <Label Text="{Binding CurrentLanguageDisplay}"
                                        Style="{StaticResource TitleLarge}"
@@ -142,7 +182,7 @@
                                 Padding="16,14">
                             <Grid ColumnDefinitions="Auto,*,Auto">
                                 <Grid.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding ToggleLanguageCommand}"/>
+                                    <TapGestureRecognizer Command="{Binding ChangeLanguageCommand}"/>
                                 </Grid.GestureRecognizers>
                                 <Border Grid.Column="0"
                                         BackgroundColor="{StaticResource SurfaceVariant}"
@@ -271,8 +311,10 @@
                 </VerticalStackLayout>
             </Border>
 
+            <!-- Nút Logout (chỉ cho User đã đăng nhập) -->
             <Button Text="{Binding LogoutButtonText}"
                     Command="{Binding LogoutCommand}"
+                    IsVisible="{Binding IsGuest, Converter={StaticResource BoolInverterConverter}}"
                     TextColor="{StaticResource Primary}"
                     BackgroundColor="{StaticResource SurfaceVariant}"
                     CornerRadius="16"
@@ -282,6 +324,47 @@
                     Margin="20,8,20,40"
                     HorizontalOptions="Fill"/>
 
+            <!-- Nút Đăng nhập (cho Guest ở cuối trang) -->
+            <Button Text="{Binding LoginButtonText}"
+                    Command="{Binding GoToLoginCommand}"
+                    IsVisible="{Binding IsGuest}"
+                    TextColor="White"
+                    BackgroundColor="{StaticResource Primary}"
+                    CornerRadius="16"
+                    HeightRequest="56"
+                    FontFamily="BeVietnamProBold"
+                    FontSize="15"
+                    Margin="20,8,20,40"
+                    HorizontalOptions="Fill"/>
+
         </VerticalStackLayout>
     </ScrollView>
-</ContentPage>
+
+        <!-- 🤖 Floating Chatbot Bubble -->
+        <Border WidthRequest="58"
+                HeightRequest="58"
+                StrokeShape="RoundRectangle 29"
+                StrokeThickness="0"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="0,0,20,28">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#FF6B35" Offset="0.0" />
+                    <GradientStop Color="#FF4500" Offset="1.0" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Shadow>
+                <Shadow Brush="#FF6B35" Offset="0,6" Radius="14" Opacity="0.5"/>
+            </Border.Shadow>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnChatbotTapped"/>
+            </Border.GestureRecognizers>
+            <Label Text="🤖"
+                   FontSize="26"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   FontFamily="{x:Null}"/>
+        </Border>
+
+    </Grid>

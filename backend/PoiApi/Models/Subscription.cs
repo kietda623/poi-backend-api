@@ -1,10 +1,19 @@
-﻿namespace PoiApi.Models
+namespace PoiApi.Models
 {
     public class Subscription
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
-        public User User { get; set; } = null!;
+
+        // UserId nullable: Guest không cần tài khoản, dùng DeviceId thay thế
+        public int? UserId { get; set; }
+        public User? User { get; set; }
+
+        // DeviceId để liên kết gói dịch vụ với thiết bị của Guest
+        public string? DeviceId { get; set; }
+
+        // Email thu thập tại bước thanh toán (cho Guest khôi phục gói)
+        public string? GuestEmail { get; set; }
+
         public int ServicePackageId { get; set; }
         public ServicePackage ServicePackage { get; set; } = null!;
         public string BillingCycle { get; set; } = "Monthly";

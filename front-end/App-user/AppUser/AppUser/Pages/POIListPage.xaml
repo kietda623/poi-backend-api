@@ -24,10 +24,10 @@
             <VerticalStackLayout Padding="20,24,20,32" Spacing="16">
                 <!-- Title Header -->
                 <HorizontalStackLayout Spacing="8">
-                    <Label Text="Khám phá ẩm thực" FontFamily="BeVietnamProBold" FontSize="24" TextColor="White" VerticalOptions="Center"/>
+                    <Label Text="Explore Cuisine" FontFamily="BeVietnamProBold" FontSize="24" TextColor="White" VerticalOptions="Center"/>
                     <Label Text="🍽️" FontSize="22" VerticalOptions="Center"/>
                 </HorizontalStackLayout>
-                <Label Text="Cùng khám phá những hương vị độc đáo xung quanh bạn" FontFamily="BeVietnamPro" FontSize="14" TextColor="#FFE8D0" Margin="0,-8,0,0" />
+                <Label Text="Discover unique flavors around you" FontFamily="BeVietnamPro" FontSize="14" TextColor="#FFE8D0" Margin="0,-8,0,0" />
 
                 <!-- Search Bar -->
                 <Border BackgroundColor="#FFFFFF" StrokeShape="RoundRectangle 24" StrokeThickness="0" Padding="16,4" Margin="0,8,0,0">
@@ -36,7 +36,7 @@
                     </Border.Shadow>
                     <Grid ColumnDefinitions="Auto,*,Auto">
                         <Label Grid.Column="0" Text="🔍" FontSize="18" VerticalOptions="Center" Margin="0,0,10,0"/>
-                        <Entry Grid.Column="1" Style="{StaticResource InputEntry}" Placeholder="Bạn muốn ăn gì hôm nay?" Text="{Binding SearchQuery}" ReturnCommand="{Binding SearchCommand}" ReturnType="Search"/>
+                        <Entry Grid.Column="1" Style="{StaticResource InputEntry}" Placeholder="What do you want to eat today?" Text="{Binding SearchQuery}" ReturnCommand="{Binding SearchCommand}" ReturnType="Search"/>
                         <Button Grid.Column="2" Text="✕" Command="{Binding RefreshCommand}" BackgroundColor="Transparent" TextColor="{StaticResource TextHint}" FontSize="14" Padding="8,0" HeightRequest="40" IsVisible="{Binding SearchQuery, Converter={StaticResource StringNotEmptyConverter}}"/>
                     </Grid>
                 </Border>
@@ -56,8 +56,8 @@
                     <!-- Empty State -->
                     <VerticalStackLayout IsVisible="{Binding IsEmpty}" VerticalOptions="Center" HorizontalOptions="Center" Spacing="12">
                         <Label Text="🔍" FontSize="56" HorizontalOptions="Center"/>
-                        <Label Text="Không tìm thấy kết quả" Style="{StaticResource TitleMedium}" HorizontalOptions="Center"/>
-                        <Label Text="Thử tìm kiếm với từ khóa khác" Style="{StaticResource BodySmall}" HorizontalOptions="Center"/>
+                        <Label Text="No results found" Style="{StaticResource TitleMedium}" HorizontalOptions="Center"/>
+                        <Label Text="Try searching with a different keyword" Style="{StaticResource BodySmall}" HorizontalOptions="Center"/>
                     </VerticalStackLayout>
                     <!-- POI List -->
                     <CollectionView ItemsSource="{Binding FilteredPOIs}" SelectionMode="None" IsVisible="{Binding IsEmpty, Converter={StaticResource BoolInverterConverter}}" Margin="0,4">
@@ -95,7 +95,7 @@
                                         <Border Grid.Row="0" BackgroundColor="#50000000" StrokeShape="RoundRectangle 12" StrokeThickness="0" Padding="12,6" HorizontalOptions="Start" VerticalOptions="Start" Margin="16,16,0,0">
                                             <HorizontalStackLayout Spacing="6">
                                                 <Label Text="🎧" FontSize="14" VerticalOptions="Center"/>
-                                                <Label Text="Có thuyết minh" FontFamily="BeVietnamProMedium" FontSize="12" TextColor="White" VerticalOptions="Center"/>
+                                                <Label Text="Audio Guide" FontFamily="BeVietnamProMedium" FontSize="12" TextColor="White" VerticalOptions="Center"/>
                                             </HorizontalStackLayout>
                                         </Border>
 
@@ -120,7 +120,7 @@
                                                     </Border.GestureRecognizers>
                                                     <HorizontalStackLayout Spacing="8">
                                                         <Label Text="▶" FontSize="14" TextColor="{StaticResource Primary}" VerticalOptions="Center"/>
-                                                        <Label Text="Nghe thuyết minh" FontFamily="BeVietnamProSemiBold" FontSize="14" TextColor="{StaticResource Primary}" VerticalOptions="Center"/>
+                                                        <Label Text="Listen Audio" FontFamily="BeVietnamProSemiBold" FontSize="14" TextColor="{StaticResource Primary}" VerticalOptions="Center"/>
                                                     </HorizontalStackLayout>
                                                 </Border>
 
@@ -184,15 +184,41 @@
                 <!-- When List View, Show "Map" -->
                 <HorizontalStackLayout Spacing="8" IsVisible="{Binding IsMapView, Converter={StaticResource BoolInverterConverter}}">
                     <Label Text="🗺️" TextColor="White" FontSize="18" VerticalOptions="Center"/>
-                    <Label Text="Bản đồ" TextColor="White" FontFamily="BeVietnamProBold" FontSize="15" VerticalOptions="Center"/>
+                    <Label Text="Map" TextColor="White" FontFamily="BeVietnamProBold" FontSize="15" VerticalOptions="Center"/>
                 </HorizontalStackLayout>
                 
                 <!-- When Map View, Show "List" -->
                 <HorizontalStackLayout Spacing="8" IsVisible="{Binding IsMapView}">
                     <Label Text="📋" TextColor="White" FontSize="18" VerticalOptions="Center"/>
-                    <Label Text="Danh sách" TextColor="White" FontFamily="BeVietnamProBold" FontSize="15" VerticalOptions="Center"/>
+                    <Label Text="List" TextColor="White" FontFamily="BeVietnamProBold" FontSize="15" VerticalOptions="Center"/>
                 </HorizontalStackLayout>
             </Border>
         </Grid>
+        <!-- 🤖 Floating Chatbot Bubble -->
+        <Border WidthRequest="58"
+                HeightRequest="58"
+                StrokeShape="RoundRectangle 29"
+                StrokeThickness="0"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="0,0,20,28">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#FF6B35" Offset="0.0" />
+                    <GradientStop Color="#FF4500" Offset="1.0" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Shadow>
+                <Shadow Brush="#FF6B35" Offset="0,6" Radius="14" Opacity="0.5"/>
+            </Border.Shadow>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnChatbotTapped"/>
+            </Border.GestureRecognizers>
+            <Label Text="🤖"
+                   FontSize="26"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   FontFamily="{x:Null}"/>
+        </Border>
     </Grid>
 </ContentPage>

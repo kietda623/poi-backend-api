@@ -9,7 +9,8 @@ using PoiApi.Services;
 
 [ApiController]
 [Route("api/app/subscriptions")]
-[Authorize(Roles = RoleConstants.User)]
+// Cho phép cả USER và GUEST truy cập endpoint subscriptions
+[Authorize]
 public class AppSubscriptionsController : ControllerBase
 {
     private readonly AppDbContext _context;
@@ -60,6 +61,13 @@ public class AppSubscriptionsController : ControllerBase
     [HttpGet("my")]
     public async Task<IActionResult> GetMySubscription()
     {
+        // Hỗ trợ cả User và Guest
+        if (GuestTokenService.IsGuest(User))
+        {
+            var deviceId = GuestTokenService.GetDeviceId(User) ?? "";
+            return Ok(await BuildCurrentSubscriptionEnvelopeByDeviceAsync(deviceId));
+        }
+
         var userId = GetUserId();
         await MarkExpiredSubscriptionsAsync(userId);
         return Ok(await BuildCurrentSubscriptionEnvelopeAsync(userId));
@@ -98,11 +106,14 @@ public class AppSubscriptionsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Subscribe(AppSubscribeDto dto)
     {
-        var userId = GetUserId();
+        var isGuest = GuestTokenService.IsGuest(User);
+        var userId = isGuest ? 0 : GetUserId();
+        var guestDeviceId = isGuest ? (GuestTokenService.GetDeviceId(User) ?? "") : null;
+
         var package = await _context.ServicePackages.FirstOrDefaultAsync(p => p.Id == dto.PackageId && p.Audience == RoleConstants.User);
         if (package == null)
         {
-            return BadRequest(new { message = "Audio package not found." });
+            return BadRequest(new { message = "Gói không tồn tại." });
         }
 
         var billingCycle = ResolveRequestedBillingCycle(dto.BillingCycle, package.Tier);
@@ -116,11 +127,24 @@ public class AppSubscriptionsController : ControllerBase
             return BadRequest(new { message = "This audio package is inactive." });
         }
 
-        var existing = await _context.Subscriptions
-            .Include(s => s.ServicePackage)
-            .Where(s => s.UserId == userId && s.ServicePackage.Audience == RoleConstants.User)
-            .Where(s => s.Status == SubscriptionConstants.Active || s.Status == SubscriptionConstants.PendingPayment || s.Status == SubscriptionConstants.Pending)
-            .FirstOrDefaultAsync();
+        // Kiểm tra existing: Guest dùng DeviceId, User dùng UserId
+        Subscription? existing;
+        if (isGuest)
+        {
+            existing = await _context.Subscriptions
+                .Include(s => s.ServicePackage)
+                .Where(s => s.DeviceId == guestDeviceId && s.UserId == null && s.ServicePackage.Audience == RoleConstants.User)
+                .Where(s => s.Status == SubscriptionConstants.Active || s.Status == SubscriptionConstants.PendingPayment || s.Status == SubscriptionConstants.Pending)
+                .FirstOrDefaultAsync();
+        }
+        else
+        {
+            existing = await _context.Subscriptions
+                .Include(s => s.ServicePackage)
+                .Where(s => s.UserId == userId && s.ServicePackage.Audience == RoleConstants.User)
+                .Where(s => s.Status == SubscriptionConstants.Active || s.Status == SubscriptionConstants.PendingPayment || s.Status == SubscriptionConstants.Pending)
+                .FirstOrDefaultAsync();
+        }
 
         bool isUpgrade = false;
         if (existing != null)
@@ -132,7 +156,7 @@ public class AppSubscriptionsController : ControllerBase
             }
             else
             {
-                return BadRequest(new { message = "You already have an active or pending audio package." });
+                return BadRequest(new { message = "Bạn đã có gói đang hoạt động hoặc chờ thanh toán." });
             }
         }
 
@@ -150,14 +174,25 @@ public class AppSubscriptionsController : ControllerBase
             return BadRequest(new { message = "Audio package price is invalid." });
         }
 
-        var revenueRecipient = await ResolveRevenueRecipientAsync(userId);
+        // Resolve revenue: Guest dùng DeviceId, User dùng UserId
+        (int ShopId, int OwnerId)? revenueRecipient;
+        if (isGuest)
+        {
+            revenueRecipient = await ResolveRevenueRecipientByDeviceAsync(guestDeviceId!);
+        }
+        else
+        {
+            revenueRecipient = await ResolveRevenueRecipientAsync(userId);
+        }
 
-        var orderCode = BuildOrderCode(userId);
+        var orderCode = BuildOrderCode(isGuest ? guestDeviceId!.GetHashCode() : userId);
         var endDate = _subscriptionAccessService.CalculateEndDate(now, billingCycle);
 
         var subscription = new Subscription
         {
-            UserId = userId,
+            UserId = isGuest ? null : userId,
+            DeviceId = isGuest ? guestDeviceId : null,
+            GuestEmail = isGuest ? dto.GuestEmail : null,
             ServicePackageId = dto.PackageId,
             BillingCycle = billingCycle,
             Price = price,
@@ -454,6 +489,77 @@ public class AppSubscriptionsController : ControllerBase
     {
         var latestUsage = await _context.UsageHistories
             .Where(x => x.DeviceId == $"user:{userId}")
+            .Join(
+                _context.Shops,
+                usage => usage.ShopId,
+                shop => shop.Id,
+                (usage, shop) => new
+                {
+                    usage.ListenedAt,
+                    usage.ShopId,
+                    shop.OwnerId
+                })
+            .OrderByDescending(x => x.ListenedAt)
+            .FirstOrDefaultAsync();
+
+        if (latestUsage == null)
+        {
+            return null;
+        }
+
+        return (latestUsage.ShopId, latestUsage.OwnerId);
+    }
+
+    // === GUEST HELPERS ===
+
+    // Lấy subscription hiện tại của Guest dựa trên DeviceId
+    private async Task<object> BuildCurrentSubscriptionEnvelopeByDeviceAsync(string deviceId)
+    {
+        var sub = await _context.Subscriptions
+            .Include(s => s.ServicePackage)
+            .Where(s => s.DeviceId == deviceId && s.UserId == null && s.ServicePackage.Audience == RoleConstants.User)
+            .Where(s => s.Status == SubscriptionConstants.Active ||
+                        s.Status == SubscriptionConstants.PendingPayment ||
+                        s.Status == SubscriptionConstants.Pending)
+            .OrderByDescending(s => s.CreatedAt)
+            .Select(s => new
+            {
+                s.Id,
+                s.ServicePackageId,
+                PackageName = s.ServicePackage.Name,
+                PackageTier = s.ServicePackage.Tier,
+                s.BillingCycle,
+                s.Price,
+                s.StartDate,
+                s.EndDate,
+                s.Status,
+                s.PaymentStatus,
+                s.CheckoutUrl,
+                s.PaymentOrderCode,
+                s.PaymentLinkId,
+                s.CreatedAt,
+                s.ActivatedAt,
+                s.ServicePackage.AllowAudioAccess
+            })
+            .FirstOrDefaultAsync();
+
+        if (sub == null)
+        {
+            return new { hasSubscription = false, canAccessAudio = false };
+        }
+
+        var canAccessAudio = string.Equals(sub.Status, SubscriptionConstants.Active, StringComparison.OrdinalIgnoreCase) &&
+                             sub.EndDate > DateTime.UtcNow &&
+                             sub.AllowAudioAccess;
+
+        return new { hasSubscription = true, canAccessAudio, subscription = sub };
+    }
+
+    // Tìm shop gần nhất mà Guest đã nghe dựa trên DeviceId
+    private async Task<(int ShopId, int OwnerId)?> ResolveRevenueRecipientByDeviceAsync(string deviceId)
+    {
+        var latestUsage = await _context.UsageHistories
+            .Where(x => x.DeviceId == deviceId)
             .Join(
                 _context.Shops,
                 usage => usage.ShopId,

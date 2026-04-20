@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AppUser.Models;
 using AppUser.Services;
@@ -26,7 +26,7 @@ namespace AppUser.ViewModels
         private string userEmail = string.Empty;
 
         [ObservableProperty]
-        private string currentLanguage = "vi";
+        private string currentLanguage = "en";
 
         [ObservableProperty]
         private string pageTitle = "Khám phá ẩm thực";
@@ -69,22 +69,41 @@ namespace AppUser.ViewModels
 
         public async Task InitializeAsync()
         {
-            if (_authService.IsLoggedIn)
+            // Tự động init Guest session nếu chưa đăng nhập
+            if (!_authService.IsLoggedIn)
+            {
+                await _authService.InitGuestSessionAsync();
+            }
+            else
             {
                 var (success, _) = await _authService.RefreshMeAsync();
                 if (!success)
                 {
                     await _authService.LogoutAsync();
-                    await Shell.Current.GoToAsync("//login");
-                    return;
+                    // Không redirect về login nữa - vẫn ở Home với Guest mode
+                    await _authService.InitGuestSessionAsync();
                 }
             }
 
             CurrentLanguage = _audioService.CurrentLanguage;
             UpdateGreeting();
             UpdateLocalizedTexts();
-            UserEmail = _authService.CurrentUser?.Email ?? string.Empty;
+            UserEmail = _authService.CurrentUser?.Email ?? (_authService.IsGuest ? "Khách tham quan" : string.Empty);
             await LoadFeaturedPOIsAsync();
+        }
+
+        // Navigate đến trang quét QR Code
+        [RelayCommand]
+        private async Task ScanQrAsync()
+        {
+            await Shell.Current.GoToAsync("qrScanner");
+        }
+
+        // Mở Chatbot từ floating bubble
+        [RelayCommand]
+        private async Task OpenChatAsync()
+        {
+            await Shell.Current.GoToAsync("chat");
         }
 
         [RelayCommand]
@@ -124,16 +143,13 @@ namespace AppUser.ViewModels
         {
             if (poi == null) return;
 
-            if (!_authService.IsLoggedIn)
-            {
-                await Shell.Current.DisplayAlert("Dang nhap", "Ban can dang nhap de dang ky goi nghe thuyet minh.", OkText);
-                await Shell.Current.GoToAsync("//login");
-                return;
-            }
-
+            // Guest hoặc User chưa mua gói: hướng dẫn mua gói (không bắt đăng nhập)
             if (!await _subscriptionService.CanAccessAudioAsync())
             {
-                var goToPackages = await Shell.Current.DisplayAlert("Can goi audio", "Ban can goi audio dang hoat dong de nghe thuyet minh.", "Dang ky goi", "De sau");
+                var goToPackages = await Shell.Current.DisplayAlert(
+                    "Cần gói Tour",
+                    "Bạn cần mua gói Tour Basic hoặc Tour Plus để nghe thuyết minh.",
+                    "Đăng ký gói", "Để sau");
                 if (goToPackages)
                 {
                     await Shell.Current.GoToAsync("subscriptionPackages");
@@ -160,19 +176,41 @@ namespace AppUser.ViewModels
         }
 
         [RelayCommand]
-        private async Task ToggleLanguageAsync()
+        private async Task ChangeLanguageAsync()
         {
-            CurrentLanguage = CurrentLanguage switch
-            {
-                "vi" => "en",
-                "en" => "zh",
-                _ => "vi"
+            string currentDisplay = CurrentLanguage switch {
+                "vi" => "🇻🇳 Tiếng Việt",
+                "en" => "🇬🇧 English",
+                "zh" => "🇨🇳 中文",
+                _ => "🇬🇧 English"
             };
 
-            _audioService.SetLanguage(CurrentLanguage);
-            UpdateGreeting();
-            UpdateLocalizedTexts();
-            await LoadFeaturedPOIsAsync();
+            string title = CurrentLanguage == "vi" ? "Chọn Ngôn Ngữ" : 
+                           (CurrentLanguage == "en" ? "Select Language" : "选择语言");
+            string cancel = CurrentLanguage == "vi" ? "Hủy" : 
+                            (CurrentLanguage == "en" ? "Cancel" : "取消");
+
+            var action = await Shell.Current.DisplayActionSheet(
+                $"{title} (Current: {currentDisplay})", 
+                cancel, null, 
+                "🇻🇳 Tiếng Việt", "🇬🇧 English", "🇨🇳 中文");
+
+            string newLang = action switch
+            {
+                "🇻🇳 Tiếng Việt" => "vi",
+                "🇬🇧 English" => "en",
+                "🇨🇳 中文" => "zh",
+                _ => CurrentLanguage
+            };
+
+            if (newLang != CurrentLanguage && !string.IsNullOrEmpty(newLang) && newLang != cancel)
+            {
+                CurrentLanguage = newLang;
+                _audioService.SetLanguage(CurrentLanguage);
+                UpdateGreeting();
+                UpdateLocalizedTexts();
+                await LoadFeaturedPOIsAsync();
+            }
         }
 
         private void UpdateGreeting()

@@ -4,6 +4,7 @@ public class AiTourPlanRequestDto
 {
     public List<int>? LikedShopIds { get; set; }
     public string? Preferences { get; set; }
+    public string? Language { get; set; }
 }
 
 public class AiTourPlanResponseDto
@@ -18,6 +19,7 @@ public class AiChatbotRequestDto
 {
     public string Message { get; set; } = string.Empty;
     public List<AiChatTurnDto>? History { get; set; }
+    public string? Language { get; set; }
 }
 
 public class AiChatTurnDto

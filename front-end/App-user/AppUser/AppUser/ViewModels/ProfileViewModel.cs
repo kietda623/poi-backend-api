@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AppUser.Models;
 using AppUser.Services;
@@ -21,7 +21,7 @@ namespace AppUser.ViewModels
         private int totalListened = 0;
 
         [ObservableProperty]
-        private string currentLanguageDisplay = "🇻🇳 Tiếng Việt";
+        private string currentLanguageDisplay = "🇬🇧 English";
 
         [ObservableProperty]
         private string pageTitle = "👤 Hồ sơ của tôi";
@@ -71,6 +71,16 @@ namespace AppUser.ViewModels
         [ObservableProperty]
         private string cancelText = "Hủy";
 
+        // Guest mode: hiện nút đăng nhập thay vì thông tin profile
+        [ObservableProperty]
+        private bool isGuest = false;
+
+        [ObservableProperty]
+        private string loginButtonText = "🔑  Đăng nhập / Đăng ký";
+
+        [ObservableProperty]
+        private string guestMessage = "Bạn đang sử dụng ứng dụng với tư cách khách. Đăng nhập để lưu lịch sử và đồng bộ dữ liệu.";
+
         public ProfileViewModel(AuthService auth, AudioService audio)
         {
             _authService = auth;
@@ -82,19 +92,29 @@ namespace AppUser.ViewModels
 
         public void Initialize()
         {
-            var user = _authService.GetCurrentUser();
-            if (user != null)
+            IsGuest = _authService.IsGuest;
+
+            if (_authService.IsLoggedIn)
             {
-                CurrentUser = new UserDto
+                var user = _authService.GetCurrentUser();
+                if (user != null)
                 {
-                    Id = user.Id,
-                    Email = user.Email,
-                    FullName = user.FullName,
-                    Role = user.Role,
-                    IsActive = user.IsActive,
-                    CreatedAt = user.CreatedAt
-                };
+                    CurrentUser = new UserDto
+                    {
+                        Id = user.Id,
+                        Email = user.Email,
+                        FullName = user.FullName,
+                        Role = user.Role,
+                        IsActive = user.IsActive,
+                        CreatedAt = user.CreatedAt
+                    };
+                }
             }
+            else
+            {
+                CurrentUser = null;
+            }
+
             LoadHistory();
             UpdateLanguageDisplay();
             UpdateLocalizedTexts();
@@ -195,7 +215,17 @@ namespace AppUser.ViewModels
             if (!confirm) return;
 
             await _authService.LogoutAsync();
-            await Shell.Current.GoToAsync("//login");
+            // Quay về Home với Guest mode (không redirect về Login nữa)
+            IsGuest = true;
+            CurrentUser = null;
+            await Shell.Current.GoToAsync("//home");
+        }
+
+        // Navigate đến trang Login (cho Guest muốn đăng nhập)
+        [RelayCommand]
+        private async Task GoToLoginAsync()
+        {
+            await Shell.Current.GoToAsync("login");
         }
 
         [RelayCommand]
@@ -205,15 +235,38 @@ namespace AppUser.ViewModels
         }
 
         [RelayCommand]
-        private void ToggleLanguage()
+        private async Task ChangeLanguageAsync()
         {
-            var newLang = _audioService.CurrentLanguage switch
+            // Show ActionSheet (Dropdown-like menu from bottom)
+            string[] languages = { "🇻🇳 Tiếng Việt", "🇬🇧 English", "🇨🇳 中文" };
+            string title = _audioService.CurrentLanguage switch
             {
-                "vi" => "en",
-                "en" => "zh",
-                _ => "vi"
+                "en" => "Select Language",
+                "zh" => "选择语言",
+                _ => "Chọn ngôn ngữ"
             };
-            _audioService.SetLanguage(newLang);
+            string cancel = _audioService.CurrentLanguage switch
+            {
+                "en" => "Cancel",
+                "zh" => "取消",
+                _ => "Hủy"
+            };
+
+            var action = await Shell.Current.DisplayActionSheet(title, cancel, null, languages);
+
+            if (action == "🇻🇳 Tiếng Việt")
+            {
+                _audioService.SetLanguage("vi");
+            }
+            else if (action == "🇬🇧 English")
+            {
+                _audioService.SetLanguage("en");
+            }
+            else if (action == "🇨🇳 中文")
+            {
+                _audioService.SetLanguage("zh");
+            }
+
             UpdateLanguageDisplay();
             UpdateLocalizedTexts();
         }

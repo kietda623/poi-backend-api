@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
+             xmlns:vm="clr-namespace:AppUser.ViewModels"
+             x:Class="AppUser.Pages.QrScannerPage"
+             x:DataType="vm:QrScannerViewModel"
+             Title="Quét mã QR"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="Black">
+
+    <!-- Trang quét QR Code - Camera preview full-screen với overlay hướng dẫn -->
+    <Grid>
+        <!-- Camera Preview -->
+        <zxing:CameraBarcodeReaderView
+            x:Name="BarcodeReader"
+            IsDetecting="{Binding IsScanning}"
+            Options="{Binding Source={x:Reference BarcodeReader}, Path=Options}"
+            BarcodesDetected="OnBarcodesDetected"
+            VerticalOptions="FillAndExpand"
+            HorizontalOptions="FillAndExpand" />
+
+        <!-- Dark Overlay với cutout ở giữa -->
+        <Grid BackgroundColor="Transparent"
+              VerticalOptions="FillAndExpand">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="280" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Top overlay -->
+            <BoxView Grid.Row="0" BackgroundColor="#88000000" />
+
+            <!-- Scan area (viền sáng) -->
+            <Border Grid.Row="1"
+                    StrokeShape="RoundRectangle 16"
+                    Stroke="#FF6B35"
+                    StrokeThickness="3"
+                    BackgroundColor="Transparent"
+                    WidthRequest="280"
+                    HeightRequest="280"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                <!-- Animation glow effect -->
+                <Border.Shadow>
+                    <Shadow Brush="#FF6B35" Offset="0,0" Radius="20" Opacity="0.5" />
+                </Border.Shadow>
+            </Border>
+
+            <!-- Bottom overlay -->
+            <BoxView Grid.Row="2" BackgroundColor="#88000000" />
+        </Grid>
+
+        <!-- Header: Nút quay lại -->
+        <HorizontalStackLayout
+            Padding="16,50,16,0"
+            VerticalOptions="Start"
+            Spacing="12">
+            <Button
+                Text="← Quay lại"
+                Command="{Binding GoBackCommand}"
+                BackgroundColor="Transparent"
+                TextColor="White"
+                FontFamily="BeVietnamProSemiBold"
+                FontSize="16" />
+        </HorizontalStackLayout>
+
+        <!-- Footer: Thông tin trạng thái -->
+        <VerticalStackLayout
+            VerticalOptions="End"
+            Padding="24,0,24,60"
+            Spacing="16">
+
+            <!-- Status message -->
+            <Frame BackgroundColor="#CC1A1A2E"
+                   CornerRadius="16"
+                   Padding="20"
+                   BorderColor="Transparent"
+                   HasShadow="False">
+                <VerticalStackLayout Spacing="8"
+                                     HorizontalOptions="Center">
+                    <Label Text="📱"
+                           FontSize="32"
+                           HorizontalOptions="Center" />
+                    <Label Text="{Binding StatusMessage}"
+                           TextColor="White"
+                           FontFamily="BeVietnamProMedium"
+                           FontSize="15"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Loading indicator -->
+            <ActivityIndicator IsRunning="{Binding IsProcessing}"
+                               IsVisible="{Binding IsProcessing}"
+                               Color="#FF6B35"
+                               HorizontalOptions="Center" />
+
+            <!-- Nút quét lại (hiện khi đã dừng quét) -->
+            <Button Text="🔄 Quét lại"
+                    Command="{Binding ResetScannerCommand}"
+                    IsVisible="{Binding IsScanning, Converter={StaticResource BoolInverterConverter}}"
+                    BackgroundColor="#FF6B35"
+                    TextColor="White"
+                    FontFamily="BeVietnamProSemiBold"
+                    FontSize="15"
+                    CornerRadius="12"
+                    HeightRequest="48"
+                    HorizontalOptions="Fill" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

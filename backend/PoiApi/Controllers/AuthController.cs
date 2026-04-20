@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using PoiApi.Data;
 using PoiApi.DTOs.Auth;
 using PoiApi.Models;    
+using PoiApi.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -16,11 +17,32 @@ public class AuthController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly IConfiguration _config;
+    private readonly GuestTokenService _guestTokenService;
 
-    public AuthController(AppDbContext context, IConfiguration config)
+    public AuthController(AppDbContext context, IConfiguration config, GuestTokenService guestTokenService)
     {
         _context = context;
         _config = config;
+        _guestTokenService = guestTokenService;
+    }
+
+    // Guest token endpoint - Cấp JWT Token ẩn danh cho khách vãng lai
+    // Không cần tạo tài khoản, chỉ cần DeviceId từ thiết bị
+    [HttpPost("guest-token")]
+    public IActionResult GetGuestToken([FromBody] GuestTokenRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.DeviceId))
+            return BadRequest(new { message = "DeviceId là bắt buộc." });
+
+        var token = _guestTokenService.GenerateGuestToken(request.DeviceId, request.GuestId);
+
+        return Ok(new
+        {
+            token,
+            guestId = request.GuestId ?? "auto-generated",
+            role = GuestTokenService.GuestRole,
+            expiresInDays = 30
+        });
     }
 
     // login endpoint

@@ -8,6 +8,9 @@
     Title="Trang chủ"
     BackgroundColor="{StaticResource Background}">
 
+    <!-- Root Grid to allow floating chatbot bubble overlay -->
+    <Grid>
+
     <RefreshView Command="{Binding LoadFeaturedPOIsCommand}"
                  IsRefreshing="{Binding IsLoading}"
                  RefreshColor="{StaticResource Primary}">
@@ -46,16 +49,16 @@
                                 Stroke="#40FFFFFF"
                                 Padding="14,8"
                                 VerticalOptions="Center">
-                            <HorizontalStackLayout Spacing="6">
-                                <Label Text="🌐" FontFamily="{x:Null}" TextColor="White" FontSize="12" VerticalOptions="Center"/>
-                                <Button Text="{Binding CurrentLanguage}"
-                                        Command="{Binding ToggleLanguageCommand}"
-                                        BackgroundColor="Transparent"
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ChangeLanguageCommand}"/>
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="🌐" FontFamily="{x:Null}" TextColor="White" FontSize="14" VerticalOptions="Center"/>
+                                <Label Text="{Binding CurrentLanguage}"
                                         TextColor="White"
                                         FontFamily="BeVietnamProBold"
-                                        FontSize="13"
-                                        Padding="0"
-                                        HeightRequest="24"/>
+                                        FontSize="14"
+                                        VerticalOptions="Center"/>
                             </HorizontalStackLayout>
                         </Border>
                     </Grid>
@@ -89,6 +92,7 @@
                 </Grid>
 
                 <VerticalStackLayout Padding="20,16,20,0" Spacing="20">
+
                     <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
                         <Label Grid.Column="0"
                                Text="{Binding FeaturedSectionTitle}"
@@ -305,4 +309,32 @@
             </VerticalStackLayout>
         </ScrollView>
     </RefreshView>
-</ContentPage>
+
+        <!-- 🤖 Floating Chatbot Bubble -->
+        <Border WidthRequest="58"
+                HeightRequest="58"
+                StrokeShape="RoundRectangle 29"
+                StrokeThickness="0"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="0,0,20,28">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#FF6B35" Offset="0.0" />
+                    <GradientStop Color="#FF4500" Offset="1.0" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Shadow>
+                <Shadow Brush="#FF6B35" Offset="0,6" Radius="14" Opacity="0.5"/>
+            </Border.Shadow>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding OpenChatCommand}"/>
+            </Border.GestureRecognizers>
+            <Label Text="🤖"
+                   FontSize="26"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   FontFamily="{x:Null}"/>
+        </Border>
+
+    </Grid>

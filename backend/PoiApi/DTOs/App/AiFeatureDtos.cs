@@ -11,6 +11,9 @@ public class AiTourPlanRequestDto
 
     /// <summary>Optional extra preferences (e.g. "Tôi thích đồ cay", "Budget 200K")</summary>
     public string? Preferences { get; set; }
+
+    /// <summary>User's preferred language code ("vi", "en", "zh")</summary>
+    public string? Language { get; set; }
 }
 
 /// <summary>Request to chat with the "Tho Dia" chatbot</summary>
@@ -21,6 +24,9 @@ public class AiChatbotRequestDto
 
     /// <summary>Previous conversation history for multi-turn context</summary>
     public List<ChatMessageDto>? History { get; set; }
+
+    /// <summary>User's preferred language code ("vi", "en", "zh")</summary>
+    public string? Language { get; set; }
 }
 
 public class ChatMessageDto

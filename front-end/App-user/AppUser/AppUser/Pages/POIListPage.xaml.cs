@@ -26,6 +26,11 @@ namespace AppUser.Pages
                     LoadMapHtml();
                 }
             };
+
+            if (_vm.IsMapView && !_isMapLoaded)
+            {
+                LoadMapHtml();
+            }
         }
 
         private async void LoadMapHtml()
@@ -118,6 +123,12 @@ namespace AppUser.Pages
         {
             base.OnDisappearing();
             _vm.StopTracking();
+        }
+
+        // Floating chatbot bubble tap handler
+        private async void OnChatbotTapped(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("chat");
         }
     }
 }

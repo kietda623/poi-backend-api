@@ -171,9 +171,10 @@ namespace AppUser.Services
             public string? Message { get; set; }
         }
 
+        // Áp dụng token vào header: ưu tiên User Token, fallback sang Guest Token (từ AuthService)
         private void ApplyAuthorizationHeaderIfAvailable()
         {
-            var token = _authService.Token;
+            var token = _authService.Token; // AuthService tự fallback sang Guest Token
             if (string.IsNullOrWhiteSpace(token))
             {
                 _http.DefaultRequestHeaders.Authorization = null;

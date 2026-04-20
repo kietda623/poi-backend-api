@@ -22,6 +22,7 @@ public class StoreModel
     public int TotalListens { get; set; }
     public int TotalViews { get; set; }
     public double Rating { get; set; }
+    public string? QrCodeUrl { get; set; }
 }
 
 public class StoreAudioTranslationModel

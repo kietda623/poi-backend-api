@@ -4,6 +4,10 @@ namespace PoiApi.Models
     {
         public int Id { get; set; }
         public string DeviceId { get; set; } = string.Empty;   // device id hoặc email user
+
+        // GuestId để ghi nhận lịch sử từ khách vãng lai (GUID từ GuestTokenService)
+        public string? GuestId { get; set; }
+
         public int ShopId { get; set; }
         public Shop? Shop { get; set; }
         public string LanguageCode { get; set; } = "vi";

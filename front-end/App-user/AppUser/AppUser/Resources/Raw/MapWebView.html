@@ -4,8 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Map</title>
+    <!-- Leaflet default stylesheet & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Leaflet Heatmap Plugin -->
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    
     <style>
         body { margin: 0; padding: 0; overflow: hidden; background-color: #f8f9fa; }
         #map { width: 100vw; height: 100vh; }
@@ -22,6 +27,7 @@
         }).addTo(map);
 
         var markers = [];
+        var heatLayer = null; // Biến lưu trữ lớp Heatmap
         var userMarker = null;
 
         var userIcon = L.icon({
@@ -44,12 +50,19 @@
 
         // Hàm này sẽ dùng WebView.Eval() để gọi từ C#
         function updatePOIs(jsonString) {
-            // Xoá marker rũ
+            // Xoá markers cũ
             markers.forEach(function(m) { map.removeLayer(m); });
             markers = [];
 
+            // Xoá heatlayer cũ nếu có
+            if (heatLayer) {
+                map.removeLayer(heatLayer);
+            }
+
             var data = JSON.parse(jsonString);
             var bounds = [];
+            var heatPoints = []; // Mảng chứa vị trí cường độ cho Heatmap
+
             data.forEach(function(poi) {
                 if(poi.Lat && poi.Lng) {
                     var popupHtml = '<div style="font-family:\'Poppins\',sans-serif; min-width:160px; padding:4px;">' +
@@ -61,14 +74,36 @@
                                     '</button>' +
                                     '</div>';
 
+                    // Thêm Marker thông thường
                     var m = L.marker([poi.Lat, poi.Lng], {icon: poiIcon})
                         .addTo(map)
                         .bindPopup(popupHtml);
+                    
                     markers.push(m);
                     bounds.push([poi.Lat, poi.Lng]);
+                    
+                    // Thêm 1 vị trí POI vào danh sách render Heat Map
+                    // Mặc định scale là 1
+                    heatPoints.push([poi.Lat, poi.Lng, 1.0]); 
                 }
             });
 
+            // Tiến hành dán Heat layer vào bản đồ
+            if (heatPoints.length > 0) {
+                heatLayer = L.heatLayer(heatPoints, {
+                    radius: 35, // Độ rộng khu vực toả nhiêt
+                    blur: 20, // Độ làm mờ biên
+                    maxZoom: 16,
+                    max: 1.0, 
+                    gradient: {
+                        0.4: 'yellow',
+                        0.65: 'orange',
+                        1.0: 'red'
+                    }
+                }).addTo(map);
+            }
+
+            // Autofit vùng nhìn camera
             if(bounds.length > 0) {
                 map.fitBounds(bounds, { padding: [30, 30] });
             }

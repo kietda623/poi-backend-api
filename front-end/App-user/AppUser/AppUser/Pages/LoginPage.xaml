@@ -54,7 +54,7 @@
                            HorizontalOptions="Center"
                            FontSize="28"/>
 
-                    <Label Text="Khám phá ẩm thực địa phương"
+                    <Label Text="Discover local cuisine"
                            Style="{StaticResource BodyMedium}"
                            TextColor="#D0FFFFFF"
                            HorizontalOptions="Center"
@@ -72,11 +72,11 @@
 
                 <VerticalStackLayout Spacing="0">
 
-                    <Label Text="Chào mừng quay lại"
+                    <Label Text="Welcome back"
                            Style="{StaticResource HeadlineSmall}"
                            Margin="0,0,0,6"/>
 
-                    <Label Text="Đăng nhập để bắt đầu hành trình của bạn"
+                    <Label Text="Sign in to start your journey"
                            Style="{StaticResource BodyMedium}"
                            TextColor="{StaticResource TextSecondary}"
                            Margin="0,0,0,32"/>
@@ -122,7 +122,7 @@
                     </Border>
 
                     <!-- Password Field -->
-                    <Label Text="Mật khẩu" Style="{StaticResource TitleMedium}" Margin="0,0,0,8"/>
+                    <Label Text="Password" Style="{StaticResource TitleMedium}" Margin="0,0,0,8"/>
                     <Border BackgroundColor="{StaticResource SurfaceVariant}"
                             StrokeShape="RoundRectangle 16"
                             StrokeThickness="0"
@@ -145,15 +145,8 @@
                         </Grid>
                     </Border>
 
-                    <!-- Hint text -->
-                    <!--<Label Text="Demo: user@foodtour.vn / 123456"
-                           Style="{StaticResource LabelCaption}"
-                           TextColor="{StaticResource TextHint}"
-                           HorizontalOptions="End"
-                           Margin="0,0,0,28"/>-->
-
                     <!-- Login Button -->
-                    <Button Text="Đăng nhập"
+                    <Button Text="Sign In"
                             Command="{Binding LoginCommand}"
                             Style="{StaticResource PrimaryButton}"
                             IsEnabled="{Binding IsLoading, Converter={StaticResource BoolInverterConverter}}"
@@ -174,15 +167,15 @@
                                  BackgroundColor="{StaticResource Surface}">
                 
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="4" Margin="0,0,0,16">
-                    <Label Text="Chưa có tài khoản?" Style="{StaticResource BodyMedium}" />
-                    <Label Text="Đăng ký ngay" TextColor="{StaticResource Primary}" Style="{StaticResource TitleMedium}">
+                    <Label Text="Don't have an account?" Style="{StaticResource BodyMedium}" />
+                    <Label Text="Sign Up" TextColor="{StaticResource Primary}" Style="{StaticResource TitleMedium}">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding NavigateToRegisterCommand}" />
                         </Label.GestureRecognizers>
                     </Label>
                 </HorizontalStackLayout>
 
-                <Label Text="© 2026 FoodTour POI · Khám phá ẩm thực"
+                <Label Text="© 2026 FoodTour POI · Explore culinary delights"
                        Style="{StaticResource LabelCaption}"
                        HorizontalOptions="Center"/>
             </VerticalStackLayout>

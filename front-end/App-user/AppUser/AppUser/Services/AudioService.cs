@@ -20,7 +20,7 @@ namespace AppUser.Services
         public IReadOnlyList<(POIDto POI, DateTime ListenedAt)> History => _history;
 
         // ─── Language Preference ─────────────────────────────────────────────
-        public string CurrentLanguage { get; private set; } = "vi";
+        public string CurrentLanguage { get; private set; } = "en";
 
         /// <summary>Load an audio guide for playback</summary>
         public void LoadGuide(AudioGuideDto guide, POIDto poi)

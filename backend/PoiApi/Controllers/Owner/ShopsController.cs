@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PoiApi.Data;
@@ -20,13 +20,15 @@ namespace PoiApi.Controllers.Owner
         private readonly AzureSpeechService _tts;
         private readonly AzureTranslationService _translator;
         private readonly SubscriptionAccessService _subscriptionAccessService;
+        private readonly QrCodeService _qrCodeService;
 
-        public ShopsController(AppDbContext context, AzureSpeechService tts, AzureTranslationService translator, SubscriptionAccessService subscriptionAccessService)
+        public ShopsController(AppDbContext context, AzureSpeechService tts, AzureTranslationService translator, SubscriptionAccessService subscriptionAccessService, QrCodeService qrCodeService)
         {
             _context = context;
             _tts = tts;
             _translator = translator;
             _subscriptionAccessService = subscriptionAccessService;
+            _qrCodeService = qrCodeService;
         }
 
         private int GetCurrentUserId()
@@ -157,7 +159,8 @@ namespace PoiApi.Controllers.Owner
                     SellerId = s.OwnerId,
                     s.CreatedAt,
                     Latitude = s.Poi != null ? s.Poi.Latitude : 0.0,
-                    Longitude = s.Poi != null ? s.Poi.Longitude : 0.0
+                    Longitude = s.Poi != null ? s.Poi.Longitude : 0.0,
+                    QrCodeUrl = s.QrCodeUrl
                 });
             }
 
@@ -218,7 +221,16 @@ namespace PoiApi.Controllers.Owner
             _context.Shops.Add(shop);
             await _context.SaveChangesAsync();
 
-            return Ok(new { id = shop.Id, message = "ÄÄƒng kÃ½ gian hÃ ng thÃ nh cÃ´ng" });
+            // Auto-generate QR code after shop is saved (we need the ID)
+            var shopUrl = _qrCodeService.BuildShopUrl(shop.Id);
+            var qrCodeUrl = await _qrCodeService.GenerateQrCodeAsync(shopUrl, shop.Id);
+            if (!string.IsNullOrEmpty(qrCodeUrl))
+            {
+                shop.QrCodeUrl = qrCodeUrl;
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok(new { id = shop.Id, message = "Đăng ký gian hàng thành công", qrCodeUrl });
         }
 
         [HttpPut("{id}")]
@@ -231,7 +243,7 @@ namespace PoiApi.Controllers.Owner
                     .ThenInclude(p => p.Translations)
                 .FirstOrDefaultAsync(s => s.Id == id && s.OwnerId == ownerId);
 
-            if (shop == null) return NotFound("Gian hÃ ng khÃ´ng tá»“n táº¡i hoáº·c khÃ´ng thuá»™c quyá»n sá»Ÿ há»¯u");
+            if (shop == null) return NotFound("Gian hÃ ng khÃ´ng tá»“n táº¡i hoáº·c khÃ´ng thuá»™c quyá» n sá»Ÿ há»¯u");
 
             shop.Name = dto.Name;
             shop.Description = dto.Description;
@@ -255,7 +267,20 @@ namespace PoiApi.Controllers.Owner
             }
 
             await _context.SaveChangesAsync();
-            return Ok(new { message = "Cáº­p nháº­t gian hÃ ng thÃ nh cÃ´ng" });
+
+            // Regenerate QR if it doesn't exist yet (migrate existing shops)
+            if (string.IsNullOrEmpty(shop.QrCodeUrl))
+            {
+                var shopUrl = _qrCodeService.BuildShopUrl(shop.Id);
+                var qrCodeUrl = await _qrCodeService.GenerateQrCodeAsync(shopUrl, shop.Id);
+                if (!string.IsNullOrEmpty(qrCodeUrl))
+                {
+                    shop.QrCodeUrl = qrCodeUrl;
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            return Ok(new { message = "Cập nhật gian hàng thành công", qrCodeUrl = shop.QrCodeUrl });
         }
 
         [HttpDelete("{id}")]
@@ -280,6 +305,63 @@ namespace PoiApi.Controllers.Owner
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        // ── QR Code Endpoints ──────────────────────────────────────────────────────
+
+        /// <summary>Get QR code info for a shop (URL + file path).</summary>
+        [HttpGet("{id}/qr")]
+        public async Task<IActionResult> GetQrCode(int id)
+        {
+            var ownerId = GetCurrentUserId();
+            var shop = await _context.Shops
+                .FirstOrDefaultAsync(s => s.Id == id && s.OwnerId == ownerId);
+
+            if (shop == null) return NotFound("Gian hàng không tồn tại");
+
+            // Generate if not yet created
+            if (string.IsNullOrEmpty(shop.QrCodeUrl))
+            {
+                var shopUrl = _qrCodeService.BuildShopUrl(shop.Id);
+                shop.QrCodeUrl = await _qrCodeService.GenerateQrCodeAsync(shopUrl, shop.Id);
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok(new
+            {
+                shopId = shop.Id,
+                shopName = shop.Name,
+                qrCodeUrl = shop.QrCodeUrl,
+                encodedUrl = _qrCodeService.BuildShopUrl(shop.Id)
+            });
+        }
+
+        /// <summary>Regenerate QR code for a shop (e.g., after URL changes).</summary>
+        [HttpPost("{id}/regenerate-qr")]
+        public async Task<IActionResult> RegenerateQrCode(int id)
+        {
+            var ownerId = GetCurrentUserId();
+            var shop = await _context.Shops
+                .FirstOrDefaultAsync(s => s.Id == id && s.OwnerId == ownerId);
+
+            if (shop == null) return NotFound("Gian hàng không tồn tại");
+
+            var shopUrl = _qrCodeService.BuildShopUrl(shop.Id);
+            var qrCodeUrl = await _qrCodeService.GenerateQrCodeAsync(shopUrl, shop.Id);
+
+            if (string.IsNullOrEmpty(qrCodeUrl))
+                return StatusCode(500, "Không thể tạo mã QR");
+
+            shop.QrCodeUrl = qrCodeUrl;
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                shopId = shop.Id,
+                qrCodeUrl,
+                encodedUrl = shopUrl,
+                message = "Tạo lại mã QR thành công"
+            });
         }
 
     [HttpPost("{id}/generate-tts")]

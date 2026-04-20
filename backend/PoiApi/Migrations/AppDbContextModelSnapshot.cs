@@ -448,13 +448,13 @@ namespace PoiApi.Migrations
                             AllowTinderAccess = false,
                             Audience = "USER",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Goi nghe thuyet minh co ban danh cho nguoi dung app.",
-                            Features = "Nghe thuyet minh 3 ngon ngu|Ho tro review sau khi nghe|Su dung tren toan bo app",
+                            Description = "Gói nghe thuyết minh cơ bản.",
+                            Features = "Nghe thuyết minh 3 ngôn ngữ|Hỗ trợ review sau khi nghe",
                             IsActive = false,
                             MaxStores = 0,
                             MonthlyPrice = 49000m,
                             Name = "Audio Starter",
-                            Tier = "Basic",
+                            Tier = "AudioBasic",
                             YearlyPrice = 490000m
                         },
                         new
@@ -466,13 +466,13 @@ namespace PoiApi.Migrations
                             AllowTinderAccess = false,
                             Audience = "USER",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Goi audio uu tien danh cho nguoi nghe thuong xuyen.",
-                            Features = "Nghe thuyet minh 3 ngon ngu|Uu tien audio moi|Khong gioi han luot nghe trong goi con han",
+                            Description = "Gói nghe thuyết minh mở rộng.",
+                            Features = "Nghe thuyết minh 3 ngôn ngữ|Ưu tiên audio mới",
                             IsActive = false,
                             MaxStores = 0,
                             MonthlyPrice = 99000m,
                             Name = "Audio Plus",
-                            Tier = "Premium",
+                            Tier = "AudioPremium",
                             YearlyPrice = 990000m
                         },
                         new
@@ -484,13 +484,13 @@ namespace PoiApi.Migrations
                             AllowTinderAccess = false,
                             Audience = "USER",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Goi audio cao cap cho nguoi dung trung thanh.",
-                            Features = "Nghe thuyet minh 3 ngon ngu|Truy cap tat ca diem audio|Ho tro uu tien",
+                            Description = "Gói audio cao cấp.",
+                            Features = "Nghe thuyết minh 3 ngôn ngữ|Hỗ trợ ưu tiên",
                             IsActive = false,
                             MaxStores = 0,
                             MonthlyPrice = 199000m,
                             Name = "Audio Premium",
-                            Tier = "VIP",
+                            Tier = "AudioVIP",
                             YearlyPrice = 1990000m
                         },
                         new
@@ -502,14 +502,14 @@ namespace PoiApi.Migrations
                             AllowTinderAccess = false,
                             Audience = "USER",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Mở khóa thuyết minh ẩm thực tự động khi đến gần các gian hàng.",
-                            Features = "Tự động phát thuyết minh khi đến gần POI|Nghe thuyet minh 3 ngon ngu|Ho tro review sau khi nghe|!Tinder Ẩm Thực|!AI Kế Hoạch Tour|!Chatbot Thổ Địa",
+                            Description = "Mở khóa thuyết minh ẩm thực tự động khi đến gần các gian hàng. Sử dụng trong 1 ngày.",
+                            Features = "Sử dụng trong 1 ngày|Tự động phát thuyết minh khi đến gần POI|Nghe thuyết minh 3 ngôn ngữ|Hỗ trợ review sau khi nghe|!Tinder Ẩm Thực|!AI Kế Hoạch Tour|!Chatbot Thổ Địa",
                             IsActive = true,
                             MaxStores = 0,
-                            MonthlyPrice = 99000m,
+                            MonthlyPrice = 50000m,
                             Name = "Tour Basic",
-                            Tier = "Basic",
-                            YearlyPrice = 990000m
+                            Tier = "TourBasic",
+                            YearlyPrice = 50000m
                         },
                         new
                         {
@@ -520,14 +520,14 @@ namespace PoiApi.Migrations
                             AllowTinderAccess = true,
                             Audience = "USER",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Trải nghiệm đầy đủ: thuyết minh + Tinder ẩm thực + AI lịch trình + Chatbot tư vấn.",
-                            Features = "Tất cả quyền lợi Tour Basic|Tinder Ẩm Thực (quẹt trái/phải)|AI Kế Hoạch Tour từ Gemini|Chatbot Thổ Địa tư vấn món ăn|Ưu tiên đề xuất quán hot",
+                            Description = "Trải nghiệm đầy đủ: thuyết minh + Tinder ẩm thực + AI lịch trình + Chatbot tư vấn. Sử dụng trong 1 ngày.",
+                            Features = "Sử dụng trong 1 ngày|Tất cả quyền lợi Tour Basic|Tinder Ẩm Thực (quẹt trái/phải)|AI Kế Hoạch Tour từ Groq|Chatbot Thổ Địa tư vấn món ăn|Ưu tiên đề xuất quán hot",
                             IsActive = true,
                             MaxStores = 0,
-                            MonthlyPrice = 299000m,
+                            MonthlyPrice = 99000m,
                             Name = "Tour Plus",
-                            Tier = "Premium",
-                            YearlyPrice = 2990000m
+                            Tier = "TourPlus",
+                            YearlyPrice = 99000m
                         });
                 });
 
@@ -570,6 +570,9 @@ namespace PoiApi.Migrations
                     b.Property<int?>("PoiId")
                         .HasColumnType("int");
 
+                    b.Property<string>("QrCodeUrl")
+                        .HasColumnType("longtext");
+
                     b.Property<int>("ViewCount")
                         .HasColumnType("int");
 
@@ -611,8 +614,14 @@ namespace PoiApi.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("DeviceId")
+                        .HasColumnType("varchar(255)");
+
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("GuestEmail")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("PaymentLinkId")
                         .HasColumnType("longtext");
@@ -647,10 +656,13 @@ namespace PoiApi.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeviceId")
+                        .HasDatabaseName("IX_Subscriptions_DeviceId");
 
                     b.HasIndex("ServicePackageId");
 
@@ -704,6 +716,9 @@ namespace PoiApi.Migrations
                     b.Property<int>("DurationSeconds")
                         .HasColumnType("int");
 
+                    b.Property<string>("GuestId")
+                        .HasColumnType("varchar(255)");
+
                     b.Property<string>("LanguageCode")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -715,6 +730,9 @@ namespace PoiApi.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GuestId")
+                        .HasDatabaseName("IX_UsageHistories_GuestId");
 
                     b.HasIndex("ShopId");
 
@@ -857,8 +875,7 @@ namespace PoiApi.Migrations
                     b.HasOne("PoiApi.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("ServicePackage");
 

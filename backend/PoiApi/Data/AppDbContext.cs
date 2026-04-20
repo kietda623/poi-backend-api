@@ -64,17 +64,24 @@ namespace PoiApi.Data
                 .HasForeignKey(s => s.CategoryId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            // Subscription.UserId nullable: Guest không cần tài khoản
             modelBuilder.Entity<Subscription>()
                 .HasOne(s => s.User)
                 .WithMany()
                 .HasForeignKey(s => s.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Subscription>()
                 .HasOne(s => s.ServicePackage)
                 .WithMany(p => p.Subscriptions)
                 .HasForeignKey(s => s.ServicePackageId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Index cho DeviceId để tìm subscription của Guest nhanh
+            modelBuilder.Entity<Subscription>()
+                .HasIndex(s => s.DeviceId)
+                .HasDatabaseName("IX_Subscriptions_DeviceId");
 
             modelBuilder.Entity<ServicePackage>().Property(p => p.MonthlyPrice).HasColumnType("decimal(18,2)");
             modelBuilder.Entity<ServicePackage>().Property(p => p.YearlyPrice).HasColumnType("decimal(18,2)");
@@ -85,6 +92,11 @@ namespace PoiApi.Data
                 .WithMany()
                 .HasForeignKey(uh => uh.ShopId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Index cho GuestId để thống kê Guest usage
+            modelBuilder.Entity<UsageHistory>()
+                .HasIndex(uh => uh.GuestId)
+                .HasDatabaseName("IX_UsageHistories_GuestId");
 
             modelBuilder.Entity<Language>()
                 .HasIndex(l => l.Code)
