@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="MudBlazor" Version="9.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.2" />
 
   </ItemGroup>
 

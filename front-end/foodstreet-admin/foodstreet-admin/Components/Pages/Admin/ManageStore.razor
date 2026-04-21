@@ -3,56 +3,62 @@
 @rendermode InteractiveServer
 @inject StoreService StoreSvc
 @inject ISnackbar Snackbar
+@inject IJSRuntime JS
+@inject IConfiguration Configuration
 
-<PageTitle>Quản lý Gian hàng</PageTitle>
+<PageTitle>Quan ly Gian hang</PageTitle>
 
-<MudText Typo="Typo.h5" Style="font-weight:700" Class="mb-1">🏪 Quản lý Gian hàng (Store)</MudText>
-<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">Duyệt nội dung và quản lý gian hàng</MudText>
+<MudText Typo="Typo.h5" Style="font-weight:700" Class="mb-1">Quan ly Gian hang (Store)</MudText>
+<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">Duyet noi dung, quan ly audio va QR code</MudText>
 
-<!-- Filters -->
 <MudPaper Class="pa-4 mb-4" Elevation="1" Style="border-radius:8px">
     <MudGrid AlignItems="AlignItems.Center">
         <MudItem xs="12" md="4">
-            <MudTextField @bind-Value="_search" Label="Tìm theo tên gian hàng..."
+            <MudTextField @bind-Value="_search" Label="Tim theo ten gian hang..."
                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
                           Variant="Variant.Outlined" Dense="true" Immediate="true" />
         </MudItem>
         <MudItem xs="12" md="2">
-            <MudSelect @bind-Value="_filterStatus" Label="Trạng thái" Variant="Variant.Outlined" Dense="true">
-                <MudSelectItem Value="@("All")">Tất cả</MudSelectItem>
+            <MudSelect @bind-Value="_filterStatus" Label="Trang thai" Variant="Variant.Outlined" Dense="true">
+                <MudSelectItem Value="@("All")">Tat ca</MudSelectItem>
                 <MudSelectItem Value="@("Active")">Active</MudSelectItem>
                 <MudSelectItem Value="@("Pending")">Pending</MudSelectItem>
                 <MudSelectItem Value="@("Rejected")">Rejected</MudSelectItem>
             </MudSelect>
         </MudItem>
         <MudItem xs="12" md="2">
-            <MudSelect @bind-Value="_filterCat" Label="Danh mục" Variant="Variant.Outlined" Dense="true">
-                <MudSelectItem Value="@("All")">Tất cả</MudSelectItem>
-                @foreach (var cat in new[]{"Ốc","Hải sản","Cơm","Bún/Phở","Đồ uống"})
-                { <MudSelectItem Value="@cat">@cat</MudSelectItem> }
+            <MudSelect @bind-Value="_filterCat" Label="Danh muc" Variant="Variant.Outlined" Dense="true">
+                <MudSelectItem Value="@("All")">Tat ca</MudSelectItem>
+                @foreach (var cat in new[] { "Oc", "Hai san", "Com", "Bun/Pho", "Do uong", "An vat", "Lau/Nuong" })
+                {
+                    <MudSelectItem Value="@cat">@cat</MudSelectItem>
+                }
             </MudSelect>
         </MudItem>
         <MudItem xs="12" md="2">
             <MudText Typo="Typo.body2" Color="Color.Secondary">
-                <b>@Filtered.Count()</b> gian hàng
+                <b>@Filtered.Count()</b> gian hang
             </MudText>
         </MudItem>
     </MudGrid>
 </MudPaper>
 
 @if (_loading)
-{ <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-2" /> }
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-2" />
+}
 
 <MudPaper Elevation="2" Style="border-radius:8px;overflow:hidden">
     <MudTable Items="@Filtered" Hover="true" Dense="true" Striped="true">
         <HeaderContent>
-            <MudTh>Gian hàng</MudTh>
+            <MudTh>Gian hang</MudTh>
             <MudTh>Seller</MudTh>
-            <MudTh>Danh mục</MudTh>
-            <MudTh>Địa chỉ</MudTh>
-            <MudTh>Trạng thái</MudTh>
+            <MudTh>Danh muc</MudTh>
+            <MudTh>Dia chi</MudTh>
+            <MudTh>Trang thai</MudTh>
             <MudTh>Audio</MudTh>
-            <MudTh>Thao tác</MudTh>
+            <MudTh>QR</MudTh>
+            <MudTh>Thao tac</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd>
@@ -70,7 +76,7 @@
                 </MudChip>
             </MudTd>
             <MudTd>
-                @if (!string.IsNullOrEmpty(context.AudioUrl))
+                @if (!string.IsNullOrWhiteSpace(context.AudioUrl))
                 {
                     <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Info"
                                StartIcon="@Icons.Material.Filled.PlayArrow"
@@ -78,22 +84,33 @@
                 }
                 else
                 {
-                    <MudText Typo="Typo.caption" Color="Color.Secondary">Không có</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Khong co</MudText>
                 }
+            </MudTd>
+            <MudTd>
+                <MudStack Row="true" Spacing="0">
+                    <MudIconButton Icon="@Icons.Material.Filled.QrCode2" Size="Size.Small"
+                                   Color="Color.Warning" Title="Xem QR"
+                                   OnClick="@(() => OpenQrDialog(context))" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Download" Size="Size.Small"
+                                   Color="Color.Success" Title="Tai QR"
+                                   Disabled="@string.IsNullOrWhiteSpace(context.QrCodeUrl)"
+                                   OnClick="@(() => DownloadQrCode(context))" />
+                </MudStack>
             </MudTd>
             <MudTd>
                 <MudStack Row="true" Spacing="0">
                     @if (context.Status == "Pending")
                     {
                         <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small"
-                                       Color="Color.Success" Title="Duyệt"
+                                       Color="Color.Success" Title="Duyet"
                                        OnClick="@(async () => await Approve(context))" />
                         <MudIconButton Icon="@Icons.Material.Filled.Cancel" Size="Size.Small"
-                                       Color="Color.Error" Title="Từ chối"
+                                       Color="Color.Error" Title="Tu choi"
                                        OnClick="@(async () => await Reject(context))" />
                     }
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
-                                   Color="Color.Error" Title="Xóa"
+                                   Color="Color.Error" Title="Xoa"
                                    OnClick="@(async () => await Delete(context))" />
                 </MudStack>
             </MudTd>
@@ -104,49 +121,95 @@
     </MudTable>
 </MudPaper>
 
-<!-- Audio Preview Dialog -->
 <MudDialog @bind-Visible="_showPreview">
     <TitleContent>
         <MudText Typo="Typo.h6">
             <MudIcon Icon="@Icons.Material.Filled.Headphones" Class="mr-2" />
-            Preview Audio: @_previewStore?.Name
+            Preview audio: @_previewStore?.Name
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudPaper Class="pa-6 text-center" Elevation="0" Style="background:#f5f5f5;border-radius:8px">
-            <MudIcon Icon="@Icons.Material.Filled.AudioFile" Size="Size.Large" Color="Color.Info" />
-            <MudText Typo="Typo.body1" Class="mt-2">@_previewStore?.AudioUrl</MudText>
-            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-1">
-                Tích hợp HTML5 audio player tại đây
-            </MudText>
-            @* <audio controls src="@_previewStore?.AudioUrl" style="width:100%;margin-top:12px"></audio> *@
+        <MudPaper Class="pa-4 text-center" Elevation="0" Style="background:#f5f5f5;border-radius:8px">
+            @if (_previewStore is not null)
+            {
+                <audio controls src="@ResolveMediaUrl(_previewStore.AudioUrl)" style="width:100%;margin-top:12px"></audio>
+            }
         </MudPaper>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="@(() => _showPreview = false)" Variant="Variant.Outlined">Đóng</MudButton>
-        @if (_previewStore?.Status == "Pending")
+        <MudButton OnClick="@(() => _showPreview = false)" Variant="Variant.Outlined">Dong</MudButton>
+    </DialogActions>
+</MudDialog>
+
+<MudDialog @bind-Visible="_showQrDialog">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.QrCode2" Class="mr-2" />
+            Quan ly QR: @_qrStore?.Name
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (_qrStore != null)
         {
-            <MudButton Color="Color.Success" Variant="Variant.Filled"
-                       OnClick="@(async () => { await Approve(_previewStore!); _showPreview = false; })">
-                Duyệt sau khi xem
-            </MudButton>
+            <MudPaper Class="pa-4" Elevation="0" Style="background:#f8f9ff;border-radius:8px">
+                @if (!string.IsNullOrWhiteSpace(_qrStore.QrCodeUrl))
+                {
+                    <div class="d-flex justify-center mb-3">
+                        <MudImage Src="@ResolveMediaUrl(_qrStore.QrCodeUrl)" Height="220" Width="220" />
+                    </div>
+                    <MudText Typo="Typo.caption" Class="d-block text-center" Style="word-break:break-all">
+                        @_qrStore.QrCodeUrl
+                    </MudText>
+                }
+                else
+                {
+                    <MudAlert Severity="Severity.Warning" Dense="true">
+                        Gian hang nay chua co QR.
+                    </MudAlert>
+                }
+            </MudPaper>
         }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _showQrDialog = false)" Variant="Variant.Outlined">Dong</MudButton>
+        <MudButton Color="Color.Info" Variant="Variant.Outlined"
+                   StartIcon="@Icons.Material.Filled.Autorenew"
+                   Disabled="@(_qrBusy || _qrStore is null)"
+                   OnClick="RegenerateQrCodeForDialog">
+            @(_qrBusy ? "Dang tao..." : "Tao lai QR")
+        </MudButton>
+        <MudButton Color="Color.Success" Variant="Variant.Filled"
+                   StartIcon="@Icons.Material.Filled.Download"
+                   Disabled="@(_qrStore is null || string.IsNullOrWhiteSpace(_qrStore.QrCodeUrl))"
+                   OnClick="DownloadQrCodeFromDialog">
+            Tai QR
+        </MudButton>
     </DialogActions>
 </MudDialog>
 
 @code {
-    private bool _loading = true, _showPreview;
-    private string _search = "", _filterStatus = "All", _filterCat = "All";
+    private bool _loading = true;
+    private bool _showPreview;
+    private bool _showQrDialog;
+    private bool _qrBusy;
+    private string _search = "";
+    private string _filterStatus = "All";
+    private string _filterCat = "All";
     private List<StoreModel> _stores = new();
     private StoreModel? _previewStore;
+    private StoreModel? _qrStore;
 
     private IEnumerable<StoreModel> Filtered => _stores.Where(s =>
-        (string.IsNullOrEmpty(_search) || s.Name.Contains(_search, StringComparison.OrdinalIgnoreCase)) &&
+        (string.IsNullOrWhiteSpace(_search) || s.Name.Contains(_search, StringComparison.OrdinalIgnoreCase)) &&
         (_filterStatus == "All" || s.Status == _filterStatus) &&
         (_filterCat == "All" || s.Category == _filterCat));
 
-    private Color StatusColor(string s) => s switch
-    { "Active" => Color.Success, "Pending" => Color.Warning, _ => Color.Error };
+    private Color StatusColor(string status) => status switch
+    {
+        "Active" => Color.Success,
+        "Pending" => Color.Warning,
+        _ => Color.Error
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -154,26 +217,93 @@
         _loading = false;
     }
 
-    private void Preview(StoreModel s) { _previewStore = s; _showPreview = true; }
-
-    private async Task Approve(StoreModel s)
+    private void Preview(StoreModel store)
     {
-        await StoreSvc.ApproveStoreAsync(s.Id);
-        s.Status = "Active";
-        Snackbar.Add($"Đã duyệt: {s.Name}", Severity.Success);
+        _previewStore = store;
+        _showPreview = true;
     }
 
-    private async Task Reject(StoreModel s)
+    private async Task Approve(StoreModel store)
     {
-        await StoreSvc.RejectStoreAsync(s.Id);
-        s.Status = "Rejected";
-        Snackbar.Add($"Đã từ chối: {s.Name}", Severity.Warning);
+        await StoreSvc.ApproveStoreAsync(store.Id);
+        store.Status = "Active";
+        Snackbar.Add($"Da duyet: {store.Name}", Severity.Success);
     }
 
-    private async Task Delete(StoreModel s)
+    private async Task Reject(StoreModel store)
     {
-        await StoreSvc.DeleteStoreAsync(s.Id);
-        _stores.Remove(s);
-        Snackbar.Add($"Đã xóa: {s.Name}", Severity.Success);
+        await StoreSvc.RejectStoreAsync(store.Id);
+        store.Status = "Rejected";
+        Snackbar.Add($"Da tu choi: {store.Name}", Severity.Warning);
+    }
+
+    private async Task Delete(StoreModel store)
+    {
+        await StoreSvc.DeleteStoreAsync(store.Id);
+        _stores.Remove(store);
+        Snackbar.Add($"Da xoa: {store.Name}", Severity.Success);
+    }
+
+    private void OpenQrDialog(StoreModel store)
+    {
+        _qrStore = store;
+        _showQrDialog = true;
+    }
+
+    private async Task RegenerateQrCodeForDialog()
+    {
+        if (_qrStore is null) return;
+
+        _qrBusy = true;
+        try
+        {
+            var qrCodeUrl = await StoreSvc.RegenerateAdminQrCodeAsync(_qrStore.Id);
+            if (!string.IsNullOrWhiteSpace(qrCodeUrl))
+            {
+                _qrStore.QrCodeUrl = qrCodeUrl;
+                var inList = _stores.FirstOrDefault(s => s.Id == _qrStore.Id);
+                if (inList != null) inList.QrCodeUrl = qrCodeUrl;
+                Snackbar.Add("Da tao lai ma QR thanh cong.", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Khong the tao lai ma QR.", Severity.Error);
+            }
+        }
+        finally
+        {
+            _qrBusy = false;
+        }
+    }
+
+    private async Task DownloadQrCodeFromDialog()
+    {
+        if (_qrStore is not null)
+        {
+            await DownloadQrCode(_qrStore);
+        }
+    }
+
+    private async Task DownloadQrCode(StoreModel store)
+    {
+        if (string.IsNullOrWhiteSpace(store.QrCodeUrl))
+        {
+            Snackbar.Add("Gian hang chua co ma QR.", Severity.Warning);
+            return;
+        }
+
+        var fileName = $"qr-store-{store.Id}.png";
+        await JS.InvokeVoidAsync("downloadFileFromUrl", ResolveMediaUrl(store.QrCodeUrl), fileName);
+    }
+
+    private string ResolveMediaUrl(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return "";
+        if (url.StartsWith("http", StringComparison.OrdinalIgnoreCase)) return url;
+
+        var apiBase = Configuration["ApiBaseUrl"] ?? "http://localhost:5279/api/";
+        var backendBase = apiBase.Replace("/api/", "", StringComparison.OrdinalIgnoreCase).TrimEnd('/');
+        var normalizedUrl = url.StartsWith("/") ? url : "/" + url;
+        return $"{backendBase}{normalizedUrl}";
     }
 }

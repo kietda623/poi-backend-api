@@ -79,6 +79,21 @@ namespace PoiApi.Controllers.Owner
             return category.Id;
         }
 
+        private async Task<string?> EnsureQrCodeAsync(Shop shop)
+        {
+            if (!string.IsNullOrWhiteSpace(shop.QrCodeUrl))
+                return shop.QrCodeUrl;
+
+            var shopUrl = _qrCodeService.BuildShopUrl(shop.Id);
+            var qrCodeUrl = await _qrCodeService.GenerateQrCodeAsync(shopUrl, shop.Id);
+            if (!string.IsNullOrWhiteSpace(qrCodeUrl))
+            {
+                shop.QrCodeUrl = qrCodeUrl;
+            }
+
+            return shop.QrCodeUrl;
+        }
+
         private static string ToSlug(string value)
         {
             // Normalize vietnamese diacritics -> base chars.
@@ -119,6 +134,8 @@ namespace PoiApi.Controllers.Owner
             var shops = new List<object>();
             foreach (var s in query)
             {
+                await EnsureQrCodeAsync(s);
+
                 string name = s.Name;
                 string description = s.Description ?? "";
 
@@ -163,6 +180,8 @@ namespace PoiApi.Controllers.Owner
                     QrCodeUrl = s.QrCodeUrl
                 });
             }
+
+            await _context.SaveChangesAsync();
 
             return Ok(shops);
         }
@@ -222,13 +241,8 @@ namespace PoiApi.Controllers.Owner
             await _context.SaveChangesAsync();
 
             // Auto-generate QR code after shop is saved (we need the ID)
-            var shopUrl = _qrCodeService.BuildShopUrl(shop.Id);
-            var qrCodeUrl = await _qrCodeService.GenerateQrCodeAsync(shopUrl, shop.Id);
-            if (!string.IsNullOrEmpty(qrCodeUrl))
-            {
-                shop.QrCodeUrl = qrCodeUrl;
-                await _context.SaveChangesAsync();
-            }
+            var qrCodeUrl = await EnsureQrCodeAsync(shop);
+            await _context.SaveChangesAsync();
 
             return Ok(new { id = shop.Id, message = "Đăng ký gian hàng thành công", qrCodeUrl });
         }
@@ -271,13 +285,8 @@ namespace PoiApi.Controllers.Owner
             // Regenerate QR if it doesn't exist yet (migrate existing shops)
             if (string.IsNullOrEmpty(shop.QrCodeUrl))
             {
-                var shopUrl = _qrCodeService.BuildShopUrl(shop.Id);
-                var qrCodeUrl = await _qrCodeService.GenerateQrCodeAsync(shopUrl, shop.Id);
-                if (!string.IsNullOrEmpty(qrCodeUrl))
-                {
-                    shop.QrCodeUrl = qrCodeUrl;
-                    await _context.SaveChangesAsync();
-                }
+                await EnsureQrCodeAsync(shop);
+                await _context.SaveChangesAsync();
             }
 
             return Ok(new { message = "Cập nhật gian hàng thành công", qrCodeUrl = shop.QrCodeUrl });
@@ -322,8 +331,7 @@ namespace PoiApi.Controllers.Owner
             // Generate if not yet created
             if (string.IsNullOrEmpty(shop.QrCodeUrl))
             {
-                var shopUrl = _qrCodeService.BuildShopUrl(shop.Id);
-                shop.QrCodeUrl = await _qrCodeService.GenerateQrCodeAsync(shopUrl, shop.Id);
+                await EnsureQrCodeAsync(shop);
                 await _context.SaveChangesAsync();
             }
 

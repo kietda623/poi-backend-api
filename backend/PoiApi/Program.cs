@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PoiApi.Data;
+using PoiApi.Hubs;
 using PoiApi.Mapping;
 using PoiApi.Models;
 using PoiApi.Services;
@@ -32,6 +33,7 @@ builder.Services.AddScoped<GroqService>();
 builder.Services.AddScoped<GuestTokenService>();
 // QR Code generation service
 builder.Services.AddScoped<QrCodeService>();
+builder.Services.AddSingleton<IUserTrackerService, UserTrackerService>();
 builder.Services.Configure<PayOsOptions>(builder.Configuration.GetSection("PayOS"));
 
 // AUTH
@@ -64,6 +66,7 @@ builder.Services.AddCors(options =>
 
 // MVC / SWAGGER / MAPPER
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -153,4 +156,5 @@ app.Use(async (context, next) =>
 });
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<UserTrackerHub>("/hubs/user-tracker");
 app.Run();

@@ -821,3 +821,44 @@ dotnet publish -c Release
 
 **Tài liệu này được cập nhật lần cuối: Tháng 4, 2026**
 **Phiên bản: 1.2**
+
+---
+
+### Phien ban 1.3 - Thang 4, 2026
+
+#### Realtime Online Users (SignalR)
+
+**Backend (ASP.NET Core 8):**
+- Bo sung `UserTrackerHub` (`/hubs/user-tracker`) de theo doi danh sach du khach dang online.
+- Override `OnConnectedAsync` va `OnDisconnectedAsync` de cap nhat trang thai online theo `UserId <-> ConnectionId`.
+- Bo sung `IUserTrackerService` + `UserTrackerService` su dung static `ConcurrentDictionary` de luu connection map.
+- Them DTO `OnlineUserDto` (Avatar/DisplayName, Email, ServicePackage, ConnectedAtUtc).
+- Hub broadcast su kien `OnlineUsersUpdated` moi khi co user join/leave.
+- Them method `GetOnlineUsers()` de dashboard lay du lieu luc vao trang.
+- Program.cs da dang ky `AddSignalR()` va `MapHub<UserTrackerHub>("/hubs/user-tracker")`.
+
+**Admin Dashboard (Blazor Server + MudBlazor):**
+- Tao trang moi `OnlineUsers.razor` (route: `/admin/online-users`).
+- Su dung `MudTable` hien thi cac cot:
+  - Avatar
+  - Ten du khach
+  - Email
+  - Loai goi dich vu (Basic/Premium/VIP)
+  - Thoi gian bat dau vao app
+- Bo sung `MudChip` mau xanh (Live) co hieu ung nhap nhay.
+- Su dung SignalR Client de tu dong cap nhat danh sach khong can reload.
+- Bo sung menu link trong `AdminLayout.razor` de truy cap nhanh trang online users.
+
+**Mobile App (MAUI 9):**
+- Tao `Services/SignalRService.cs` de ket noi `UserTrackerHub`.
+- Dung `Microsoft.AspNetCore.SignalR.Client`.
+- Tu dong connect hub ngay sau login thanh cong (trong `AuthService`).
+- Gui JWT khi ket noi (Authorization header + AccessTokenProvider) de backend nhan dien user.
+- Bat `WithAutomaticReconnect(...)` voi cac moc reconnect 0s -> 2s -> 5s -> 10s -> 20s.
+- Khi logout, app tu dong disconnect khoi hub.
+
+**Goi NuGet moi:**
+- Admin Blazor: `Microsoft.AspNetCore.SignalR.Client`
+- MAUI App: `Microsoft.AspNetCore.SignalR.Client`
+
+**Tai lieu nay da duoc bo sung changelog 1.3 (Thang 4, 2026).**
