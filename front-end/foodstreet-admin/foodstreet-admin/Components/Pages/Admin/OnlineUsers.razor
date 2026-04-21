@@ -1,0 +1,204 @@
+﻿@attribute [Authorize(Roles = "ADMIN")]
+@page "/admin/online-users"
+@layout AdminLayout
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.SignalR.Client
+@implements IAsyncDisposable
+@inject IConfiguration Configuration
+@inject ISnackbar Snackbar
+
+<PageTitle>Online Users</PageTitle>
+
+<style>
+    .live-chip {
+        animation: pulse-live 1.1s ease-in-out infinite;
+        box-shadow: 0 0 0 rgba(34, 197, 94, 0.45);
+    }
+
+    @@keyframes pulse-live {
+        0% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.45); }
+        70% { opacity: 0.65; box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+        100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+</style>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-6 animate-fade-in-up">
+    <div class="gradient-icon mr-3" style="background: linear-gradient(135deg, #16a34a, #22c55e)">
+        <MudIcon Icon="@Icons.Material.Filled.OnlinePrediction" Size="Size.Large" />
+    </div>
+    <MudStack Spacing="0">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudText Typo="Typo.h5" Style="font-weight:800; letter-spacing: -0.5px">Du khach dang online</MudText>
+            <MudChip T="string" Color="Color.Success" Variant="Variant.Filled" Size="Size.Small" Class="live-chip" Style="font-weight:700">
+                Live
+            </MudChip>
+        </MudStack>
+        <MudText Typo="Typo.body2" Style="color: #64748b; font-weight: 500">
+            Du lieu realtime tu UserTrackerHub - Tong online: @_onlineUsers.Count
+        </MudText>
+    </MudStack>
+</MudStack>
+
+<MudPaper Elevation="0" Class="glass-card overflow-hidden border-0 animate-fade-in-up delay-1">
+    <MudTable Items="@_onlineUsers" Hover="true" Dense="true" Elevation="0" Class="transparent-table" Loading="@_loading">
+        <HeaderContent>
+            <MudTh Style="font-weight:700">Avatar</MudTh>
+            <MudTh Style="font-weight:700">Ten du khach</MudTh>
+            <MudTh Style="font-weight:700">Email</MudTh>
+            <MudTh Style="font-weight:700">Loai goi dich vu</MudTh>
+            <MudTh Style="font-weight:700">Thoi gian bat dau vao app</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                <MudAvatar Style="background: var(--primary-gradient); color: white; border-radius: 12px">
+                    @GetAvatarText(context.DisplayName)
+                </MudAvatar>
+            </MudTd>
+            <MudTd>
+                <MudText Typo="Typo.body2" Style="font-weight:700; color: #1e293b">@context.DisplayName</MudText>
+            </MudTd>
+            <MudTd>
+                <MudText Typo="Typo.body2" Style="font-weight:500; color: #1e293b">@context.Email</MudText>
+            </MudTd>
+            <MudTd>
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Filled" Color="@GetPackageColor(context.ServicePackage)" Style="font-weight:700">
+                    @context.ServicePackage
+                </MudChip>
+            </MudTd>
+            <MudTd>
+                <MudText Typo="Typo.body2" Style="color: #64748b; font-weight:500">
+                    @FormatConnectedAt(context.ConnectedAtUtc)
+                </MudText>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{10, 25, 50}" />
+        </PagerContent>
+    </MudTable>
+</MudPaper>
+
+@code {
+    private readonly List<OnlineUserViewModel> _onlineUsers = new();
+    private HubConnection? _hubConnection;
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await StartSignalRAsync();
+    }
+
+    private async Task StartSignalRAsync()
+    {
+        var hubUrl = BuildHubUrl();
+
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(hubUrl)
+            .WithAutomaticReconnect()
+            .Build();
+
+        _hubConnection.On<List<OnlineUserViewModel>, int>("OnlineUsersUpdated", (users, total) =>
+        {
+            _onlineUsers.Clear();
+            if (users != null)
+            {
+                _onlineUsers.AddRange(users.OrderByDescending(x => x.ConnectedAtUtc));
+            }
+
+            _loading = false;
+            InvokeAsync(StateHasChanged);
+        });
+
+        _hubConnection.Reconnected += async _ =>
+        {
+            await RefreshFromHubAsync();
+        };
+
+        try
+        {
+            await _hubConnection.StartAsync();
+            await RefreshFromHubAsync();
+        }
+        catch (Exception)
+        {
+            _loading = false;
+            Snackbar.Add("Khong the ket noi realtime toi UserTrackerHub.", Severity.Warning);
+        }
+    }
+
+    private async Task RefreshFromHubAsync()
+    {
+        if (_hubConnection is null)
+        {
+            return;
+        }
+
+        var users = await _hubConnection.InvokeAsync<List<OnlineUserViewModel>>("GetOnlineUsers");
+
+        _onlineUsers.Clear();
+        if (users != null)
+        {
+            _onlineUsers.AddRange(users.OrderByDescending(x => x.ConnectedAtUtc));
+        }
+
+        _loading = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private string BuildHubUrl()
+    {
+        var apiBase = Configuration["ApiBaseUrl"] ?? "http://localhost:5279/api/";
+        var normalizedBase = apiBase.TrimEnd('/');
+
+        if (normalizedBase.EndsWith("/api", StringComparison.OrdinalIgnoreCase))
+        {
+            normalizedBase = normalizedBase[..^4];
+        }
+
+        return $"{normalizedBase}/hubs/user-tracker?source=admin-dashboard";
+    }
+
+    private static Color GetPackageColor(string? servicePackage)
+    {
+        return servicePackage?.Trim().ToUpperInvariant() switch
+        {
+            "VIP" => Color.Error,
+            "PREMIUM" => Color.Warning,
+            _ => Color.Info
+        };
+    }
+
+    private static string GetAvatarText(string? displayName)
+    {
+        if (string.IsNullOrWhiteSpace(displayName))
+        {
+            return "?";
+        }
+
+        var parts = displayName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1)
+        {
+            return parts[0][0].ToString().ToUpperInvariant();
+        }
+
+        return string.Concat(parts[0][0], parts[^1][0]).ToUpperInvariant();
+    }
+
+    private static string FormatConnectedAt(DateTime connectedAtUtc)
+    {
+        if (connectedAtUtc == default)
+        {
+            return "N/A";
+        }
+
+        var utc = DateTime.SpecifyKind(connectedAtUtc, DateTimeKind.Utc);
+        return utc.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hubConnection is not null)
+        {
+            await _hubConnection.DisposeAsync();
+        }
+    }
+}

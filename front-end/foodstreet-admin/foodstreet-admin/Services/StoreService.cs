@@ -149,6 +149,23 @@ public class StoreService
         return null;
     }
 
+    public async Task<string?> RegenerateAdminQrCodeAsync(int storeId)
+    {
+        try
+        {
+            var response = await _api.PostAsync<object, JsonElement>($"admin/shops/{storeId}/regenerate-qr", new { });
+            if (response.ValueKind != JsonValueKind.Undefined && response.TryGetProperty("qrCodeUrl", out var urlProp))
+            {
+                return urlProp.GetString();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "RegenerateAdminQrCodeAsync failed for store {StoreId}", storeId);
+        }
+        return null;
+    }
+
     public async Task<bool> ApproveStoreAsync(int id)
     {
         return await _api.PatchAsync($"admin/shops/{id}/approve");

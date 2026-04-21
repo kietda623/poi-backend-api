@@ -19,9 +19,9 @@ namespace AppUser.Pages
             _vm.Initialize();
         }
 
-        private void OnLanguageToggled(object sender, ToggledEventArgs e)
+        private async void OnChatbotTapped(object? sender, TappedEventArgs e)
         {
-            _vm.ToggleLanguageCommand.Execute(null);
+            await Shell.Current.GoToAsync("chat");
         }
     }
 }
