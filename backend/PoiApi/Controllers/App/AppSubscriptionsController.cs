@@ -39,6 +39,13 @@ public class AppSubscriptionsController : ControllerBase
             .OrderBy(p => p.MonthlyPrice)
             .ToListAsync();
 
+        // Defensive dedupe: keep one active package per tier when legacy duplicate records exist.
+        packages = packages
+            .GroupBy(p => p.Tier, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.OrderBy(x => x.Id).First())
+            .OrderBy(p => p.MonthlyPrice)
+            .ToList();
+
         var response = packages.Select(p => new
         {
             p.Id,

@@ -237,8 +237,8 @@ public partial class SubscriptionViewModel : ObservableObject
             PendingPackageTier = package.Tier;
             PendingBillingCycle = cycleToUse;
             PendingCheckoutTitle = $"{LocalizePackageName(package.Tier, package.Name)} - {ResolveBillingCycleLabel(cycleToUse)}";
-            QrImageUrl = BuildQrImageUrl(result.QrCode);
-            IsQrVisible = true;
+            QrImageUrl = BuildQrImageUrl(result.QrCode, result.CheckoutUrl);
+            IsQrVisible = !string.IsNullOrWhiteSpace(QrImageUrl);
             Current = LocalizeEnvelope(await _subscriptionService.GetMySubscriptionAsync());
             NormalizeCurrentSubscription();
             var paymentReadyMessage = IsQrVisible
@@ -259,14 +259,29 @@ public partial class SubscriptionViewModel : ObservableObject
         IsQrVisible = false;
     }
 
-    private static string BuildQrImageUrl(string? qrCode)
+    private static string BuildQrImageUrl(string? qrCode, string? checkoutUrl)
     {
-        if (string.IsNullOrWhiteSpace(qrCode))
+        if (!string.IsNullOrWhiteSpace(qrCode))
+        {
+            if (Uri.TryCreate(qrCode, UriKind.Absolute, out var qrUri))
+            {
+                return qrUri.ToString();
+            }
+
+            if (qrCode.StartsWith("data:image", StringComparison.OrdinalIgnoreCase))
+            {
+                return qrCode;
+            }
+
+            return $"https://api.qrserver.com/v1/create-qr-code/?size=280x280&data={Uri.EscapeDataString(qrCode)}";
+        }
+
+        if (string.IsNullOrWhiteSpace(checkoutUrl))
         {
             return string.Empty;
         }
 
-        return $"https://api.qrserver.com/v1/create-qr-code/?size=280x280&data={Uri.EscapeDataString(qrCode)}";
+        return $"https://api.qrserver.com/v1/create-qr-code/?size=280x280&data={Uri.EscapeDataString(checkoutUrl)}";
     }
 
     private static string ResolveBillingCycleLabel(string? billingCycle) => billingCycle switch
@@ -332,7 +347,10 @@ public partial class SubscriptionViewModel : ObservableObject
     {
         var hasBasic = Current.Subscription?.PackageTier == "TourBasic" && Current.Subscription.Status == "Active";
 
-        return packages.Select(package => 
+        return packages
+        .GroupBy(p => p.Tier, StringComparer.OrdinalIgnoreCase)
+        .Select(g => g.OrderBy(x => x.Id).First())
+        .Select(package => 
         {
             var price = package.MonthlyPrice;
             var displayPrice = package.DisplayPrice;

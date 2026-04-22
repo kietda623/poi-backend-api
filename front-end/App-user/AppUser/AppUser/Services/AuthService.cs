@@ -1,15 +1,21 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using AppUser.Models;
 
 namespace AppUser.Services
 {
     public class AuthService
     {
+        private const string UserTokenKey = "auth_user_token";
+        private const string UserEmailKey = "auth_user_email";
+        private const string UserFullNameKey = "auth_user_fullname";
+        private const string UserRoleKey = "auth_user_role";
+
         private readonly HttpClient _httpClient;
         private readonly GuestService _guestService;
         private readonly SignalRService _signalRService;
         private UserDto? _currentUser;
         private string? _token;
+        private bool _sessionInitialized;
 
         public bool IsGuest => _currentUser == null && _guestService.IsInitialized;
         public bool IsLoggedIn => _currentUser != null;
@@ -17,25 +23,71 @@ namespace AppUser.Services
 
         public string? Token => _token ?? _guestService.GuestToken;
 
-        public static string BaseAddress =
-            DeviceInfo.Platform == DevicePlatform.Android ? "http://10.0.2.2:5279" : "http://localhost:5279";
-
         public AuthService(HttpClient httpClient, GuestService guestService, SignalRService signalRService)
         {
             _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri(BaseAddress);
+            _httpClient.BaseAddress = new Uri(AppConfig.BaseDomain);
+            AppConfig.ConfigureHttpClient(_httpClient);
             _guestService = guestService;
             _signalRService = signalRService;
         }
 
         public async Task InitGuestSessionAsync()
         {
+            await EnsureSessionLoadedAsync();
             if (IsLoggedIn) return;
             await _guestService.InitializeAsync();
         }
 
+        public async Task EnsureSessionLoadedAsync()
+        {
+            if (_sessionInitialized)
+            {
+                return;
+            }
+
+            _sessionInitialized = true;
+
+            try
+            {
+                var savedToken = await SecureStorage.Default.GetAsync(UserTokenKey);
+                if (string.IsNullOrWhiteSpace(savedToken))
+                {
+                    return;
+                }
+
+                var savedEmail = await SecureStorage.Default.GetAsync(UserEmailKey);
+                var savedFullName = await SecureStorage.Default.GetAsync(UserFullNameKey);
+                var savedRole = await SecureStorage.Default.GetAsync(UserRoleKey);
+
+                _token = savedToken;
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+
+                _currentUser = new UserDto
+                {
+                    Email = savedEmail ?? string.Empty,
+                    FullName = savedFullName ?? string.Empty,
+                    Role = savedRole ?? string.Empty,
+                    IsActive = true
+                };
+
+                var (success, _) = await RefreshMeAsync();
+                if (!success)
+                {
+                    System.Diagnostics.Debug.WriteLine("Session refresh failed, keep local session data.");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Session restore error: {ex.Message}");
+                await ClearUserSessionAsync();
+            }
+        }
+
         public async Task<(bool Success, string Message)> LoginAsync(string email, string password)
         {
+            await EnsureSessionLoadedAsync();
             try
             {
                 var response = await _httpClient.PostAsJsonAsync("/api/auth/login", new { Email = email.Trim(), Password = password });
@@ -56,6 +108,9 @@ namespace AppUser.Services
                             Role = result.Role,
                             IsActive = true
                         };
+
+                        await PersistUserSessionAsync();
+                        _guestService.ClearSession();
 
                         try
                         {
@@ -93,6 +148,7 @@ namespace AppUser.Services
 
         public async Task<(bool Success, string? Message)> RefreshMeAsync()
         {
+            await EnsureSessionLoadedAsync();
             if (_token == null) return (false, "Chua dang nhap.");
 
             try
@@ -108,6 +164,7 @@ namespace AppUser.Services
                 if (me == null) return (false, "Du lieu nguoi dung khong hop le.");
 
                 _currentUser = me;
+                await PersistUserSessionAsync();
                 return (true, null);
             }
             catch
@@ -150,6 +207,7 @@ namespace AppUser.Services
             string? currentPassword,
             string? newPassword)
         {
+            await EnsureSessionLoadedAsync();
             if (_token == null) return (false, "Chua dang nhap.");
 
             try
@@ -171,6 +229,8 @@ namespace AppUser.Services
                         _currentUser.Email = payload.Email;
                     }
 
+                    await PersistUserSessionAsync();
+
                     return (true, "Cap nhat ho so thanh cong!");
                 }
 
@@ -186,9 +246,7 @@ namespace AppUser.Services
 
         public async Task LogoutAsync()
         {
-            _currentUser = null;
-            _token = null;
-            _httpClient.DefaultRequestHeaders.Authorization = null;
+            await ClearUserSessionAsync();
 
             try
             {
@@ -202,6 +260,31 @@ namespace AppUser.Services
 
         public UserDto? GetCurrentUser() => _currentUser;
 
+        private async Task PersistUserSessionAsync()
+        {
+            if (string.IsNullOrWhiteSpace(_token) || _currentUser == null)
+            {
+                return;
+            }
+
+            await SecureStorage.Default.SetAsync(UserTokenKey, _token);
+            await SecureStorage.Default.SetAsync(UserEmailKey, _currentUser.Email ?? string.Empty);
+            await SecureStorage.Default.SetAsync(UserFullNameKey, _currentUser.FullName ?? string.Empty);
+            await SecureStorage.Default.SetAsync(UserRoleKey, _currentUser.Role ?? string.Empty);
+        }
+
+        private Task ClearUserSessionAsync()
+        {
+            _currentUser = null;
+            _token = null;
+            _httpClient.DefaultRequestHeaders.Authorization = null;
+            SecureStorage.Default.Remove(UserTokenKey);
+            SecureStorage.Default.Remove(UserEmailKey);
+            SecureStorage.Default.Remove(UserFullNameKey);
+            SecureStorage.Default.Remove(UserRoleKey);
+            return Task.CompletedTask;
+        }
+
         private class LoginResponse
         {
             public string Token { get; set; } = string.Empty;
@@ -211,3 +294,4 @@ namespace AppUser.Services
         }
     }
 }
+

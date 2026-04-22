@@ -97,6 +97,7 @@ public class SignalRService : IAsyncDisposable
             {
                 options.AccessTokenProvider = () => Task.FromResult(_jwtToken);
                 options.Headers["Authorization"] = $"Bearer {_jwtToken}";
+                options.Headers["ngrok-skip-browser-warning"] = "true";
             })
             .WithAutomaticReconnect(new[]
             {
@@ -135,4 +136,3 @@ public class SignalRService : IAsyncDisposable
         _connectionLock.Dispose();
     }
 }
-

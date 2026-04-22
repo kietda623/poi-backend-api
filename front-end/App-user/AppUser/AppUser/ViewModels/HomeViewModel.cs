@@ -69,6 +69,8 @@ namespace AppUser.ViewModels
 
         public async Task InitializeAsync()
         {
+            await _authService.EnsureSessionLoadedAsync();
+
             // Tự động init Guest session nếu chưa đăng nhập
             if (!_authService.IsLoggedIn)
             {
@@ -79,9 +81,7 @@ namespace AppUser.ViewModels
                 var (success, _) = await _authService.RefreshMeAsync();
                 if (!success)
                 {
-                    await _authService.LogoutAsync();
-                    // Không redirect về login nữa - vẫn ở Home với Guest mode
-                    await _authService.InitGuestSessionAsync();
+                    System.Diagnostics.Debug.WriteLine("RefreshMe failed. Keep existing local login session.");
                 }
             }
 
@@ -144,7 +144,19 @@ namespace AppUser.ViewModels
             if (poi == null) return;
 
             // Guest hoặc User chưa mua gói: hướng dẫn mua gói (không bắt đăng nhập)
-            if (!await _subscriptionService.CanAccessAudioAsync())
+            bool canAccessAudio;
+            try
+            {
+                await _authService.InitGuestSessionAsync();
+                canAccessAudio = await _subscriptionService.CanAccessAudioAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"PlayAudioDirect auth/subscription check failed: {ex.Message}");
+                canAccessAudio = false;
+            }
+
+            if (!canAccessAudio)
             {
                 var goToPackages = await Shell.Current.DisplayAlert(
                     "Cần gói Tour",
@@ -294,3 +306,5 @@ namespace AppUser.ViewModels
         }
     }
 }
+
+

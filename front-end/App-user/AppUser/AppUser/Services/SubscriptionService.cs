@@ -17,6 +17,7 @@ public class SubscriptionService
         {
             BaseAddress = new Uri(AppConfig.BaseApiUrl)
         };
+        AppConfig.ConfigureHttpClient(_httpClient);
     }
 
     public async Task<List<AppServicePackageDto>> GetUserPackagesAsync()
@@ -132,8 +133,21 @@ public class SubscriptionService
 
     public async Task<bool> CanAccessAudioAsync()
     {
-        var current = await GetMySubscriptionAsync();
-        return current.CanAccessAudio;
+        if (string.IsNullOrWhiteSpace(_authService.Token))
+        {
+            return false;
+        }
+
+        try
+        {
+            var current = await GetMySubscriptionAsync();
+            return current.CanAccessAudio;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"CanAccessAudioAsync error: {ex.Message}");
+            return false;
+        }
     }
 
     // Cho phép cả User Token và Guest Token (từ AuthService)
@@ -176,3 +190,4 @@ public class SubscriptionService
         return raw;
     }
 }
+
