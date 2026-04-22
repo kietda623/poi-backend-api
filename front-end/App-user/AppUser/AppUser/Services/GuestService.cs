@@ -29,6 +29,7 @@ public class GuestService
         {
             BaseAddress = new Uri(AppConfig.BaseApiUrl.Replace("/api/", ""))
         };
+        AppConfig.ConfigureHttpClient(_httpClient);
     }
 
     /// <summary>

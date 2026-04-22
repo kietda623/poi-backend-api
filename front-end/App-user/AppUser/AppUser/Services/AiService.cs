@@ -16,6 +16,7 @@ public class AiService
         {
             BaseAddress = new Uri(AppConfig.BaseApiUrl)
         };
+        AppConfig.ConfigureHttpClient(_httpClient);
     }
 
     private void ApplyAuth()
@@ -144,3 +145,4 @@ public class AiService
         }
     }
 }
+

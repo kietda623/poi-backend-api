@@ -90,8 +90,14 @@ namespace AppUser.ViewModels
             UpdateLocalizedTexts();
         }
 
-        public void Initialize()
+        public async Task InitializeAsync()
         {
+            await _authService.EnsureSessionLoadedAsync();
+            if (!_authService.IsLoggedIn)
+            {
+                await _authService.InitGuestSessionAsync();
+            }
+
             IsGuest = _authService.IsGuest;
 
             if (_authService.IsLoggedIn)

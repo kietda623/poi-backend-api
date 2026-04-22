@@ -17,6 +17,7 @@ namespace AppUser.Services
             {
                 BaseAddress = new Uri(AppConfig.BaseApiUrl)
             };
+            AppConfig.ConfigureHttpClient(_http);
         }
 
         public async Task<List<POIDto>> GetAllPOIsAsync(string lang = "vi")
@@ -284,3 +285,4 @@ namespace AppUser.Services
     }
 
 }
+

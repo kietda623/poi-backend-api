@@ -6,6 +6,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:AppUser.ViewModels"
     xmlns:models="clr-namespace:AppUser.Models"
+    x:DataType="vm:POIDetailViewModel"
     Shell.NavBarIsVisible="False"
     BackgroundColor="{StaticResource Background}">
 
@@ -55,7 +56,7 @@
                             HeightRequest="40"
                             IsVisible="False">
                         <Button Text="{Binding CurrentLanguage, StringFormat='🌐 {0}'}"
-                                Command="{Binding ToggleLanguageAsyncCommand}"
+                                Command="{Binding ToggleLanguageCommand}"
                                 BackgroundColor="Transparent"
                                 TextColor="White"
                                 FontFamily="BeVietnamProBold"

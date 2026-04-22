@@ -13,10 +13,10 @@ namespace AppUser.Pages
             BindingContext = vm;
         }
 
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
-            _vm.Initialize();
+            await _vm.InitializeAsync();
         }
 
         private async void OnChatbotTapped(object? sender, TappedEventArgs e)

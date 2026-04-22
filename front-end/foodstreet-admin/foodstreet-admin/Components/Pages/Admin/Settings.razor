@@ -192,11 +192,11 @@
     private record AuditLog(string Timestamp, string User, string Action, string Detail, string Ip);
     private List<AuditLog> auditLogs = new()
     {
-        new("13/05/2026 10:35", "admin@sys.com", "APPROVE", "Duyá»‡t gian hÃ ng #12", "192.168.1.1"),
-        new("13/05/2026 10:20", "admin@sys.com", "DISABLE_SELLER", "VÃ´ hiá»‡u hÃ³a seller #5", "192.168.1.1"),
-        new("12/05/2026 15:00", "admin@sys.com", "DELETE", "XÃ³a gian hÃ ng vi pháº¡m #8", "192.168.1.2"),
-        new("12/05/2026 09:00", "system", "BACKUP", "Backup tá»± Ä‘á»™ng thÃ nh cÃ´ng", "localhost"),
-        new("11/05/2026 14:30", "admin@sys.com", "UPDATE_CONFIG", "Cáº­p nháº­t phÃ­ thÃ¡ng", "192.168.1.1"),
+        new("13/05/2026 10:35", "admin@sys.com", "APPROVE", "Duyệt gian hàng #12", "http://172.20.10.5:5279"),
+        new("13/05/2026 10:20", "admin@sys.com", "DISABLE_SELLER", "Vô hiệu hóa seller #5", "http://172.20.10.5:5279"),
+        new("12/05/2026 15:00", "admin@sys.com", "DELETE", "Xóa gian hàng vi phạm #8", "http://172.20.10.5:5279"),
+        new("12/05/2026 09:00", "system", "BACKUP", "Backup tự động thành công", "http://172.20.10.5:5279"),
+        new("11/05/2026 14:30", "admin@sys.com", "UPDATE_CONFIG", "Cập nhật phí tháng", "http://172.20.10.5:5279"),
     };
 
     private void AddLanguage()
