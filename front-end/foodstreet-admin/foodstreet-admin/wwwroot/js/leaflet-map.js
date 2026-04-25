@@ -182,3 +182,60 @@ window.downloadFileFromUrl = async function (url, fileName) {
         console.error('downloadFileFromUrl failed:', e);
     }
 };
+
+window.printQrImage = function (url, title) {
+    const printWindow = window.open('', '_blank', 'noopener,noreferrer,width=900,height=900');
+    if (!printWindow) {
+        return;
+    }
+
+    const safeTitle = title || 'FoodStreet QR';
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>${safeTitle}</title>
+            <style>
+                body {
+                    margin: 0;
+                    min-height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-family: Arial, sans-serif;
+                    background: #ffffff;
+                }
+                .sheet {
+                    text-align: center;
+                    padding: 24px;
+                }
+                img {
+                    width: 360px;
+                    height: 360px;
+                    display: block;
+                    margin: 0 auto 16px;
+                }
+                h1 {
+                    margin: 0 0 8px;
+                    font-size: 28px;
+                }
+                p {
+                    margin: 0;
+                    color: #555;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="sheet">
+                <img src="${url}" alt="${safeTitle}" />
+                <h1>${safeTitle}</h1>
+                <p>Quet ma de tai app FoodStreet</p>
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.onload = () => {
+        printWindow.print();
+    };
+};

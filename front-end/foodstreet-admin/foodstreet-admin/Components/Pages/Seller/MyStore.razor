@@ -137,19 +137,6 @@
                                StartIcon="@Icons.Material.Filled.Analytics"
                                Href="@($"/seller/stats/{store.Id}")">Stats</MudButton>
                     <MudSpacer />
-                    <!-- QR Code buttons -->
-                    <MudTooltip Text="Xem mã QR">
-                        <MudIconButton Icon="@Icons.Material.Filled.QrCode2"
-                                       Color="Color.Warning"
-                                       Size="Size.Small"
-                                       OnClick="@(() => OpenQrModal(store))" />
-                    </MudTooltip>
-                    <MudTooltip Text="Tải mã QR (PNG)">
-                        <MudIconButton Icon="@Icons.Material.Filled.Download"
-                                       Color="Color.Success"
-                                       Size="Size.Small"
-                                       OnClick="@(() => DownloadQrCode(store))" />
-                    </MudTooltip>
                     <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="Color.Error"
                                    Size="Size.Small" OnClick="@(() => DeleteStore(store))" />
                 </MudCardActions>
@@ -413,84 +400,9 @@
     </DialogActions>
 </MudDialog>
 
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- QR Code Modal                                               -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<MudDialog @bind-Visible="_showQrDialog" Options="@(new DialogOptions { MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, CloseButton = true })">
-    <TitleContent>
-        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-            <MudIcon Icon="@Icons.Material.Filled.QrCode2" Color="Color.Warning" />
-            <MudText Typo="Typo.h6" Style="font-weight:700">Mã QR Gian hàng</MudText>
-        </MudStack>
-    </TitleContent>
-    <DialogContent>
-        @if (_qrStore != null)
-        {
-            <MudStack AlignItems="AlignItems.Center" Spacing="3">
-                <MudText Typo="Typo.subtitle1" Style="font-weight:600; text-align:center">@_qrStore.Name</MudText>
-
-                @if (!string.IsNullOrEmpty(_qrStore.QrCodeUrl))
-                {
-                    <!-- QR Code image -->
-                    <div style="padding: 16px; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); display:inline-block;">
-                        <img src="@ResolveAudioUrl(_qrStore.QrCodeUrl)"
-                             alt="QR Code @_qrStore.Name"
-                             style="width:240px; height:240px; display:block; image-rendering: pixelated;" />
-                    </div>
-
-                    <!-- Encoded URL info -->
-                    <MudPaper Elevation="0" Class="pa-3 w-100" Style="background:rgba(255,107,53,0.06); border:1px solid rgba(255,107,53,0.2); border-radius:10px;">
-                        <MudText Typo="Typo.caption" Style="opacity:0.6; display:block; margin-bottom:4px;">URL được mã hóa:</MudText>
-                        <MudText Typo="Typo.body2" Style="font-family:monospace; word-break:break-all; color:#FF6B35; font-weight:600;">
-                            @_qrEncodedUrl
-                        </MudText>
-                    </MudPaper>
-
-                    <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Dense="true">
-                        Khách hàng quét mã QR này để xem thông tin và nghe thuyết minh gian hàng.
-                    </MudAlert>
-                }
-                else
-                {
-                    <MudStack AlignItems="AlignItems.Center" Spacing="2">
-                        <MudIcon Icon="@Icons.Material.Filled.QrCodeScanner" Style="font-size:80px; opacity:0.3;" />
-                        <MudText Typo="Typo.body2" Style="opacity:0.6">Chưa có mã QR. Đang tạo...</MudText>
-                        <MudButton Variant="Variant.Filled" Color="Color.Warning"
-                                   StartIcon="@Icons.Material.Filled.Refresh"
-                                   OnClick="OnRegenerateQrClick"
-                                   Disabled="@_generatingQr">
-                            @if (_generatingQr) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
-                            Tạo mã QR
-                        </MudButton>
-                    </MudStack>
-                }
-            </MudStack>
-        }
-    </DialogContent>
-    <DialogActions>
-        <MudButton Color="Color.Warning" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Refresh" OnClick="OnRegenerateQrClick" Disabled="@_generatingQr" Style="@_qrBtnStyle">
-            @if (_generatingQr) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" /> }
-            Tạo lại
-        </MudButton>
-        <MudButton Color="Color.Success" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Download" OnClick="OnDownloadQrClick" Style="@_qrBtnStyle">Tải PNG</MudButton>
-        <MudButton OnClick="@(() => _showQrDialog = false)" Variant="Variant.Outlined" Style="border-radius:10px">Đóng</MudButton>
-    </DialogActions>
-</MudDialog>
 
 @code {
     private bool _loading = true, _showDialog, _saving, _translating;
-    private bool _showQrDialog, _generatingQr;           // QR modal state
-    private StoreModel? _qrStore;                         // Store currently shown in QR modal
-
-    // Computed style for QR action buttons: visible only when QR URL exists
-    private string _qrBtnStyle => (_qrStore != null && !string.IsNullOrEmpty(_qrStore.QrCodeUrl))
-        ? "border-radius:10px"
-        : "display:none";
-
-    // Computed URL shown in QR modal
-    private string _qrEncodedUrl => _qrStore != null
-        ? $"{Configuration["App:BaseUrl"] ?? "http://localhost:5042"}/poi/{_qrStore.Id}"
-        : "";
 
     private string _search = "", _filterStatus = "All", _filterCat = "All", _sortBy = "Mới nhất";
     private List<StoreModel> _stores = new();
@@ -963,78 +875,6 @@
 
     private void CloseDialog() { _showDialog = false; }
 
-    // ── QR Code Methods ────────────────────────────────────────────────────────
-
-    private void OpenQrModal(StoreModel store)
-    {
-        _qrStore = store;
-        _showQrDialog = true;
-    }
-
-    private async Task OnRegenerateQrClick() 
-    { 
-        if (_qrStore != null) await RegenerateQrCode(_qrStore); 
-    }
-
-    private async Task OnDownloadQrClick() 
-    { 
-        if (_qrStore != null) await DownloadQrCode(_qrStore); 
-    }
-
-    private async Task DownloadQrCode(StoreModel store)
-    {
-        if (string.IsNullOrEmpty(store.QrCodeUrl))
-        {
-            Snackbar.Add("Gian hàng chưa có mã QR", Severity.Warning);
-            return;
-        }
-
-        var fullUrl = ResolveAudioUrl(store.QrCodeUrl);
-        var fileName = $"qr-{store.Name.Replace(" ", "-").ToLowerInvariant()}.png";
-
-        try
-        {
-            await JS.InvokeVoidAsync("downloadFileFromUrl", fullUrl, fileName);
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add($"Lỗi tải xuống: {ex.Message}", Severity.Error);
-        }
-    }
-
-    private async Task RegenerateQrCode(StoreModel store)
-    {
-        _generatingQr = true;
-        StateHasChanged();
-        try
-        {
-            var ok = await StoreSvc.RegenerateQrCodeAsync(store.Id);
-            if (ok != null)
-            {
-                store.QrCodeUrl = ok;
-                if (_qrStore?.Id == store.Id) _qrStore.QrCodeUrl = ok;
-
-                // Update in main list too
-                var idx = _stores.FindIndex(s => s.Id == store.Id);
-                if (idx >= 0) _stores[idx].QrCodeUrl = ok;
-
-                Snackbar.Add("Đã tạo lại mã QR thành công!", Severity.Success);
-            }
-            else
-            {
-                Snackbar.Add("Lỗi khi tạo mã QR!", Severity.Error);
-            }
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add($"Lỗi: {ex.Message}", Severity.Error);
-        }
-        finally
-        {
-            _generatingQr = false;
-            StateHasChanged();
-        }
-    }
 
     private string ResolveAudioUrl(string? url)
     {

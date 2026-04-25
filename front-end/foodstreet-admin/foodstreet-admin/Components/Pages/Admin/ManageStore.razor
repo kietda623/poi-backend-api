@@ -3,13 +3,15 @@
 @rendermode InteractiveServer
 @inject StoreService StoreSvc
 @inject ISnackbar Snackbar
-@inject IJSRuntime JS
-@inject IConfiguration Configuration
 
 <PageTitle>Quan ly Gian hang</PageTitle>
 
 <MudText Typo="Typo.h5" Style="font-weight:700" Class="mb-1">Quan ly Gian hang (Store)</MudText>
-<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">Duyet noi dung, quan ly audio va QR code</MudText>
+<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">Duyet noi dung va quan ly audio. QR rieng theo tung gian hang da duoc loai bo.</MudText>
+
+<MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Dense="true" Class="mb-4">
+    Su dung 1 QR tai app dung chung cho toan he thong tai Dashboard Admin.
+</MudAlert>
 
 <MudPaper Class="pa-4 mb-4" Elevation="1" Style="border-radius:8px">
     <MudGrid AlignItems="AlignItems.Center">
@@ -57,7 +59,6 @@
             <MudTh>Dia chi</MudTh>
             <MudTh>Trang thai</MudTh>
             <MudTh>Audio</MudTh>
-            <MudTh>QR</MudTh>
             <MudTh>Thao tac</MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -86,17 +87,6 @@
                 {
                     <MudText Typo="Typo.caption" Color="Color.Secondary">Khong co</MudText>
                 }
-            </MudTd>
-            <MudTd>
-                <MudStack Row="true" Spacing="0">
-                    <MudIconButton Icon="@Icons.Material.Filled.QrCode2" Size="Size.Small"
-                                   Color="Color.Warning" Title="Xem QR"
-                                   OnClick="@(() => OpenQrDialog(context))" />
-                    <MudIconButton Icon="@Icons.Material.Filled.Download" Size="Size.Small"
-                                   Color="Color.Success" Title="Tai QR"
-                                   Disabled="@string.IsNullOrWhiteSpace(context.QrCodeUrl)"
-                                   OnClick="@(() => DownloadQrCode(context))" />
-                </MudStack>
             </MudTd>
             <MudTd>
                 <MudStack Row="true" Spacing="0">
@@ -132,7 +122,7 @@
         <MudPaper Class="pa-4 text-center" Elevation="0" Style="background:#f5f5f5;border-radius:8px">
             @if (_previewStore is not null)
             {
-                <audio controls src="@ResolveMediaUrl(_previewStore.AudioUrl)" style="width:100%;margin-top:12px"></audio>
+                <audio controls src="@_previewStore.AudioUrl" style="width:100%;margin-top:12px"></audio>
             }
         </MudPaper>
     </DialogContent>
@@ -141,63 +131,14 @@
     </DialogActions>
 </MudDialog>
 
-<MudDialog @bind-Visible="_showQrDialog">
-    <TitleContent>
-        <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.QrCode2" Class="mr-2" />
-            Quan ly QR: @_qrStore?.Name
-        </MudText>
-    </TitleContent>
-    <DialogContent>
-        @if (_qrStore != null)
-        {
-            <MudPaper Class="pa-4" Elevation="0" Style="background:#f8f9ff;border-radius:8px">
-                @if (!string.IsNullOrWhiteSpace(_qrStore.QrCodeUrl))
-                {
-                    <div class="d-flex justify-center mb-3">
-                        <MudImage Src="@ResolveMediaUrl(_qrStore.QrCodeUrl)" Height="220" Width="220" />
-                    </div>
-                    <MudText Typo="Typo.caption" Class="d-block text-center" Style="word-break:break-all">
-                        @_qrStore.QrCodeUrl
-                    </MudText>
-                }
-                else
-                {
-                    <MudAlert Severity="Severity.Warning" Dense="true">
-                        Gian hang nay chua co QR.
-                    </MudAlert>
-                }
-            </MudPaper>
-        }
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="@(() => _showQrDialog = false)" Variant="Variant.Outlined">Dong</MudButton>
-        <MudButton Color="Color.Info" Variant="Variant.Outlined"
-                   StartIcon="@Icons.Material.Filled.Autorenew"
-                   Disabled="@(_qrBusy || _qrStore is null)"
-                   OnClick="RegenerateQrCodeForDialog">
-            @(_qrBusy ? "Dang tao..." : "Tao lai QR")
-        </MudButton>
-        <MudButton Color="Color.Success" Variant="Variant.Filled"
-                   StartIcon="@Icons.Material.Filled.Download"
-                   Disabled="@(_qrStore is null || string.IsNullOrWhiteSpace(_qrStore.QrCodeUrl))"
-                   OnClick="DownloadQrCodeFromDialog">
-            Tai QR
-        </MudButton>
-    </DialogActions>
-</MudDialog>
-
 @code {
     private bool _loading = true;
     private bool _showPreview;
-    private bool _showQrDialog;
-    private bool _qrBusy;
     private string _search = "";
     private string _filterStatus = "All";
     private string _filterCat = "All";
     private List<StoreModel> _stores = new();
     private StoreModel? _previewStore;
-    private StoreModel? _qrStore;
 
     private IEnumerable<StoreModel> Filtered => _stores.Where(s =>
         (string.IsNullOrWhiteSpace(_search) || s.Name.Contains(_search, StringComparison.OrdinalIgnoreCase)) &&
@@ -242,68 +183,5 @@
         await StoreSvc.DeleteStoreAsync(store.Id);
         _stores.Remove(store);
         Snackbar.Add($"Da xoa: {store.Name}", Severity.Success);
-    }
-
-    private void OpenQrDialog(StoreModel store)
-    {
-        _qrStore = store;
-        _showQrDialog = true;
-    }
-
-    private async Task RegenerateQrCodeForDialog()
-    {
-        if (_qrStore is null) return;
-
-        _qrBusy = true;
-        try
-        {
-            var qrCodeUrl = await StoreSvc.RegenerateAdminQrCodeAsync(_qrStore.Id);
-            if (!string.IsNullOrWhiteSpace(qrCodeUrl))
-            {
-                _qrStore.QrCodeUrl = qrCodeUrl;
-                var inList = _stores.FirstOrDefault(s => s.Id == _qrStore.Id);
-                if (inList != null) inList.QrCodeUrl = qrCodeUrl;
-                Snackbar.Add("Da tao lai ma QR thanh cong.", Severity.Success);
-            }
-            else
-            {
-                Snackbar.Add("Khong the tao lai ma QR.", Severity.Error);
-            }
-        }
-        finally
-        {
-            _qrBusy = false;
-        }
-    }
-
-    private async Task DownloadQrCodeFromDialog()
-    {
-        if (_qrStore is not null)
-        {
-            await DownloadQrCode(_qrStore);
-        }
-    }
-
-    private async Task DownloadQrCode(StoreModel store)
-    {
-        if (string.IsNullOrWhiteSpace(store.QrCodeUrl))
-        {
-            Snackbar.Add("Gian hang chua co ma QR.", Severity.Warning);
-            return;
-        }
-
-        var fileName = $"qr-store-{store.Id}.png";
-        await JS.InvokeVoidAsync("downloadFileFromUrl", ResolveMediaUrl(store.QrCodeUrl), fileName);
-    }
-
-    private string ResolveMediaUrl(string? url)
-    {
-        if (string.IsNullOrWhiteSpace(url)) return "";
-        if (url.StartsWith("http", StringComparison.OrdinalIgnoreCase)) return url;
-
-        var apiBase = Configuration["ApiBaseUrl"] ?? "http://localhost:5279/api/";
-        var backendBase = apiBase.Replace("/api/", "", StringComparison.OrdinalIgnoreCase).TrimEnd('/');
-        var normalizedUrl = url.StartsWith("/") ? url : "/" + url;
-        return $"{backendBase}{normalizedUrl}";
     }
 }

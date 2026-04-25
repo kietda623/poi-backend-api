@@ -126,13 +126,7 @@ namespace AppUser.ViewModels
         {
             if (POI == null) return;
 
-            if (!_authService.IsLoggedIn)
-            {
-                await Shell.Current.DisplayAlert("Dang nhap", "Ban can dang nhap de dang ky goi nghe thuyet minh.", "OK");
-                await Shell.Current.GoToAsync("//login");
-                return;
-            }
-
+            await _authService.InitGuestSessionAsync();
             if (!await _subscriptionService.CanAccessAudioAsync())
             {
                 var goToPackages = await Shell.Current.DisplayAlert("Can goi audio", "Ban can goi audio dang hoat dong de nghe thuyet minh.", "Dang ky goi", "De sau");

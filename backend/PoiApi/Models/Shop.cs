@@ -18,7 +18,5 @@ namespace PoiApi.Models
         public int ListenCount { get; set; } = 0;
         public double AverageRating { get; set; } = 0;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        // QR Code URL - auto-generated when shop is created
-        public string? QrCodeUrl { get; set; }
     }
 }

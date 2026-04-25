@@ -570,9 +570,6 @@ namespace PoiApi.Migrations
                     b.Property<int?>("PoiId")
                         .HasColumnType("int");
 
-                    b.Property<string>("QrCodeUrl")
-                        .HasColumnType("longtext");
-
                     b.Property<int>("ViewCount")
                         .HasColumnType("int");
 

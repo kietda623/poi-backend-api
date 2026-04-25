@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PoiApi.Data;
+using PoiApi.Hubs;
 using PoiApi.Models;
 using PoiApi.Services;
 
@@ -104,6 +105,12 @@ namespace PoiApi.Controllers.Admin
         public IActionResult GetRevenueStats([FromQuery] int? month, [FromQuery] int? year)
         {
             return GetAdminStats(month, year);
+        }
+
+        [HttpGet("online-count")]
+        public IActionResult GetOnlineCount()
+        {
+            return Ok(new { count = AppPresenceHub.GetOnlineCount() });
         }
     }
 }

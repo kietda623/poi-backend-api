@@ -2,9 +2,13 @@
 @page "/admin/dashboard"
 @layout AdminLayout
 @using MudBlazor
+@implements IAsyncDisposable
 @inject foodstreet_admin.Services.ApiService Api
 @inject foodstreet_admin.Services.StoreService StoreSvc
 @inject ISnackbar Snackbar
+@inject IConfiguration Configuration
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <PageTitle>Admin Dashboard</PageTitle>
 
@@ -29,10 +33,7 @@
     .stat-card::before {
         content: "";
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        inset: 0;
         background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
         pointer-events: none;
     }
@@ -46,7 +47,7 @@
     }
 
     .gradient-text {
-        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 40%, #0f766e 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 800;
@@ -62,11 +63,6 @@
         margin-bottom: 12px;
     }
 
-    @@keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
     .quick-action-btn {
         border-radius: 16px;
         height: 56px;
@@ -77,98 +73,133 @@
     }
 
     .quick-action-btn:hover {
-        filter: brightness(1.1);
+        filter: brightness(1.08);
         transform: scale(1.02);
+    }
+
+    .stats-grid {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        margin-bottom: 24px;
+    }
+
+    .download-qr-card {
+        background:
+            radial-gradient(circle at top left, rgba(255, 183, 77, 0.26), transparent 30%),
+            linear-gradient(135deg, #fff9f3 0%, #ffffff 45%, #f4fbfa 100%);
+    }
+
+    .download-qr-image {
+        width: min(100%, 280px);
+        aspect-ratio: 1;
+        padding: 16px;
+        border-radius: 24px;
+        background: #fff;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+    }
+
+    .download-qr-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 </style>
 
 <div class="dashboard-container">
     <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-6">
         <div>
-            <MudText Typo="Typo.h4" Class="gradient-text">Hệ thống Quản trị</MudText>
-            <MudText Typo="Typo.body2" Color="Color.Secondary">Chào mừng trở lại, Admin. Đây là tổng quan hệ thống hôm nay.</MudText>
+            <MudText Typo="Typo.h4" Class="gradient-text">He thong Quan tri</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">Tong quan van hanh va QR tai app dung chung cho toan bo FoodStreet.</MudText>
         </div>
         <MudSpacer />
-        <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" 
-                   OnClick="LoadData" Style="border-radius: 12px;">Làm mới dữ liệu</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh"
+                   OnClick="LoadData" Style="border-radius: 12px;">
+            Lam moi du lieu
+        </MudButton>
     </MudStack>
 
-    <!-- Stats Overview -->
-    <MudGrid Class="mb-6">
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-5 stat-card" Elevation="0" Style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-color: #bae6fd;">
-                <div class="card-icon-container" style="background: #ffffff; color: #0284c7; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1)">
-                    <MudIcon Icon="@Icons.Material.Filled.Store" Size="Size.Medium" />
-                </div>
-                <MudText Typo="Typo.h4" Style="font-weight:800; color: #0369a1">@totalStores</MudText>
-                <MudText Typo="Typo.body2" Style="color: #075985; font-weight: 600">Tổng gian hàng</MudText>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-5 stat-card" Elevation="0" Style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-color: #a7f3d0;">
-                <div class="card-icon-container" style="background: #ffffff; color: #059669; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1)">
-                    <MudIcon Icon="@Icons.Material.Filled.AttachMoney" Size="Size.Medium" />
-                </div>
-                <MudText Typo="Typo.h4" Style="font-weight:800; color: #047857">@totalRevenue.ToString("N0")</MudText>
-                <MudText Typo="Typo.body2" Style="color: #065f46; font-weight: 600">Doanh thu (VND)</MudText>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-5 stat-card" Elevation="0" Style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-color: #fde68a;">
-                <div class="card-icon-container" style="background: #ffffff; color: #d97706; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1)">
-                    <MudIcon Icon="@Icons.Material.Filled.People" Size="Size.Medium" />
-                </div>
-                <MudText Typo="Typo.h4" Style="font-weight:800; color: #b45309">@totalCustomers</MudText>
-                <MudText Typo="Typo.body2" Style="color: #92400e; font-weight: 600">Khách đăng ký</MudText>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-5 stat-card" Elevation="0" Style="background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%); border-color: #fbcfe8;">
-                <div class="card-icon-container" style="background: #ffffff; color: #db2777; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1)">
-                    <MudIcon Icon="@Icons.Material.Filled.Headphones" Size="Size.Medium" />
-                </div>
-                <MudText Typo="Typo.h4" Style="font-weight:800; color: #be185d">@totalListens.ToString("N0")</MudText>
-                <MudText Typo="Typo.body2" Style="color: #9d174d; font-weight: 600">Lượt nghe Audio</MudText>
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
+    <div class="stats-grid">
+        <MudPaper Class="pa-5 stat-card" Elevation="0" Style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-color: #bae6fd;">
+            <div class="card-icon-container" style="background: #ffffff; color: #0284c7; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1)">
+                <MudIcon Icon="@Icons.Material.Filled.Store" Size="Size.Medium" />
+            </div>
+            <MudText Typo="Typo.h4" Style="font-weight:800; color: #0369a1">@totalStores</MudText>
+            <MudText Typo="Typo.body2" Style="color: #075985; font-weight: 600">Tong gian hang</MudText>
+        </MudPaper>
+
+        <MudPaper Class="pa-5 stat-card" Elevation="0" Style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-color: #a7f3d0;">
+            <div class="card-icon-container" style="background: #ffffff; color: #059669; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1)">
+                <MudIcon Icon="@Icons.Material.Filled.AttachMoney" Size="Size.Medium" />
+            </div>
+            <MudText Typo="Typo.h4" Style="font-weight:800; color: #047857">@totalRevenue.ToString("N0")</MudText>
+            <MudText Typo="Typo.body2" Style="color: #065f46; font-weight: 600">Doanh thu (VND)</MudText>
+        </MudPaper>
+
+        <MudPaper Class="pa-5 stat-card" Elevation="0" Style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-color: #fde68a;">
+            <div class="card-icon-container" style="background: #ffffff; color: #d97706; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1)">
+                <MudIcon Icon="@Icons.Material.Filled.People" Size="Size.Medium" />
+            </div>
+            <MudText Typo="Typo.h4" Style="font-weight:800; color: #b45309">@totalCustomers</MudText>
+            <MudText Typo="Typo.body2" Style="color: #92400e; font-weight: 600">Khach dang ky</MudText>
+        </MudPaper>
+
+        <MudPaper Class="pa-5 stat-card" Elevation="0" Style="background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%); border-color: #fbcfe8;">
+            <div class="card-icon-container" style="background: #ffffff; color: #db2777; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1)">
+                <MudIcon Icon="@Icons.Material.Filled.Headphones" Size="Size.Medium" />
+            </div>
+            <MudText Typo="Typo.h4" Style="font-weight:800; color: #be185d">@totalListens.ToString("N0")</MudText>
+            <MudText Typo="Typo.body2" Style="color: #9d174d; font-weight: 600">Luot nghe audio</MudText>
+        </MudPaper>
+
+        <MudPaper Class="pa-5 stat-card" Elevation="0" Style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-color: #86efac;">
+            <div class="card-icon-container" style="background: #ffffff; color: #16a34a; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1)">
+                <MudIcon Icon="@Icons.Material.Filled.PhoneAndroid" Size="Size.Medium" />
+            </div>
+            <MudText Typo="Typo.h4" Style="font-weight:800; color: #15803d">@onlineAppUsers</MudText>
+            <MudText Typo="Typo.body2" Style="color: #166534; font-weight: 600">Du khach dang online</MudText>
+        </MudPaper>
+    </div>
 
     <MudGrid>
-        <!-- Revenue & Listens Chart -->
         <MudItem xs="12" lg="8">
             <MudPaper Class="pa-6 glass-panel border-0" Elevation="0">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-6">
                     <MudIcon Icon="@Icons.Material.Filled.Insights" Color="Color.Primary" />
-                    <MudText Typo="Typo.h6" Style="font-weight:800">Hiệu suất Hệ thống (2026)</MudText>
+                    <MudText Typo="Typo.h6" Style="font-weight:800">Hieu suat he thong (@DateTime.UtcNow.Year)</MudText>
                     <MudSpacer />
                     <MudMenu Icon="@Icons.Material.Filled.MoreVert" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
-                        <MudMenuItem Icon="@Icons.Material.Filled.FileDownload">Xuất báo cáo</MudMenuItem>
+                        <MudMenuItem Icon="@Icons.Material.Filled.FileDownload">Xuat bao cao</MudMenuItem>
                     </MudMenu>
                 </MudStack>
-                
+
                 @if (adminChartSeries.Any())
                 {
-                    <MudChart ChartType="ChartType.Bar" ChartSeries="@adminChartSeries" @bind-SelectedIndex="adminChartIndex" 
-                              XAxisLabels="@adminXAxisLabels" Width="100%" Height="400px" 
+                    <MudChart ChartType="ChartType.Bar" ChartSeries="@adminChartSeries" @bind-SelectedIndex="adminChartIndex"
+                              XAxisLabels="@adminXAxisLabels" Width="100%" Height="400px"
                               ChartOptions="@_chartOptions" />
                 }
                 else
                 {
                     <div class="d-flex align-center justify-center" style="height: 400px; opacity: 0.5;">
-                        <MudText>Không có dữ liệu biểu đồ</MudText>
+                        <MudText>Khong co du lieu bieu do</MudText>
                     </div>
                 }
             </MudPaper>
         </MudItem>
 
-        <!-- Top Performing Shops -->
         <MudItem xs="12" lg="4">
             <MudPaper Class="pa-6 glass-panel border-0" Elevation="0" Style="height: 100%;">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-6">
                     <MudIcon Icon="@Icons.Material.Filled.Stars" Color="Color.Warning" />
-                    <MudText Typo="Typo.h6" Style="font-weight:800">Top Gian hàng</MudText>
+                    <MudText Typo="Typo.h6" Style="font-weight:800">Top gian hang</MudText>
                 </MudStack>
-                
+
                 @if (topShops.Any())
                 {
                     <MudList T="string" Dense="true" Class="pa-0">
@@ -181,7 +212,7 @@
                                     </div>
                                     <div style="flex: 1; overflow: hidden;">
                                         <MudText Typo="Typo.body2" Style="font-weight:700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@shop.ShopName</MudText>
-                                        <MudText Typo="Typo.caption" Style="color: #64748b;">@shop.OrderCount đơn hàng</MudText>
+                                        <MudText Typo="Typo.caption" Style="color: #64748b;">@shop.OrderCount don hang</MudText>
                                     </div>
                                     <div class="ml-2 text-right">
                                         <MudText Typo="Typo.body2" Style="font-weight:800; color: #10b981;">@shop.Revenue.ToString("N0")</MudText>
@@ -194,47 +225,82 @@
                 }
                 else
                 {
-                    <MudAlert Severity="Severity.Info" Variant="Variant.Text" Class="text-center">Chưa có dữ liệu giao dịch</MudAlert>
+                    <MudAlert Severity="Severity.Info" Variant="Variant.Text" Class="text-center">Chua co du lieu giao dich</MudAlert>
                 }
 
                 <MudButton Variant="Variant.Text" Color="Color.Primary" FullWidth="true" Href="/admin/stats"
                            EndIcon="@Icons.Material.Filled.ArrowForward" Class="mt-2" Style="text-transform: none;">
-                    Xem chi tiết thống kê
+                    Xem chi tiet thong ke
                 </MudButton>
             </MudPaper>
         </MudItem>
 
-        <!-- Quick Access -->
+        <MudItem xs="12" lg="4">
+            <MudPaper Class="pa-6 border-0 download-qr-card" Elevation="0" Style="border-radius: 24px;">
+                <MudStack Spacing="2">
+                    <MudStack Row="true" AlignItems="AlignItems.Center">
+                        <MudIcon Icon="@Icons.Material.Filled.QrCode2" Color="Color.Warning" />
+                        <MudText Typo="Typo.h6" Style="font-weight:800">QR tai app dung chung</MudText>
+                    </MudStack>
+
+                    <MudText Typo="Typo.body2" Style="color:#4b5563;">
+                        In ma nay va dan tai cac POI/gian hang. Khach quet ma se mo trang download cong khai cua FoodStreet.
+                    </MudText>
+
+                    <div class="download-qr-image">
+                        <img src="@AppDownloadQrImageUrl" alt="FoodStreet app download QR" />
+                    </div>
+
+                    <MudPaper Elevation="0" Class="pa-3" Style="background: rgba(255,255,255,0.82); border-radius: 16px;">
+                        <MudText Typo="Typo.caption" Style="display:block; opacity:0.7;">Landing page cong khai</MudText>
+                        <MudText Typo="Typo.body2" Style="font-weight:700; word-break:break-all;">@PublicDownloadUrl</MudText>
+                    </MudPaper>
+
+                    <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
+                        <MudButton Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Print" OnClick="PrintAppQrAsync">
+                            In QR
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Download" OnClick="DownloadAppQrAsync">
+                            Tai PNG
+                        </MudButton>
+                        <MudButton Variant="Variant.Text" Color="Color.Info" Href="@PublicDownloadUrl" Target="_blank" StartIcon="@Icons.Material.Filled.OpenInNew">
+                            Mo landing page
+                        </MudButton>
+                    </MudStack>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
         <MudItem xs="12">
             <MudPaper Class="pa-6 glass-panel border-0" Elevation="0">
-                <MudText Typo="Typo.h6" Style="font-weight:800" Class="mb-5">Công cụ Quản lý nhanh</MudText>
+                <MudText Typo="Typo.h6" Style="font-weight:800" Class="mb-5">Cong cu quan ly nhanh</MudText>
                 <MudGrid Spacing="3">
                     <MudItem xs="12" sm="6" md="3">
-                        <MudButton Href="/admin/manage-seller" Variant="Variant.Filled" Color="Color.Primary" 
+                        <MudButton Href="/admin/manage-seller" Variant="Variant.Filled" Color="Color.Primary"
                                    StartIcon="@Icons.Material.Filled.SupervisorAccount" FullWidth="true"
                                    Class="quick-action-btn" Style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);">
-                            Quản lý Người bán
+                            Quan ly nguoi ban
                         </MudButton>
                     </MudItem>
                     <MudItem xs="12" sm="6" md="3">
-                        <MudButton Href="/admin/manage-store" Variant="Variant.Filled" Color="Color.Success" 
+                        <MudButton Href="/admin/manage-store" Variant="Variant.Filled" Color="Color.Success"
                                    StartIcon="@Icons.Material.Filled.Storefront" FullWidth="true"
                                    Class="quick-action-btn" Style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                            Duyệt Gian hàng
+                            Duyet gian hang
                         </MudButton>
                     </MudItem>
                     <MudItem xs="12" sm="6" md="3">
-                        <MudButton Href="/admin/manage-customer" Variant="Variant.Filled" Color="Color.Info" 
+                        <MudButton Href="/admin/manage-customer" Variant="Variant.Filled" Color="Color.Info"
                                    StartIcon="@Icons.Material.Filled.People" FullWidth="true"
                                    Class="quick-action-btn" Style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">
-                            Khách truy cập
+                            Khach truy cap
                         </MudButton>
                     </MudItem>
                     <MudItem xs="12" sm="6" md="3">
-                        <MudButton Href="/admin/settings" Variant="Variant.Filled" Color="Color.Secondary" 
+                        <MudButton Href="/admin/settings" Variant="Variant.Filled" Color="Color.Secondary"
                                    StartIcon="@Icons.Material.Filled.Settings" FullWidth="true"
                                    Class="quick-action-btn" Style="background: linear-gradient(135deg, #64748b 0%, #475569 100%);">
-                            Cấu hình Hệ thống
+                            Cau hinh he thong
                         </MudButton>
                     </MudItem>
                 </MudGrid>
@@ -247,7 +313,10 @@
     private int totalStores;
     private int totalCustomers;
     private int totalListens;
+    private int onlineAppUsers;
     private decimal totalRevenue;
+    private CancellationTokenSource? _onlineCountCts;
+    private Task? _onlineCountTask;
 
     private List<foodstreet_admin.Models.ShopRevenueItem> topShops = new();
     private List<ChartSeries<double>> adminChartSeries = new();
@@ -255,35 +324,37 @@
     private int adminChartIndex = -1;
     private ChartOptions _chartOptions = new();
 
+    private string PublicDownloadUrl => Configuration["AppDownload:PublicDownloadUrl"] ?? "https://foodstreet.vn/app/download";
+    private string AppDownloadQrImageUrl => $"https://api.qrserver.com/v1/create-qr-code/?size=320x320&data={Uri.EscapeDataString(PublicDownloadUrl)}";
+
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
+        StartOnlineCountPolling();
     }
 
     private async Task LoadData()
     {
         var year = DateTime.UtcNow.Year;
         var stats = await StoreSvc.GetAdminStatsAsync(year);
-        
+
         if (stats != null)
         {
             totalListens = stats.TotalListens;
             totalRevenue = stats.TotalRevenue;
-            
-            // Xử lý dữ liệu biểu đồ
+
             var monthlyData = stats.RevenueByMonth
                 .OrderBy(x => x.Month)
                 .ToList();
-                
+
             adminXAxisLabels = monthlyData.Select(m => $"T{m.Month}").ToArray();
-            
-            adminChartSeries = new List<ChartSeries<double>>()
+
+            adminChartSeries = new List<ChartSeries<double>>
             {
-                new ChartSeries<double>() { Name = "Doanh thu", Data = monthlyData.Select(m => (double)m.Revenue).ToArray() },
-                new ChartSeries<double>() { Name = "Lượt nghe", Data = monthlyData.Select(m => (double)(stats.ListensByMonth.FirstOrDefault(x => x.Month == m.Month)?.Listens ?? 0)).ToArray() }
+                new() { Name = "Doanh thu", Data = monthlyData.Select(m => (double)m.Revenue).ToArray() },
+                new() { Name = "Luot nghe", Data = monthlyData.Select(m => (double)(stats.ListensByMonth.FirstOrDefault(x => x.Month == m.Month)?.Listens ?? 0)).ToArray() }
             };
 
-            // Lấy Top 5 Shops
             topShops = stats.RevenueByShop
                 .OrderByDescending(s => s.Revenue)
                 .Take(5)
@@ -295,7 +366,81 @@
 
         var customers = await StoreSvc.GetCustomersAsync();
         totalCustomers = customers.Count;
-        
+
+        await LoadOnlineCountAsync();
+
         StateHasChanged();
+    }
+
+    private async Task LoadOnlineCountAsync()
+    {
+        onlineAppUsers = await StoreSvc.GetOnlineCountAsync();
+    }
+
+    private void StartOnlineCountPolling()
+    {
+        if (_onlineCountTask != null)
+        {
+            return;
+        }
+
+        _onlineCountCts = new CancellationTokenSource();
+        _onlineCountTask = PollOnlineCountAsync(_onlineCountCts.Token);
+    }
+
+    private async Task PollOnlineCountAsync(CancellationToken cancellationToken)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
+
+        try
+        {
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                var count = await StoreSvc.GetOnlineCountAsync();
+                if (count == onlineAppUsers)
+                {
+                    continue;
+                }
+
+                onlineAppUsers = count;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private async Task DownloadAppQrAsync()
+    {
+        await JS.InvokeVoidAsync("downloadFileFromUrl", AppDownloadQrImageUrl, "foodstreet-app-download-qr.png");
+    }
+
+    private async Task PrintAppQrAsync()
+    {
+        await JS.InvokeVoidAsync("printQrImage", AppDownloadQrImageUrl, "FoodStreet App Download QR");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_onlineCountCts is not null)
+        {
+            await _onlineCountCts.CancelAsync();
+            _onlineCountCts.Dispose();
+            _onlineCountCts = null;
+        }
+
+        if (_onlineCountTask is not null)
+        {
+            try
+            {
+                await _onlineCountTask;
+            }
+            catch (OperationCanceledException)
+            {
+            }
+
+            _onlineCountTask = null;
+        }
     }
 }

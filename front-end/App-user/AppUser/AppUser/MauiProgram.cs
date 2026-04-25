@@ -34,6 +34,7 @@ namespace AppUser
             builder.Services.AddSingleton<HttpClient>();
             builder.Services.AddSingleton<GuestService>(); // Guest session service
             builder.Services.AddSingleton<AuthService>();
+            builder.Services.AddSingleton<AppPresenceService>();
             builder.Services.AddSingleton<SignalRService>();
             builder.Services.AddSingleton<POIService>();
             builder.Services.AddSingleton<AudioService>();
