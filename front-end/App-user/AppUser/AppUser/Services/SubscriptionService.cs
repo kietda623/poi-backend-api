@@ -68,6 +68,7 @@ public class SubscriptionService
 
     public async Task<AppCheckoutSubscriptionResultDto?> CreateCheckoutAsync(int packageId, string billingCycle)
     {
+        EnsureLoggedIn();
         EnsureAuthenticated();
         try
         {
@@ -95,6 +96,7 @@ public class SubscriptionService
 
     public async Task<AppSubscriptionEnvelopeDto> SyncPaymentAsync(int id)
     {
+        EnsureLoggedIn();
         EnsureAuthenticated();
         try
         {
@@ -117,6 +119,7 @@ public class SubscriptionService
 
     public async Task<bool> CancelAsync(int id)
     {
+        EnsureLoggedIn();
         EnsureAuthenticated();
         try
         {
@@ -156,6 +159,14 @@ public class SubscriptionService
         if (string.IsNullOrWhiteSpace(_authService.Token))
         {
             throw new InvalidOperationException("Bạn cần xác thực để sử dụng tính năng này.");
+        }
+    }
+
+    private void EnsureLoggedIn()
+    {
+        if (!_authService.IsLoggedIn)
+        {
+            throw new InvalidOperationException("Ban can dang nhap de dang ky hoac quan ly goi audio.");
         }
     }
 

@@ -10,6 +10,7 @@ public partial class SubscriptionViewModel : ObservableObject
 {
     private readonly SubscriptionService _subscriptionService;
     private readonly AudioService _audioService;
+    private readonly AuthService _authService;
 
     [ObservableProperty]
     private bool isLoading;
@@ -94,10 +95,11 @@ public partial class SubscriptionViewModel : ObservableObject
     [ObservableProperty]
     private string pendingBillingCycle = string.Empty;
 
-    public SubscriptionViewModel(SubscriptionService subscriptionService, AudioService audioService)
+    public SubscriptionViewModel(SubscriptionService subscriptionService, AudioService audioService, AuthService authService)
     {
         _subscriptionService = subscriptionService;
         _audioService = audioService;
+        _authService = authService;
         _audioService.LanguageChanged += OnLanguageChanged;
         UpdateLocalizedTexts();
     }
@@ -221,6 +223,23 @@ public partial class SubscriptionViewModel : ObservableObject
     private async Task SubscribeAsync(AppServicePackageDto package, string billingCycle)
     {
         if (package == null) return;
+
+        await _authService.EnsureSessionLoadedAsync();
+        if (!_authService.IsLoggedIn)
+        {
+            var goToLogin = await Shell.Current.DisplayAlert(
+                "Dang nhap de dang ky goi",
+                "Ban can dang nhap truoc khi tao thanh toan cho goi audio.",
+                "Dang nhap",
+                "De sau");
+
+            if (goToLogin)
+            {
+                await Shell.Current.GoToAsync("login");
+            }
+
+            return;
+        }
 
         try
         {

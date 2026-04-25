@@ -10,6 +10,7 @@ namespace AppUser.ViewModels
     public partial class AudioPlayerViewModel : ObservableObject
     {
         private readonly AudioService _audioService;
+        private readonly AuthService _authService;
 
         [ObservableProperty]
         private AudioGuideDto? audioGuide;
@@ -92,10 +93,11 @@ namespace AppUser.ViewModels
         // Available speed options
         public List<double> SpeedOptions = new() { 0.75, 1.0, 1.25, 1.5, 2.0 };
 
-        public AudioPlayerViewModel(AudioService audio, POIService poiService)
+        public AudioPlayerViewModel(AudioService audio, POIService poiService, AuthService authService)
         {
             _audioService = audio;
             _poiService = poiService;
+            _authService = authService;
         }
 
         partial void OnCurrentLangCodeChanged(string value)
@@ -303,6 +305,23 @@ namespace AppUser.ViewModels
         [RelayCommand]
         private async Task SubmitReview()
         {
+            await _authService.EnsureSessionLoadedAsync();
+            if (!_authService.IsLoggedIn)
+            {
+                var goToLogin = await Shell.Current.DisplayAlert(
+                    "Dang nhap de danh gia",
+                    "Ban can dang nhap truoc khi gui danh gia cho diem tham quan.",
+                    "Dang nhap",
+                    "De sau");
+
+                if (goToLogin)
+                {
+                    await Shell.Current.GoToAsync("login");
+                }
+
+                return;
+            }
+
             if (POI != null)
             {
                 var (success, message) = await _poiService.SubmitReviewWithResultAsync(POI.Id, ReviewRating, ReviewComment);

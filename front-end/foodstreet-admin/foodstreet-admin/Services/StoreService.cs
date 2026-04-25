@@ -131,41 +131,6 @@ public class StoreService
         return await _api.DeleteAsync($"owner/shops/{id}");
     }
 
-    /// <summary>Calls POST /api/owner/shops/{id}/regenerate-qr and returns the new QrCodeUrl or null on failure.</summary>
-    public async Task<string?> RegenerateQrCodeAsync(int storeId)
-    {
-        try
-        {
-            var response = await _api.PostAsync<object, JsonElement>($"owner/shops/{storeId}/regenerate-qr", new { });
-            if (response.ValueKind != JsonValueKind.Undefined && response.TryGetProperty("qrCodeUrl", out var urlProp))
-            {
-                return urlProp.GetString();
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "RegenerateQrCodeAsync failed for store {StoreId}", storeId);
-        }
-        return null;
-    }
-
-    public async Task<string?> RegenerateAdminQrCodeAsync(int storeId)
-    {
-        try
-        {
-            var response = await _api.PostAsync<object, JsonElement>($"admin/shops/{storeId}/regenerate-qr", new { });
-            if (response.ValueKind != JsonValueKind.Undefined && response.TryGetProperty("qrCodeUrl", out var urlProp))
-            {
-                return urlProp.GetString();
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "RegenerateAdminQrCodeAsync failed for store {StoreId}", storeId);
-        }
-        return null;
-    }
-
     public async Task<bool> ApproveStoreAsync(int id)
     {
         return await _api.PatchAsync($"admin/shops/{id}/approve");
@@ -249,6 +214,19 @@ public class StoreService
         if (month.HasValue)
             query += $"&month={month.Value}";
         return await _api.GetAsync<AdminRevenueModel>(query);
+    }
+
+    public async Task<int> GetOnlineCountAsync()
+    {
+        var response = await _api.GetAsync<JsonElement>("admin/stats/online-count");
+        if (response.ValueKind != JsonValueKind.Undefined &&
+            response.TryGetProperty("count", out var countProp) &&
+            countProp.TryGetInt32(out var count))
+        {
+            return count;
+        }
+
+        return 0;
     }
 
     public async Task<SellerRevenueModel?> GetSellerRevenueAsync(int sellerId, string? weekDate = null, int? storeId = null)

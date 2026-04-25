@@ -32,7 +32,6 @@ builder.Services.AddScoped<GroqService>();
 // Guest token service - Cấp JWT ẩn danh cho khách vãng lai
 builder.Services.AddScoped<GuestTokenService>();
 // QR Code generation service
-builder.Services.AddScoped<QrCodeService>();
 builder.Services.AddSingleton<IUserTrackerService, UserTrackerService>();
 builder.Services.Configure<PayOsOptions>(builder.Configuration.GetSection("PayOS"));
 
@@ -156,5 +155,6 @@ app.Use(async (context, next) =>
 });
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<AppPresenceHub>("/hubs/app-presence");
 app.MapHub<UserTrackerHub>("/hubs/user-tracker");
 app.Run();

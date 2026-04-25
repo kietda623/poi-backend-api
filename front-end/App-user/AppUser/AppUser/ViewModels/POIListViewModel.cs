@@ -203,13 +203,7 @@ namespace AppUser.ViewModels
         {
             if (poi == null) return;
 
-            if (!_authService.IsLoggedIn)
-            {
-                await Shell.Current.DisplayAlert("Login Required", "You need to log in to subscribe to audio packages.", "OK");
-                await Shell.Current.GoToAsync("//login");
-                return;
-            }
-
+            await _authService.InitGuestSessionAsync();
             if (!await _subscriptionService.CanAccessAudioAsync())
             {
                 var goToPackages = await Shell.Current.DisplayAlert("Audio Package Needed", "You need an active audio package to listen to audio guides.", "Subscribe", "Later");

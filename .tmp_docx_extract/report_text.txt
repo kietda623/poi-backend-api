@@ -1,0 +1,735 @@
+﻿TRÆ¯á»œNG Äáº I Há»ŒC SÃ€I GÃ’N
+KHOA CÃ”NG NGHá»† THÃ”NG TIN
+â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
+Há»† THá»NG THUYáº¾T MINH ÄA NGÃ”N NGá»®
+PHá» áº¨M THá»°C VÄ¨NH KHÃNH
+(FoodStreet Audio Guide System)
+CÃ´ng nghá»‡: .NET MAUI  |  Blazor/MudBlazor  |  ASP.NET Core  |  MySQL
+Giáº£ng viÃªn hÆ°á»›ng dáº«n:  Nguyá»…n Quá»‘c Huy
+ThÃ nh viÃªn: DÆ°Æ¡ng Anh Kiá»‡t â€“ 3123411169
+Nguyá»…n ThÃ¹y Ãnh Minh - 323411189
+TP. Há»“ ChÃ­ Minh, 2026
+Má»¤C Lá»¤C
+CHÆ¯Æ NG 1: GIá»šI THIá»†U Äá»€ TÃ€I3
+1.1. Bá»‘i cáº£nh vÃ  LÃ½ do Chá»n Äá» tÃ i3
+1.2. Má»¥c tiÃªu NghiÃªn cá»©u3
+1.3. Pháº¡m vi Thá»±c hiá»‡n4
+1.4. Ã nghÄ©a Thá»±c tiá»…n4
+CHÆ¯Æ NG 2: PHÃ‚N TÃCH YÃŠU Cáº¦U Há»† THá»NG5
+2.1. PhÃ¢n tÃ­ch Chá»©c nÄƒng (BFD)5
+2.2. Danh sÃ¡ch cÃ¡c TÃ¡c nhÃ¢n (Actor)5
+2.3. SÆ¡ Ä‘á»“ Usecase Tá»•ng quan6
+2.4. Äáº·c táº£ Chi tiáº¿t Usecase7
+CHÆ¯Æ NG 3: THIáº¾T Káº¾ Há»† THá»NG10
+3.1. Kiáº¿n trÃºc Há»‡ thá»‘ng (System Architecture)10
+3.2. SÆ¡ Ä‘á»“ Lá»›p (Class Diagram)11
+3.3. SÆ¡ Ä‘á»“ TrÃ¬nh tá»± (Sequence Diagram)13
+CHÆ¯Æ NG 4: THIáº¾T Káº¾ CÆ  Sá»ž Dá»® LIá»†U14
+4.1. MÃ´ hÃ¬nh ERD14
+4.2. MÃ´ táº£ Chi tiáº¿t cÃ¡c Báº£ng Dá»¯ liá»‡u14
+CHÆ¯Æ NG 5: THIáº¾T Káº¾ GIAO DIá»†N (UI/UX)18
+5.1. NguyÃªn táº¯c Thiáº¿t káº¿18
+5.2. Luá»“ng Xá»­ lÃ½ Geofencing18
+5.3. MÃ´ táº£ MÃ n hÃ¬nh ChÃ­nh19
+CHÆ¯Æ NG 6: Káº¾T LUáº¬N VÃ€ HÆ¯á»šNG PHÃT TRIá»‚N22
+6.1. ÄÃ¡nh giÃ¡ TÃ­nh thá»±c tiá»…n22
+6.2. HÆ°á»›ng PhÃ¡t triá»ƒn TÆ°Æ¡ng lai23
+TÃ€I LIá»†U THAM KHáº¢O24
+CHÆ¯Æ NG 1: GIá»šI THIá»†U Äá»€ TÃ€I
+1.1. Bá»‘i cáº£nh vÃ  LÃ½ do Chá»n Äá» tÃ i
+Trong bá»‘i cáº£nh há»™i nháº­p kinh táº¿ quá»‘c táº¿ vÃ  sá»± bÃ¹ng ná»• cá»§a du lá»‹ch áº©m thá»±c táº¡i Viá»‡t Nam, Phá»‘ áº©m thá»±c VÄ©nh KhÃ¡nh (Quáº­n 4, TP. Há»“ ChÃ­ Minh) Ä‘Ã£ trá»Ÿ thÃ nh má»™t Ä‘iá»ƒm Ä‘áº¿n háº¥p dáº«n khÃ´ng chá»‰ vá»›i du khÃ¡ch trong nÆ°á»›c mÃ  cÃ²n vá»›i Ä‘Ã´ng Ä‘áº£o khÃ¡ch quá»‘c táº¿. NÆ¡i Ä‘Ã¢y táº­p trung hÃ ng trÄƒm gian hÃ ng áº©m thá»±c truyá»n thá»‘ng vá»›i hÆ°Æ¡ng vá»‹ Ä‘áº·c trÆ°ng Nam Bá»™, tá»« á»‘c hÆ°Æ¡ng Ä‘áº¿n cÃ¡c mÃ³n háº£i sáº£n Ä‘áº·c sáº£n.
+Tuy nhiÃªn, thá»±c táº¿ kháº£o sÃ¡t cho tháº¥y pháº§n lá»›n du khÃ¡ch quá»‘c táº¿ gáº·p khÃ³ khÄƒn Ä‘Ã¡ng ká»ƒ khi tÃ¬m hiá»ƒu vÃ  tráº£i nghiá»‡m áº©m thá»±c táº¡i Ä‘Ã¢y do rÃ o cáº£n ngÃ´n ngá»¯. Báº£ng hiá»‡u, thá»±c Ä‘Æ¡n vÃ  thÃ´ng tin giá»›i thiá»‡u Ä‘á»u chá»‰ báº±ng tiáº¿ng Viá»‡t. HÆ°á»›ng dáº«n viÃªn thÃ´ng tháº¡o ngoáº¡i ngá»¯ cÃ³ chi phÃ­ cao vÃ  khÃ³ tiáº¿p cáº­n. Äiá»u nÃ y táº¡o ra khoáº£ng cÃ¡ch vÃ´ hÃ¬nh giá»¯a nÃ©t Ä‘áº·c sáº¯c vÄƒn hÃ³a áº©m thá»±c vÃ  sá»± tráº£i nghiá»‡m cá»§a du khÃ¡ch nÆ°á»›c ngoÃ i.
+Xuáº¥t phÃ¡t tá»« thá»±c tráº¡ng Ä‘Ã³, nhÃ³m nghiÃªn cá»©u Ä‘á» xuáº¥t xÃ¢y dá»±ng Há»‡ thá»‘ng Thuyáº¿t minh Äa ngÃ´n ngá»¯ Phá»‘ áº©m thá»±c VÄ©nh KhÃ¡nh - má»™t giáº£i phÃ¡p cÃ´ng nghá»‡ tÃ­ch há»£p á»©ng dá»¥ng di Ä‘á»™ng (Mobile App) vÃ  cá»•ng thÃ´ng tin quáº£n lÃ½ trá»±c tuyáº¿n (Web Portal), cho phÃ©p tá»± Ä‘á»™ng phÃ¡t thuyáº¿t minh Ã¢m thanh khi du khÃ¡ch tiáº¿p cáº­n má»™t gian hÃ ng cá»¥ thá»ƒ, há»— trá»£ Ä‘a ngÃ´n ngá»¯ (Tiáº¿ng Viá»‡t, Anh, Trung).
+1.2. Má»¥c tiÃªu NghiÃªn cá»©u
+Äá» tÃ i hÆ°á»›ng Ä‘áº¿n cÃ¡c má»¥c tiÃªu cá»¥ thá»ƒ sau:
+XÃ¢y dá»±ng á»©ng dá»¥ng di Ä‘á»™ng Ä‘a ná»n táº£ng (Android/iOS) giÃºp du khÃ¡ch tá»± Ä‘á»™ng nháº­n thuyáº¿t minh Ã¢m thanh vá» gian hÃ ng khi Ä‘áº¿n gáº§n bÃ¡n kÃ­nh Ä‘á»‹nh nghÄ©a (Geofencing).
+PhÃ¡t triá»ƒn cá»•ng thÃ´ng tin trá»±c tuyáº¿n (Web Admin/Seller Portal) cho phÃ©p chá»§ gian hÃ ng tá»± quáº£n lÃ½ thÃ´ng tin, thá»±c Ä‘Æ¡n vÃ  tá»‡p thuyáº¿t minh cá»§a gian hÃ ng mÃ¬nh.
+TÃ­ch há»£p cÃ´ng nghá»‡ Text-to-Speech (Azure Speech Service) Ä‘á»ƒ tá»± Ä‘á»™ng tá»•ng há»£p giá»ng nÃ³i thuyáº¿t minh tá»« ná»™i dung vÄƒn báº£n theo nhiá»u ngÃ´n ngá»¯.
+TÃ­ch há»£p dá»‹ch thuáº­t tá»± Ä‘á»™ng (Azure Translator) Ä‘á»ƒ chuyá»ƒn Ä‘á»•i ná»™i dung thuyáº¿t minh tá»« tiáº¿ng Viá»‡t sang cÃ¡c ngÃ´n ngá»¯ khÃ¡c.
+XÃ¢y dá»±ng há»‡ thá»‘ng phÃ¢n quyá»n ba cáº¥p (Admin, Chá»§ gian hÃ ng, Du khÃ¡ch) vá»›i cÆ¡ cháº¿ Ä‘Äƒng kÃ½ gÃ³i dá»‹ch vá»¥ vÃ  thanh toÃ¡n qua PayOS.
+Thu tháº­p dá»¯ liá»‡u hÃ nh vi nghe thuyáº¿t minh cá»§a du khÃ¡ch phá»¥c vá»¥ phÃ¢n tÃ­ch thá»‘ng kÃª vÃ  cáº£i tiáº¿n há»‡ thá»‘ng.
+1.3. Pháº¡m vi Thá»±c hiá»‡n
+Äá» tÃ i táº­p trung vÃ o pháº¡m vi sau:
+Äá»‹a Ä‘iá»ƒm: Phá»‘ áº©m thá»±c VÄ©nh KhÃ¡nh, Quáº­n 4, TP. Há»“ ChÃ­ Minh.
+NgÃ´n ngá»¯ há»— trá»£: Tiáº¿ng Viá»‡t (ngÃ´n ngá»¯ gá»‘c), Tiáº¿ng Anh, Tiáº¿ng Trung (Phá»• thÃ´ng).
+Ná»n táº£ng á»©ng dá»¥ng: Android (Æ°u tiÃªn), iOS (há»— trá»£ bá»• sung thÃ´ng qua .NET MAUI).
+Ná»n táº£ng web: Blazor Server vá»›i MudBlazor, cháº¡y trÃªn trÃ¬nh duyá»‡t hiá»‡n Ä‘áº¡i.
+Backend: ASP.NET Core Web API vá»›i cÆ¡ sá»Ÿ dá»¯ liá»‡u MySQL.
+1.4. Ã nghÄ©a Thá»±c tiá»…n
+Dá»± Ã¡n mang láº¡i giÃ¡ trá»‹ thiáº¿t thá»±c trÃªn nhiá»u phÆ°Æ¡ng diá»‡n:
+Äá»‘i vá»›i du khÃ¡ch quá»‘c táº¿: XÃ³a bá» rÃ o cáº£n ngÃ´n ngá»¯, táº¡o tráº£i nghiá»‡m áº©m thá»±c phong phÃº vÃ  chuyÃªn nghiá»‡p khÃ´ng kÃ©m báº¥t ká»³ Ä‘iá»ƒm du lá»‹ch nÃ o trÃªn tháº¿ giá»›i.
+Äá»‘i vá»›i chá»§ gian hÃ ng: CÃ´ng cá»¥ quáº£ng bÃ¡ hiá»‡u quáº£, minh báº¡ch thÃ´ng tin, tÄƒng kháº£ nÄƒng tiáº¿p cáº­n khÃ¡ch hÃ ng quá»‘c táº¿ mÃ  khÃ´ng cáº§n Ä‘áº§u tÆ° lá»›n.
+Äá»‘i vá»›i Ä‘á»‹a phÆ°Æ¡ng: NÃ¢ng táº§m hÃ¬nh áº£nh du lá»‹ch thÃ´ng minh, gÃ³p pháº§n vÃ o chiáº¿n lÆ°á»£c phÃ¡t triá»ƒn kinh táº¿ ban Ä‘Ãªm cá»§a Quáº­n 4 vÃ  TP. Há»“ ChÃ­ Minh.
+Äá»‘i vá»›i nghiÃªn cá»©u: MÃ´ hÃ¬nh káº¿t há»£p IoT (Geofencing), AI (TTS, dá»‹ch thuáº­t) vÃ  á»©ng dá»¥ng di Ä‘á»™ng trong du lá»‹ch cÃ³ thá»ƒ nhÃ¢n rá»™ng cho nhiá»u Ä‘á»‹a Ä‘iá»ƒm vÄƒn hÃ³a khÃ¡c.
+CHÆ¯Æ NG 2: PHÃ‚N TÃCH YÃŠU Cáº¦U Há»† THá»NG
+2.1. PhÃ¢n tÃ­ch Chá»©c nÄƒng - SÆ¡ Ä‘á»“ BFD
+Há»‡ thá»‘ng Ä‘Æ°á»£c phÃ¢n chia thÃ nh ba phÃ¢n há»‡ chÃ­nh, má»—i phÃ¢n há»‡ phá»¥c vá»¥ má»™t nhÃ³m ngÆ°á»i dÃ¹ng riÃªng biá»‡t vá»›i cÃ¡c chá»©c nÄƒng Ä‘áº·c thÃ¹:
+PHÃ‚N Há»†
+Äá»I TÆ¯á»¢NG
+CHá»¨C NÄ‚NG CHÃNH
+App Du khÃ¡ch (Mobile App)
+Du khÃ¡ch trong nÆ°á»›c vÃ  quá»‘c táº¿
+Xem báº£n Ä‘á»“ gian hÃ ng, Nghe thuyáº¿t minh theo vá»‹ trÃ­ GPS, Chuyá»ƒn ngÃ´n ngá»¯, ÄÄƒng nháº­p/Ä‘Äƒng kÃ½, GÃ³i nghe audio, ÄÃ¡nh giÃ¡
+Portal Chá»§ gian hÃ ng (Seller Portal)
+Chá»§/quáº£n lÃ½ gian hÃ ng
+ÄÄƒng kÃ½ gian hÃ ng, Quáº£n lÃ½ thá»±c Ä‘Æ¡n, Táº¡o ná»™i dung thuyáº¿t minh, Táº¡o audio TTS, Thá»‘ng kÃª lÆ°á»£t nghe, ÄÄƒng kÃ½ gÃ³i dá»‹ch vá»¥
+Dashboard Admin (Admin Panel)
+Quáº£n trá»‹ viÃªn há»‡ thá»‘ng
+Quáº£n lÃ½ ngÆ°á»i dÃ¹ng, Duyá»‡t gian hÃ ng, Quáº£n lÃ½ POI vÃ  audio, Thá»‘ng kÃª doanh thu, Cáº¥u hÃ¬nh há»‡ thá»‘ng, Quáº£n lÃ½ gÃ³i dá»‹ch vá»¥
+2.2. Danh sÃ¡ch cÃ¡c TÃ¡c nhÃ¢n (Actor)
+Há»‡ thá»‘ng xÃ¡c Ä‘á»‹nh ba tÃ¡c nhÃ¢n chÃ­nh tÆ°Æ¡ng tÃ¡c trá»±c tiáº¿p:
+TÃC NHÃ‚N
+MÃ” Táº¢
+PHÆ¯Æ NG TIá»†N TÆ¯Æ NG TÃC
+Du khÃ¡ch (Tourist)
+NgÆ°á»i dÃ¹ng cuá»‘i sá»­ dá»¥ng app di Ä‘á»™ng. Bao gá»“m khÃ¡ch trong nÆ°á»›c vÃ  quá»‘c táº¿, cÃ³ thá»ƒ hoáº·c chÆ°a Ä‘Äƒng kÃ½ tÃ i khoáº£n.
+á»¨ng dá»¥ng .NET MAUI (Android/iOS)
+Chá»§ gian hÃ ng (Owner/Seller)
+CÃ¡ nhÃ¢n hoáº·c tá»• chá»©c sá»Ÿ há»¯u/quáº£n lÃ½ gian hÃ ng. Chá»‹u trÃ¡ch nhiá»‡m cung cáº¥p vÃ  cáº­p nháº­t ná»™i dung.
+Web Portal Blazor (PC/Tablet)
+Quáº£n trá»‹ viÃªn (Admin)
+NhÃ¢n sá»± quáº£n lÃ½ há»‡ thá»‘ng toÃ n diá»‡n. CÃ³ quyá»n cao nháº¥t, chá»‹u trÃ¡ch nhiá»‡m kiá»ƒm duyá»‡t vÃ  váº­n hÃ nh.
+Web Admin Dashboard Blazor
+2.3. Danh sÃ¡ch Usecase Tá»•ng quan
+2.3.1. Usecase cá»§a Du khÃ¡ch (Tourist)
+UC-T01: ÄÄƒng kÃ½ / ÄÄƒng nháº­p tÃ i khoáº£n
+UC-T02: Xem báº£n Ä‘á»“ gian hÃ ng
+UC-T03: Nghe thuyáº¿t minh theo vá»‹ trÃ­ GPS (Geofencing)
+UC-T04: Chá»n ngÃ´n ngá»¯ thuyáº¿t minh
+UC-T05: Xem thá»±c Ä‘Æ¡n vÃ  thÃ´ng tin gian hÃ ng
+UC-T06: Gá»­i Ä‘Ã¡nh giÃ¡ sau khi nghe
+UC-T07: ÄÄƒng kÃ½ gÃ³i nghe audio (PayOS)
+UC-T08: Chá»‰nh sá»­a há»“ sÆ¡ cÃ¡ nhÃ¢n
+2.3.2. Usecase cá»§a Chá»§ gian hÃ ng (Owner)
+UC-O01: ÄÄƒng kÃ½ tÃ i khoáº£n vÃ  gian hÃ ng
+UC-O02: Quáº£n lÃ½ thÃ´ng tin gian hÃ ng (tÃªn, Ä‘á»‹a chá»‰, áº£nh, tá»a Ä‘á»™)
+UC-O03: Quáº£n lÃ½ thá»±c Ä‘Æ¡n (Menu) vÃ  mÃ³n Äƒn (MenuItem)
+UC-O04: Nháº­p ná»™i dung thuyáº¿t minh báº±ng tiáº¿ng Viá»‡t
+UC-O05: Táº¡o audio thuyáº¿t minh TTS (Azure Speech)
+UC-O06: Táº¡o audio Ä‘a ngÃ´n ngá»¯ tá»± Ä‘á»™ng (Dá»‹ch + TTS)
+UC-O07: Xem thá»‘ng kÃª lÆ°á»£t nghe vÃ  doanh thu
+UC-O08: ÄÄƒng kÃ½ gÃ³i dá»‹ch vá»¥ Seller (PayOS)
+2.3.3. Usecase cá»§a Quáº£n trá»‹ viÃªn (Admin)
+UC-A01: Quáº£n lÃ½ toÃ n bá»™ ngÆ°á»i dÃ¹ng
+UC-A02: Duyá»‡t / tá»« chá»‘i gian hÃ ng
+UC-A03: Quáº£n lÃ½ Ä‘iá»ƒm POI (Point of Interest)
+UC-A04: Quáº£n lÃ½ file audio gian hÃ ng
+UC-A05: Xem thá»‘ng kÃª doanh thu toÃ n há»‡ thá»‘ng
+UC-A06: Quáº£n lÃ½ gÃ³i dá»‹ch vá»¥ vÃ  Ä‘Äƒng kÃ½
+UC-A07: Cáº¥u hÃ¬nh há»‡ thá»‘ng (ngÃ´n ngá»¯, phÃ­)
+UC-A08: Táº¡o/xÃ³a tÃ i khoáº£n ngÆ°á»i dÃ¹ng
+2.4. Äáº·c táº£ Chi tiáº¿t Usecase
+2.4.1. UC-T03: Nghe thuyáº¿t minh theo vá»‹ trÃ­ GPS (Geofencing)
+THUá»˜C TÃNH
+Ná»˜I DUNG
+MÃ£ Usecase
+UC-T03
+TÃªn Usecase
+Nghe thuyáº¿t minh theo vá»‹ trÃ­ GPS
+TÃ¡c nhÃ¢n chÃ­nh
+Du khÃ¡ch (Ä‘Ã£ hoáº·c chÆ°a Ä‘Äƒng nháº­p)
+Tiá»n Ä‘iá»u kiá»‡n
+App Ä‘Ã£ cÃ i Ä‘áº·t, quyá»n vá»‹ trÃ­ Ä‘Ã£ Ä‘Æ°á»£c cáº¥p, káº¿t ná»‘i Internet
+Háº­u Ä‘iá»u kiá»‡n
+Audio thuyáº¿t minh phÃ¡t tá»± Ä‘á»™ng; Lá»‹ch sá»­ nghe Ä‘Æ°á»£c ghi nháº­n náº¿u cÃ³ Ä‘Äƒng nháº­p
+Luá»“ng chÃ­nh
+1. Du khÃ¡ch má»Ÿ app vÃ  báº­t Ä‘á»‹nh vá»‹ 2. Há»‡ thá»‘ng liÃªn tá»¥c kiá»ƒm tra tá»a Ä‘á»™ GPS má»—i 10 giÃ¢y 3. Khi phÃ¡t hiá»‡n du khÃ¡ch trong bÃ¡n kÃ­nh â‰¤100m cá»§a POI 4. Há»‡ thá»‘ng hiá»ƒn thá»‹ thÃ´ng bÃ¡o vÃ  Ä‘á» nghá»‹ phÃ¡t audio 5. Du khÃ¡ch xÃ¡c nháº­n â†’ App táº£i vÃ  phÃ¡t file audio 6. Há»‡ thá»‘ng ghi nháº­n UsageHistory
+Luá»“ng thay tháº¿
+A1. Du khÃ¡ch tá»« chá»‘i â†’ KhÃ´ng phÃ¡t, tiáº¿p tá»¥c theo dÃµi vá»‹ trÃ­ A2. ChÆ°a cÃ³ audio â†’ Hiá»ƒn thá»‹ ná»™i dung vÄƒn báº£n thay tháº¿ A3. Máº¥t káº¿t ná»‘i â†’ ThÃ´ng bÃ¡o lá»—i, thá»­ láº¡i sau
+Ngoáº¡i lá»‡
+E1. Lá»—i GPS â†’ YÃªu cáº§u báº­t Ä‘á»‹nh vá»‹ chÃ­nh xÃ¡c E2. ChÆ°a cÃ³ gÃ³i audio â†’ Äiá»u hÆ°á»›ng Ä‘áº¿n trang Ä‘Äƒng kÃ½ gÃ³i
+Äá»™ Æ°u tiÃªn
+Cao (Core Feature)
+2.4.2. UC-O03: Quáº£n lÃ½ thá»±c Ä‘Æ¡n Ä‘a ngÃ´n ngá»¯
+THUá»˜C TÃNH
+Ná»˜I DUNG
+MÃ£ Usecase
+UC-O03
+TÃªn Usecase
+Quáº£n lÃ½ thá»±c Ä‘Æ¡n Ä‘a ngÃ´n ngá»¯
+TÃ¡c nhÃ¢n chÃ­nh
+Chá»§ gian hÃ ng (Ä‘Ã£ Ä‘Äƒng nháº­p, cÃ³ gÃ³i Seller Ä‘ang hoáº¡t Ä‘á»™ng)
+Tiá»n Ä‘iá»u kiá»‡n
+Gian hÃ ng Ä‘Ã£ Ä‘Æ°á»£c Admin duyá»‡t; Chá»§ gian hÃ ng cÃ³ gÃ³i Seller há»£p lá»‡
+Háº­u Ä‘iá»u kiá»‡n
+Thá»±c Ä‘Æ¡n Ä‘Æ°á»£c lÆ°u vÃ o DB; Du khÃ¡ch cÃ³ thá»ƒ xem thá»±c Ä‘Æ¡n qua app
+Luá»“ng chÃ­nh
+1. Chá»§ gian hÃ ng Ä‘Äƒng nháº­p Web Portal 2. VÃ o má»¥c 'Quáº£n lÃ½ Menu' 3. Táº¡o Menu má»›i (tÃªn, mÃ´ táº£, thá»© tá»± hiá»ƒn thá»‹) 4. ThÃªm mÃ³n Äƒn vÃ o Menu (tÃªn, giÃ¡, áº£nh, mÃ´ táº£) 5. Há»‡ thá»‘ng lÆ°u dá»¯ liá»‡u vÃ o báº£ng Menus vÃ  MenuItems 6. App du khÃ¡ch tá»± Ä‘á»™ng hiá»ƒn thá»‹ thá»±c Ä‘Æ¡n khi xem gian hÃ ng
+Luá»“ng thay tháº¿
+A1. Chá»‰nh sá»­a/xÃ³a mÃ³n Äƒn Ä‘Ã£ táº¡o A2. áº¨n/hiá»‡n Menu táº¡m thá»i (IsActive flag) A3. Sáº¯p xáº¿p thá»© tá»± hiá»ƒn thá»‹ (DisplayOrder)
+Ghi chÃº
+Menu há»— trá»£ Ä‘a cáº¥p (Menu â†’ MenuItem); GiÃ¡ tiá»n Ä‘á»‹nh dáº¡ng VND; HÃ¬nh áº£nh táº£i lÃªn qua API MediaController
+2.4.3. UC-A05: Thá»‘ng kÃª lÆ°á»£t truy cáº­p vÃ  doanh thu
+THUá»˜C TÃNH
+Ná»˜I DUNG
+MÃ£ Usecase
+UC-A05
+TÃªn Usecase
+Thá»‘ng kÃª lÆ°á»£t truy cáº­p vÃ  doanh thu
+TÃ¡c nhÃ¢n chÃ­nh
+Quáº£n trá»‹ viÃªn (Admin) / Chá»§ gian hÃ ng (Owner)
+Tiá»n Ä‘iá»u kiá»‡n
+ÄÃ£ cÃ³ dá»¯ liá»‡u UsageHistory vÃ  Subscriptions trong há»‡ thá»‘ng
+Háº­u Ä‘iá»u kiá»‡n
+BÃ¡o cÃ¡o thá»‘ng kÃª Ä‘Æ°á»£c hiá»ƒn thá»‹ theo khoáº£ng thá»i gian Ä‘Ã£ chá»n
+Luá»“ng chÃ­nh
+1. NgÆ°á»i dÃ¹ng truy cáº­p Dashboard thá»‘ng kÃª 2. Chá»n khoáº£ng thá»i gian (tuáº§n/thÃ¡ng/quÃ½/nÄƒm) 3. Há»‡ thá»‘ng query báº£ng UsageHistories, Orders, Subscriptions 4. Tá»•ng há»£p: lÆ°á»£t nghe, doanh thu, gian hÃ ng ná»•i báº­t 5. Hiá»ƒn thá»‹ biá»ƒu Ä‘á»“ cá»™t (MudChart) vÃ  báº£ng chi tiáº¿t 6. Xuáº¥t bÃ¡o cÃ¡o PDF/Excel (náº¿u cáº§n)
+Chá»‰ sá»‘ theo dÃµi
+Tá»•ng lÆ°á»£t nghe; Doanh thu theo thÃ¡ng; Top gian hÃ ng; PhÃ¢n tÃ­ch ngÃ´n ngá»¯; Sá»‘ Ä‘Äƒng kÃ½ má»›i
+Quyá»n truy cáº­p
+Admin: Xem toÃ n bá»™ há»‡ thá»‘ng; Owner: Chá»‰ xem dá»¯ liá»‡u gian hÃ ng cá»§a mÃ¬nh
+CHÆ¯Æ NG 3: THIáº¾T Káº¾ Há»† THá»NG
+3.1. Kiáº¿n trÃºc Há»‡ thá»‘ng (System Architecture)
+Há»‡ thá»‘ng Ä‘Æ°á»£c thiáº¿t káº¿ theo kiáº¿n trÃºc ba táº§ng (3-Tier Architecture) káº¿t há»£p vá»›i mÃ´ hÃ¬nh microservice nháº¹, phÃ¢n tÃ¡ch rÃµ rÃ ng vai trÃ² cá»§a tá»«ng thÃ nh pháº§n:
+Kiáº¿n trÃºc Tá»•ng quan
+Táº¦NG TRÃŒNH BÃ€Y (Presentation Layer)
+â€¢ Mobile App (.NET MAUI): á»¨ng dá»¥ng Ä‘a ná»n táº£ng Android/iOS cho du khÃ¡ch, sá»­ dá»¥ng CommunityToolkit.MVVM vÃ  MediaElement.
+â€¢ Web Admin Portal (Blazor Server + MudBlazor): Giao diá»‡n quáº£n trá»‹ vÃ  cá»•ng thÃ´ng tin cho Seller, cháº¡y trÃªn server-side rendering.
+Táº¦NG Xá»¬ LÃ (Business Logic Layer)
+â€¢ ASP.NET Core Web API: RESTful API phÃ¢n chia theo domain (Admin, Owner, App). Xá»­ lÃ½ xÃ¡c thá»±c JWT, phÃ¢n quyá»n theo Role, tÃ­ch há»£p Azure Speech vÃ  Azure Translator.
+Táº¦NG Dá»® LIá»†U (Data Access Layer)
+â€¢ Entity Framework Core + MySQL: ORM quáº£n lÃ½ quan há»‡ dá»¯ liá»‡u. Migration-based schema management. AutoMapper cho DTO transformation.
+3.2. SÆ¡ Ä‘á»“ Lá»›p (Class Diagram)
+Dá»±a trÃªn phÃ¢n tÃ­ch mÃ£ nguá»“n, há»‡ thá»‘ng xÃ¡c Ä‘á»‹nh cÃ¡c thá»±c thá»ƒ chÃ­nh sau:
+Lá»šP (CLASS)
+THUá»˜C TÃNH CHÃNH
+QUAN Há»†
+User
+Id, Email, FullName, PasswordHash, RoleId, IsActive, CreatedAt
+CÃ³ nhiá»u Shop (Shops); Thuá»™c má»™t Role
+Role
+Id, Name (ADMIN/OWNER/USER)
+CÃ³ nhiá»u User
+Shop (Stall - Gian hÃ ng)
+Id, Name, Description, Address, OwnerId, PoiId, CategoryId, IsActive, ViewCount, ListenCount, CreatedAt
+Thuá»™c má»™t User (Owner); Thuá»™c má»™t POI; CÃ³ nhiá»u Menu; CÃ³ nhiá»u Review
+POI (Point of Interest)
+Id, Location, Latitude, Longitude, ImageUrl, AudioUrl, MenuImagesUrl
+CÃ³ nhiá»u POITranslation; CÃ³ nhiá»u Shop (qua FK)
+POITranslation
+Id, POIId, LanguageCode, Name, Description, AudioUrl
+Thuá»™c má»™t POI
+Menu
+Id, ShopId, Name, Description, IsActive, DisplayOrder, CreatedAt
+Thuá»™c má»™t Shop; CÃ³ nhiá»u MenuItem
+MenuItem (Dish - MÃ³n Äƒn)
+Id, MenuId, Name, Description, Price, IsAvailable, DisplayOrder, ImageUrl
+Thuá»™c má»™t Menu
+UsageHistory (AudioGuide)
+Id, DeviceId, ShopId, LanguageCode, ListenedAt, DurationSeconds
+Thuá»™c má»™t Shop
+Review (Feedback)
+Id, ShopId, UserId, CustomerName, Rating, Comment, CreatedAt
+Thuá»™c má»™t Shop; Thuá»™c má»™t User
+ServicePackage
+Id, Name, Tier, Audience, MonthlyPrice, YearlyPrice, MaxStores, AllowAudioAccess
+CÃ³ nhiá»u Subscription
+Subscription
+Id, UserId, ServicePackageId, BillingCycle, Price, Status, PaymentStatus, PaymentOrderCode
+Thuá»™c má»™t User; Thuá»™c má»™t ServicePackage
+Category
+Id, Name, Slug, IsActive, CreatedAt
+CÃ³ nhiá»u Shop
+Order
+Id, ShopId, TotalAmount, Status, CreatedAt
+Thuá»™c má»™t Shop
+3.3. SÆ¡ Ä‘á»“ TrÃ¬nh tá»± (Sequence diagram) vÃ  SÆ¡ Ä‘á»“ hoáº¡t Ä‘á»™ng (Activity diagram)
+3.3.1 Du khÃ¡ch
+3.3.1.1 UC-T01: ÄÄƒng kÃ½ & ÄÄƒng nháº­p (Tourist/Owner)
+3.3.1.2 Xem báº£n Ä‘á»“ gian hÃ ng
+3.3.1.3 BÆ°á»›c vÃ o vÃ¹ng Geofencing:
+BÆ¯á»šC
+TÃC NHÃ‚N
+HÃ€NH Äá»˜NG
+Há»† THá»NG Xá»¬ LÃ
+1
+Du khÃ¡ch
+Má»Ÿ app, cáº¥p quyá»n GPS
+App khá»Ÿi táº¡o LocationTimer (10s interval)
+2
+GPS Service
+Tráº£ vá» tá»a Ä‘á»™ hiá»‡n táº¡i
+App tÃ­nh khoáº£ng cÃ¡ch Ä‘áº¿n táº¥t cáº£ POI Ä‘ang hoáº¡t Ä‘á»™ng
+3
+App Logic
+PhÃ¡t hiá»‡n POI trong 100m
+Hiá»ƒn thá»‹ Alert: 'Báº¡n Ä‘ang gáº§n [TÃªn gian hÃ ng]'
+4
+Du khÃ¡ch
+Nháº¥n 'Nghe ngay'
+App gá»i API kiá»ƒm tra quyá»n audio (HasAudioAccessAsync)
+5
+API Server
+XÃ¡c thá»±c JWT token
+Kiá»ƒm tra Subscription.AllowAudioAccess = true
+6
+API Server
+Tráº£ vá» POI Detail + AudioUrl
+App download file MP3 vá» bá»™ nhá»› cache
+7
+MediaElement
+PhÃ¡t audio tá»± Ä‘á»™ng
+App cáº­p nháº­t UI: tÃªn gian hÃ ng, tiáº¿n trÃ¬nh, nÃºt Ä‘iá»u khiá»ƒn
+8
+API Server
+Ghi nháº­n UsageHistory
+POST /api/app/pois/{id}/listen (ShopId, DeviceId, Lang)
+9
+Du khÃ¡ch
+HoÃ n thÃ nh nghe audio
+App hiá»ƒn thá»‹ form Ä‘Ã¡nh giÃ¡ (Review Dialog)
+10
+Du khÃ¡ch
+Gá»­i Ä‘Ã¡nh giÃ¡ (1-5 sao)
+POST /api/app/pois/{id}/reviews â†’ lÆ°u vÃ o báº£ng Reviews
+3.3.1.4 Chá»n ngÃ´n ngá»¯ thuyáº¿t minh
+3.3.2 Chá»§ gian hÃ ng
+3.3.2.1
+3.3.2.2
+3.3.2.3
+3.3.2.4
+3.3.2.5 Táº¡o audio thuyáº¿t minh TTS
+3.3.2.6 Táº¡o audio Ä‘a ngÃ´n ngá»¯ tá»± Ä‘á»™ng (Dá»‹ch + TTS)
+3.3.2.7 Xem thá»‘ng kÃª lÆ°á»£t nghe vÃ  doanh thu
+3.3.2.8 ÄÄƒng kÃ½ gÃ³i dá»‹ch vá»¥ Seller (PayOS)
+3.3.3 Admin
+3.3.3.1 Quáº£n lÃ½ toÃ n bá»™ ngÆ°á»i dÃ¹ng
+3.3.3.2 Duyá»‡t / Tá»« chá»‘i gian hÃ ng
+3.3.3.3 Quáº£n lÃ½ Ä‘iá»ƒm POIÂ
+3.3.3.4 Quáº£n lÃ½ file audio gian hÃ ng
+3.3.3.5 Xem thá»‘ng kÃª doanh thu toÃ n há»‡ thá»‘ng
+3.3.3.6 Quáº£n lÃ½ gÃ³i dá»‹ch vá»¥ vÃ  Ä‘Äƒng kÃ½
+3.3.3.7 Cáº¥u hÃ¬nh há»‡ thá»‘ng (ngÃ´n ngá»¯, phÃ­)
+3.3.3.8 Táº¡o / XÃ³a tÃ i khoáº£n ngÆ°á»i dÃ¹ng
+CHÆ¯Æ NG 4: THIáº¾T Káº¾ CÆ  Sá»ž Dá»® LIá»†U
+4.1. MÃ´ hÃ¬nh ERD - Tá»•ng quan Quan há»‡
+CÆ¡ sá»Ÿ dá»¯ liá»‡u Ä‘Æ°á»£c thiáº¿t káº¿ theo chuáº©n quan há»‡ (Relational Database) trÃªn MySQL, Ä‘áº£m báº£o tÃ­nh toÃ n váº¹n dá»¯ liá»‡u qua há»‡ thá»‘ng khÃ³a ngoáº¡i (Foreign Key). CÃ¡c má»‘i quan há»‡ chÃ­nh trong ERD:
+QUAN Há»†
+LOáº I
+MÃ” Táº¢
+User â†’ Role
+N:1
+Nhiá»u ngÆ°á»i dÃ¹ng thuá»™c cÃ¹ng má»™t vai trÃ²
+User â†’ Shop
+1:N
+Má»™t owner cÃ³ thá»ƒ sá»Ÿ há»¯u nhiá»u gian hÃ ng (nhiá»u gÃ³i)
+Shop â†’ POI
+N:1
+Nhiá»u gian hÃ ng cÃ³ thá»ƒ liÃªn káº¿t vá»›i cÃ¹ng POI Ä‘á»‹a lÃ½
+POI â†’ POITranslation
+1:N
+Má»™t POI cÃ³ thá»ƒ cÃ³ nhiá»u báº£n dá»‹ch theo ngÃ´n ngá»¯
+Shop â†’ Menu
+1:N
+Má»™t gian hÃ ng cÃ³ nhiá»u danh má»¥c thá»±c Ä‘Æ¡n
+Menu â†’ MenuItem
+1:N
+Má»™t Menu chá»©a nhiá»u mÃ³n Äƒn
+Shop â†’ Review
+1:N
+Má»™t gian hÃ ng nháº­n nhiá»u Ä‘Ã¡nh giÃ¡ tá»« du khÃ¡ch
+Shop â†’ UsageHistory
+1:N
+Lá»‹ch sá»­ nghe thuyáº¿t minh gáº¯n vá»›i gian hÃ ng cá»¥ thá»ƒ
+Shop â†’ Category
+N:1
+Nhiá»u gian hÃ ng cÃ¹ng loáº¡i (á»c, Háº£i sáº£n, CÆ¡m...)
+User â†’ Subscription
+1:N
+NgÆ°á»i dÃ¹ng cÃ³ lá»‹ch sá»­ Ä‘Äƒng kÃ½ nhiá»u gÃ³i
+ServicePackage â†’ Subscription
+1:N
+Má»™t gÃ³i dá»‹ch vá»¥ cÃ³ nhiá»u lÆ°á»£t Ä‘Äƒng kÃ½
+4.2. MÃ´ táº£ Chi tiáº¿t cÃ¡c Báº£ng Dá»¯ liá»‡u
+4.2.1. Báº£ng Users
+Cá»˜T
+KIá»‚U Dá»® LIá»†U
+RÃ€NG BUá»˜C
+MÃ” Táº¢
+Id
+INT
+PK, AUTO_INCREMENT
+KhÃ³a chÃ­nh
+Email
+LONGTEXT
+NOT NULL
+Email Ä‘Äƒng nháº­p (unique vá» máº·t logic)
+FullName
+LONGTEXT
+NOT NULL
+Há» vÃ  tÃªn Ä‘áº§y Ä‘á»§
+PasswordHash
+LONGTEXT
+NOT NULL
+Máº­t kháº©u Ä‘Ã£ mÃ£ hÃ³a BCrypt
+RoleId
+INT
+FK â†’ Roles.Id
+Vai trÃ²: -1=ADMIN, -2=OWNER, -3=USER
+IsActive
+TINYINT(1)
+NOT NULL, DEFAULT 0
+Tráº¡ng thÃ¡i tÃ i khoáº£n
+CreatedAt
+DATETIME(6)
+NOT NULL
+Thá»i Ä‘iá»ƒm táº¡o tÃ i khoáº£n
+4.2.2. Báº£ng Shops (Gian hÃ ng)
+Cá»˜T
+KIá»‚U Dá»® LIá»†U
+RÃ€NG BUá»˜C
+MÃ” Táº¢
+Id
+INT
+PK, AUTO_INCREMENT
+KhÃ³a chÃ­nh gian hÃ ng
+Name
+LONGTEXT
+NOT NULL
+TÃªn gian hÃ ng
+Description
+LONGTEXT
+NULL
+MÃ´ táº£/ná»™i dung thuyáº¿t minh tiáº¿ng Viá»‡t
+Address
+LONGTEXT
+NULL
+Äá»‹a chá»‰ váº­t lÃ½
+OwnerId
+INT
+FK â†’ Users.Id, RESTRICT
+Chá»§ sá»Ÿ há»¯u gian hÃ ng
+PoiId
+INT
+FK â†’ POIs.Id, NULL
+LiÃªn káº¿t Ä‘iá»ƒm Ä‘á»‹a lÃ½
+CategoryId
+INT
+FK â†’ Categories.Id, SET NULL
+Danh má»¥c gian hÃ ng
+IsActive
+TINYINT(1)
+NOT NULL
+Tráº¡ng thÃ¡i hoáº¡t Ä‘á»™ng
+ViewCount
+INT
+NOT NULL, DEFAULT 0
+Sá»‘ lÆ°á»£t xem
+ListenCount
+INT
+NOT NULL, DEFAULT 0
+Sá»‘ lÆ°á»£t nghe audio
+CreatedAt
+DATETIME(6)
+NOT NULL
+NgÃ y Ä‘Äƒng kÃ½
+4.2.3. Báº£ng POIs (Äiá»ƒm tham quan)
+Cá»˜T
+KIá»‚U Dá»® LIá»†U
+RÃ€NG BUá»˜C
+MÃ” Táº¢
+Id
+INT
+PK, AUTO_INCREMENT
+KhÃ³a chÃ­nh POI
+Location
+LONGTEXT
+NULL
+TÃªn vá»‹ trÃ­/Ä‘á»‹a chá»‰ mÃ´ táº£
+Latitude
+DOUBLE
+NULL
+VÄ© Ä‘á»™ GPS
+Longitude
+DOUBLE
+NULL
+Kinh Ä‘á»™ GPS
+ImageUrl
+LONGTEXT
+NULL
+URL áº£nh Ä‘áº¡i diá»‡n POI
+AudioUrl
+LONGTEXT
+NULL
+URL audio gá»‘c (legacy)
+MenuImagesUrl
+LONGTEXT
+NULL
+Danh sÃ¡ch URL áº£nh menu (CSV)
+4.2.4. Báº£ng POITranslations (Ná»™i dung Ä‘a ngÃ´n ngá»¯)
+Cá»˜T
+KIá»‚U Dá»® LIá»†U
+RÃ€NG BUá»˜C
+MÃ” Táº¢
+Id
+INT
+PK, AUTO_INCREMENT
+KhÃ³a chÃ­nh
+POIId
+INT
+FK â†’ POIs.Id, CASCADE
+POI chá»©a báº£n dá»‹ch
+LanguageCode
+VARCHAR(255)
+NOT NULL
+MÃ£ ngÃ´n ngá»¯: vi, en, zh
+Name
+LONGTEXT
+NOT NULL
+TÃªn gian hÃ ng theo ngÃ´n ngá»¯
+Description
+LONGTEXT
+NOT NULL
+Ná»™i dung thuyáº¿t minh theo ngÃ´n ngá»¯
+AudioUrl
+LONGTEXT
+NULL
+ÄÆ°á»ng dáº«n file MP3 thuyáº¿t minh
+RÃ ng buá»™c duy nháº¥t: UNIQUE INDEX (POIId, LanguageCode) - Má»—i POI chá»‰ cÃ³ má»™t báº£n dá»‹ch cho má»—i ngÃ´n ngá»¯.
+4.2.5. Báº£ng UsageHistories (Lá»‹ch sá»­ nghe thuyáº¿t minh)
+Cá»˜T
+KIá»‚U Dá»® LIá»†U
+RÃ€NG BUá»˜C
+MÃ” Táº¢
+Id
+INT
+PK, AUTO_INCREMENT
+KhÃ³a chÃ­nh
+DeviceId
+LONGTEXT
+NOT NULL
+ID thiáº¿t bá»‹ hoáº·c 'user:{userId}'
+ShopId
+INT
+FK â†’ Shops.Id, CASCADE
+Gian hÃ ng Ä‘Æ°á»£c nghe
+LanguageCode
+LONGTEXT
+NOT NULL
+NgÃ´n ngá»¯ thuyáº¿t minh
+ListenedAt
+DATETIME(6)
+NOT NULL
+Thá»i Ä‘iá»ƒm nghe
+DurationSeconds
+INT
+NOT NULL, DEFAULT 0
+Thá»i lÆ°á»£ng nghe (giÃ¢y)
+4.2.6. Báº£ng Subscriptions (ÄÄƒng kÃ½ gÃ³i dá»‹ch vá»¥)
+Cá»˜T
+KIá»‚U Dá»® LIá»†U
+RÃ€NG BUá»˜C
+MÃ” Táº¢
+Id
+INT
+PK, AUTO_INCREMENT
+KhÃ³a chÃ­nh
+UserId
+INT
+FK â†’ Users.Id, CASCADE
+NgÆ°á»i Ä‘Äƒng kÃ½
+ServicePackageId
+INT
+FK â†’ ServicePackages.Id
+GÃ³i Ä‘Ã£ Ä‘Äƒng kÃ½
+BillingCycle
+LONGTEXT
+NOT NULL
+Chu ká»³: Monthly/Yearly/Daily
+Price
+DECIMAL(18,2)
+NOT NULL
+GiÃ¡ thanh toÃ¡n thá»±c táº¿
+StartDate
+DATETIME(6)
+NOT NULL
+NgÃ y báº¯t Ä‘áº§u
+EndDate
+DATETIME(6)
+NOT NULL
+NgÃ y káº¿t thÃºc
+Status
+LONGTEXT
+NOT NULL
+Active/Expired/Cancelled/PendingPayment
+PaymentStatus
+LONGTEXT
+NOT NULL
+Paid/Pending/Failed/Cancelled
+PaymentOrderCode
+BIGINT
+NULL
+MÃ£ Ä‘Æ¡n hÃ ng PayOS
+CheckoutUrl
+LONGTEXT
+NULL
+URL thanh toÃ¡n PayOS
+ActivatedAt
+DATETIME(6)
+NULL
+Thá»i Ä‘iá»ƒm kÃ­ch hoáº¡t sau thanh toÃ¡n
+CHÆ¯Æ NG 5: THIáº¾T Káº¾ GIAO DIá»†N (UI/UX)
+5.1. NguyÃªn táº¯c Thiáº¿t káº¿
+Giao diá»‡n há»‡ thá»‘ng tuÃ¢n theo cÃ¡c nguyÃªn táº¯c thiáº¿t káº¿ hiá»‡n Ä‘áº¡i nháº±m tá»‘i Æ°u tráº£i nghiá»‡m ngÆ°á»i dÃ¹ng:
+Mobile-First Design: á»¨ng dá»¥ng di Ä‘á»™ng Ä‘Æ°á»£c thiáº¿t káº¿ trÆ°á»›c, Æ°u tiÃªn mÃ n hÃ¬nh nhá» (360dp-414dp), cá»­ chá»‰ cáº£m á»©ng vÃ  Ä‘iá»u hÆ°á»›ng trá»±c quan.
+Material Design 3: Ãp dá»¥ng há»‡ mÃ u sáº¯c, typography vÃ  component theo tiÃªu chuáº©n Material Design, Ä‘áº£m báº£o nháº¥t quÃ¡n vÃ  quen thuá»™c vá»›i ngÆ°á»i dÃ¹ng Android.
+Äa ngÃ´n ngá»¯ (i18n): ToÃ n bá»™ chuá»—i giao diá»‡n cÃ³ thá»ƒ chuyá»ƒn Ä‘á»•i ngÃ´n ngá»¯ Ä‘á»™ng (Tiáº¿ng Viá»‡t/Anh/Trung) mÃ  khÃ´ng cáº§n khá»Ÿi Ä‘á»™ng láº¡i app.
+Accessibility: Sá»­ dá»¥ng contrast ratio Ä‘á»§ cao, icon káº¿t há»£p nhÃ£n vÄƒn báº£n, kÃ­ch thÆ°á»›c target tá»‘i thiá»ƒu 44px.
+Glassmorphism (Web): Giao diá»‡n web admin sá»­ dá»¥ng hiá»‡u á»©ng kÃ­nh má» (backdrop-filter: blur), Ä‘á»• bÃ³ng nháº¹ vÃ  mÃ u ná»n gradient.
+5.2. Luá»“ng Xá»­ lÃ½ Geofencing (Chi tiáº¿t Ká»¹ thuáº­t)
+ÄÃ¢y lÃ  tÃ­nh nÄƒng cá»‘t lÃµi cá»§a há»‡ thá»‘ng. CÆ¡ cháº¿ hoáº¡t Ä‘á»™ng Ä‘Æ°á»£c mÃ´ táº£ theo sÆ¡ Ä‘á»“ logic:
+Luá»“ng Xá»­ lÃ½ Geofencing - Chi tiáº¿t Ká»¹ thuáº­t
+BÆ°á»›c 1: Khá»Ÿi táº¡o theo dÃµi vá»‹ trÃ­
+Khi du khÃ¡ch má»Ÿ app, há»‡ thá»‘ng khá»Ÿi táº¡o má»™t DispatcherTimer vá»›i chu ká»³ 10 giÃ¢y. Äá»“ng thá»i, app táº£i danh sÃ¡ch toÃ n bá»™ POI Ä‘ang hoáº¡t Ä‘á»™ng tá»« API (GET /api/app/pois) bao gá»“m tá»a Ä‘á»™ GPS (Latitude, Longitude) cá»§a tá»«ng Ä‘iá»ƒm.
+BÆ°á»›c 2: TÃ­nh khoáº£ng cÃ¡ch Haversine
+Má»—i 10 giÃ¢y, app gá»i Geolocation.Default.GetLocationAsync() Ä‘á»ƒ láº¥y vá»‹ trÃ­ hiá»‡n táº¡i. Sau Ä‘Ã³ duyá»‡t qua danh sÃ¡ch POI, tÃ­nh khoáº£ng cÃ¡ch báº±ng cÃ´ng thá»©c Haversine (trÃªn máº·t cáº§u TrÃ¡i Äáº¥t). CÃ´ng thá»©c Ä‘áº£m báº£o Ä‘á»™ chÃ­nh xÃ¡c trong pháº¡m vi vÃ i chá»¥c mÃ©t.
+BÆ°á»›c 3: KÃ­ch hoáº¡t thÃ´ng bÃ¡o (100m)
+Khi phÃ¡t hiá»‡n POI cÃ³ khoáº£ng cÃ¡ch â‰¤ 100 mÃ©t vÃ  chÆ°a Ä‘Æ°á»£c thÃ´ng bÃ¡o trong phiÃªn nÃ y (HashSet _notifiedPoiIds), há»‡ thá»‘ng hiá»ƒn thá»‹ Alert trÃªn Main Thread vá»›i tÃ¹y chá»n 'Nghe ngay' hoáº·c 'Bá» qua'.
+BÆ°á»›c 4: Kiá»ƒm tra quyá»n Audio
+TrÆ°á»›c khi phÃ¡t audio, há»‡ thá»‘ng kiá»ƒm tra SubscriptionService.CanAccessAudioAsync(). API backend xÃ¡c nháº­n ngÆ°á»i dÃ¹ng cÃ³ Subscription vá»›i Status=Active, EndDate > Now vÃ  AllowAudioAccess=true. Náº¿u chÆ°a cÃ³ gÃ³i, Ä‘iá»u hÆ°á»›ng Ä‘áº¿n trang Ä‘Äƒng kÃ½.
+BÆ°á»›c 5: PhÃ¡t Audio vÃ  Ghi nháº­n
+App táº£i file MP3 tá»« AudioUrl vá» bá»™ nhá»› cache cá»¥c bá»™ (FileSystem.CacheDirectory), sau Ä‘Ã³ phÃ¡t qua MediaElement (CommunityToolkit.Maui). Äá»“ng thá»i gá»i API POST /api/app/pois/{id}/listen Ä‘á»ƒ ghi nháº­n UsageHistory.
+5.3. MÃ´ táº£ MÃ n hÃ¬nh ChÃ­nh
+5.3.1. App Du khÃ¡ch (.NET MAUI)
+MÃ€N HÃŒNH
+MÃ” Táº¢
+THÃ€NH PHáº¦N UI CHÃNH
+Trang Chá»§ (HomePage)
+Hiá»ƒn thá»‹ lá»i chÃ o, thanh tÃ¬m kiáº¿m, danh sÃ¡ch POI ná»•i báº­t theo ngÃ´n ngá»¯ hiá»‡n táº¡i
+HorizontalScrollView (featured), CollectionView (list), Language Toggle Button
+KhÃ¡m phÃ¡ (POIListPage)
+Danh sÃ¡ch Ä‘áº§y Ä‘á»§ cÃ¡c gian hÃ ng, há»— trá»£ tÃ¬m kiáº¿m, chuyá»ƒn Ä‘á»•i cháº¿ Ä‘á»™ danh sÃ¡ch/báº£n Ä‘á»“
+CollectionView + WebView (LeafletJS Map), FloatingActionButton toggle
+Chi tiáº¿t Gian hÃ ng (POIDetailPage)
+áº¢nh hero, tÃªn gian hÃ ng, ná»™i dung giá»›i thiá»‡u, danh sÃ¡ch thá»±c Ä‘Æ¡n vÃ  nÃºt phÃ¡t audio ná»•i
+ScrollView, CollectionView nested (Menu > Items), Floating Play Button
+TrÃ¬nh phÃ¡t Audio (AudioPlayerPage)
+Giao diá»‡n Ã¢m nháº¡c chuyÃªn nghiá»‡p vá»›i áº£nh POI xoay, thanh tiáº¿n trÃ¬nh, Ä‘iá»u khiá»ƒn playback vÃ  chá»n ngÃ´n ngá»¯
+MediaElement (áº©n), Slider (progress), Language Selector Pills, Review Dialog
+Há»“ sÆ¡ (ProfilePage)
+ThÃ´ng tin tÃ i khoáº£n, thá»‘ng kÃª cÃ¡ nhÃ¢n, cÃ i Ä‘áº·t ngÃ´n ngá»¯, lá»‹ch sá»­ nghe vÃ  gÃ³i audio
+Avatar, Settings List, CollectionView (history)
+GÃ³i Audio (SubscriptionPage)
+Danh sÃ¡ch gÃ³i nghe theo cáº¥p (Daily/Monthly/Yearly), QR thanh toÃ¡n PayOS tÃ­ch há»£p
+VerticalStackLayout cards, Overlay QR Dialog
+5.3.2. Web Portal - Gian hÃ ng (Seller Portal)
+MÃ€N HÃŒNH
+MÃ” Táº¢
+THÃ€NH PHáº¦N UI CHÃNH
+Dashboard
+Tá»•ng quan doanh thu, lÆ°á»£t nghe, review, biá»ƒu Ä‘á»“ hiá»‡u suáº¥t theo ká»³
+MudChart (Bar), StatCards, MudTable
+Gian hÃ ng cá»§a tÃ´i (MyStore)
+Quáº£n lÃ½ danh sÃ¡ch gian hÃ ng dáº¡ng card, CRUD hoÃ n chá»‰nh vá»›i map chá»n tá»a Ä‘á»™
+MudGrid cards, MudDialog (CRUD), Leaflet Map Picker
+Quáº£n lÃ½ Menu (MyMenus)
+Accordion danh sÃ¡ch Menu vÃ  MenuItem, há»— trá»£ thÃªm/sá»­a/xÃ³a inline
+MudPaper accordion, MudTable (items), MudDialog
+Táº¡o thuyáº¿t minh TTS
+Nháº­p ná»™i dung, chá»n ngÃ´n ngá»¯, dá»‹ch tá»± Ä‘á»™ng vÃ  táº¡o audio má»™t cÃº click
+MudTextField, Language Chip Selector, Audio Player Preview, Progress
+Thá»‘ng kÃª (Stats)
+BÃ¡o cÃ¡o doanh thu, lÆ°á»£t nghe, review phÃ¢n tÃ­ch theo tuáº§n/thÃ¡ng/quÃ½/nÄƒm
+MudSelect (period), MudTable (breakdown), Revenue Charts
+GÃ³i dá»‹ch vá»¥
+ÄÄƒng kÃ½ vÃ  quáº£n lÃ½ gÃ³i Seller qua PayOS, xem tráº¡ng thÃ¡i thanh toÃ¡n real-time
+Package Cards, PayOS QR Dialog, Subscription Status Panel
+5.3.3. Web Admin Dashboard
+PHÃ‚N Há»†
+CHá»¨C NÄ‚NG CHÃNH
+Quáº£n lÃ½ NgÆ°á»i dÃ¹ng
+Danh sÃ¡ch Admin/Owner/User, kÃ­ch hoáº¡t/vÃ´ hiá»‡u hÃ³a tÃ i khoáº£n, xÃ³a tÃ i khoáº£n
+Quáº£n lÃ½ Gian hÃ ng
+Duyá»‡t/tá»« chá»‘i gian hÃ ng, preview audio, quáº£n lÃ½ danh má»¥c
+Quáº£n lÃ½ POI
+CRUD Ä‘iá»ƒm tham quan, upload Ä‘a ngÃ´n ngá»¯, táº¡o audio TTS, liÃªn káº¿t gian hÃ ng
+Audio File Manager
+Quáº£n lÃ½ toÃ n bá»™ file audio theo gian hÃ ng vÃ  ngÃ´n ngá»¯, xem trÆ°á»›c vÃ  xÃ³a
+Thá»‘ng kÃª Doanh thu
+Biá»ƒu Ä‘á»“ doanh thu theo thÃ¡ng, top gian hÃ ng, lÆ°á»£t nghe toÃ n há»‡ thá»‘ng
+GÃ³i Dá»‹ch vá»¥
+CRUD gÃ³i dá»‹ch vá»¥ Seller/User, theo dÃµi Ä‘Äƒng kÃ½, há»§y subscription
+Lá»‹ch sá»­ Nghe
+Báº£ng theo dÃµi hÃ nh vi nghe cá»§a du khÃ¡ch (DeviceId, gian hÃ ng, ngÃ´n ngá»¯, thá»i lÆ°á»£ng)
+CÃ i Ä‘áº·t Há»‡ thá»‘ng
+Quáº£n lÃ½ ngÃ´n ngá»¯, cáº¥u hÃ¬nh thanh toÃ¡n, lá»‹ch backup, audit log
+CHÆ¯Æ NG 6: Káº¾T LUáº¬N VÃ€ HÆ¯á»šNG PHÃT TRIá»‚N
+6.1. ÄÃ¡nh giÃ¡ TÃ­nh Thá»±c tiá»…n cá»§a Dá»± Ã¡n
+6.1.1. Nhá»¯ng gÃ¬ Ä‘Ã£ Ä‘áº¡t Ä‘Æ°á»£c
+Sau quÃ¡ trÃ¬nh phÃ¢n tÃ­ch, thiáº¿t káº¿ vÃ  triá»ƒn khai, dá»± Ã¡n Ä‘Ã£ hoÃ n thÃ nh cÃ¡c má»¥c tiÃªu Ä‘á» ra vá»›i káº¿t quáº£ Ä‘Ã¡ng ghi nháº­n:
+Háº NG Má»¤C
+Má»¨C Äá»˜ HOÃ€N THÃ€NH
+GHI CHÃš
+á»¨ng dá»¥ng mobile .NET MAUI
+âœ“ HoÃ n chá»‰nh
+Cháº¡y tá»‘t trÃªn Android; iOS há»— trá»£ bá»• sung
+Geofencing GPS tá»± Ä‘á»™ng
+âœ“ HoÃ n chá»‰nh
+ChÃ­nh xÃ¡c trong bÃ¡n kÃ­nh 100m, chu ká»³ 10s
+TTS Ä‘a ngÃ´n ngá»¯ (Azure)
+âœ“ HoÃ n chá»‰nh
+Há»— trá»£ vi/en/zh vá»›i giá»ng Neural tá»± nhiÃªn
+Dá»‹ch thuáº­t tá»± Ä‘á»™ng (Azure)
+âœ“ HoÃ n chá»‰nh
+Batch translation, fallback khi lá»—i
+Web Portal Seller
+âœ“ HoÃ n chá»‰nh
+Blazor Server, MudBlazor, Ä‘a ngÃ´n ngá»¯ giao diá»‡n
+Web Admin Dashboard
+âœ“ HoÃ n chá»‰nh
+Quáº£n lÃ½ toÃ n diá»‡n, thá»‘ng kÃª, phÃ¢n quyá»n JWT
+Thanh toÃ¡n PayOS
+âœ“ HoÃ n chá»‰nh
+QR, link thanh toÃ¡n, webhook, sync tráº¡ng thÃ¡i
+Há»‡ thá»‘ng Ä‘Ã¡nh giÃ¡ Review
+âœ“ HoÃ n chá»‰nh
+Chá»‰ cho phÃ©p sau khi cÃ³ lá»‹ch sá»­ nghe
+Thá»‘ng kÃª doanh thu
+âœ“ HoÃ n chá»‰nh
+PhÃ¢n tÃ­ch theo tuáº§n/thÃ¡ng/quÃ½/nÄƒm
+QuÃ©t mÃ£ QR
+~ Má»™t pháº§n
+TÃ­ch há»£p PayOS; QR cho Geofencing Ä‘ang phÃ¡t triá»ƒn
+6.1.2. Äiá»ƒm máº¡nh cá»§a Giáº£i phÃ¡p
+Tá»± Ä‘á»™ng hÃ³a toÃ n diá»‡n: Tá»« viá»‡c táº¡o ná»™i dung (dá»‹ch thuáº­t), tá»•ng há»£p Ã¢m thanh (TTS), Ä‘áº¿n phÃ¡t tá»± Ä‘á»™ng theo vá»‹ trÃ­ - chá»§ gian hÃ ng chá»‰ cáº§n nháº­p ná»™i dung tiáº¿ng Viá»‡t, há»‡ thá»‘ng xá»­ lÃ½ pháº§n cÃ²n láº¡i.
+MÃ´ hÃ¬nh kinh doanh bá»n vá»¯ng: Há»‡ thá»‘ng gÃ³i dá»‹ch vá»¥ phÃ¢n cáº¥p (Basic/Premium/VIP) cho cáº£ Seller vÃ  du khÃ¡ch táº¡o nguá»“n doanh thu Ä‘a dáº¡ng, gáº¯n káº¿t quyá»n lá»£i cá»§a táº¥t cáº£ bÃªn tham gia.
+Kiáº¿n trÃºc má»Ÿ rá»™ng: Thiáº¿t káº¿ theo RESTful API vÃ  tÃ¡ch biá»‡t cÃ¡c phÃ¢n há»‡ cho phÃ©p dá»… dÃ ng thÃªm ngÃ´n ngá»¯, tÃ­nh nÄƒng hoáº·c tÃ­ch há»£p vá»›i há»‡ thá»‘ng khÃ¡c trong tÆ°Æ¡ng lai.
+Báº£o máº­t nhiá»u lá»›p: JWT authentication, RBAC (Role-Based Access Control), mÃ£ hÃ³a BCrypt máº­t kháº©u, kiá»ƒm tra quyá»n audio trÆ°á»›c má»—i láº§n phÃ¡t.
+6.1.3. Háº¡n cháº¿ vÃ  BÃ i há»c kinh nghiá»‡m
+Phá»¥ thuá»™c dá»‹ch vá»¥ Ä‘Ã¡m mÃ¢y: Azure Speech vÃ  Azure Translator cáº§n káº¿t ná»‘i Internet vÃ  cÃ³ chi phÃ­ theo lÆ°á»£ng sá»­ dá»¥ng. Cáº§n chiáº¿n lÆ°á»£c caching audio Ä‘á»ƒ tá»‘i Æ°u chi phÃ­.
+Äá»™ chÃ­nh xÃ¡c GPS: GPS thÃ´ng thÆ°á»ng cÃ³ sai sá»‘ 3-15m trong Ä‘Ã´ thá»‹, cÃ³ thá»ƒ gÃ¢y kÃ­ch hoáº¡t nháº§m hoáº·c bá» sÃ³t. Cáº§n káº¿t há»£p thÃªm WiFi positioning Ä‘á»ƒ tÄƒng Ä‘á»™ chÃ­nh xÃ¡c.
+Offline mode: Hiá»‡n táº¡i há»‡ thá»‘ng phá»¥ thuá»™c hoÃ n toÃ n vÃ o káº¿t ná»‘i Internet. Cáº§n xem xÃ©t cÆ¡ cháº¿ táº£i trÆ°á»›c (prefetch) ná»™i dung cho tráº£i nghiá»‡m tá»‘t hÆ¡n á»Ÿ vÃ¹ng sÃ³ng yáº¿u.
+6.2. HÆ°á»›ng PhÃ¡t triá»ƒn TÆ°Æ¡ng lai
+6.2.1. Ngáº¯n háº¡n (3-6 thÃ¡ng)
+TÃ­ch há»£p quÃ©t mÃ£ QR táº¡i má»—i gian hÃ ng: Du khÃ¡ch scan QR code dÃ¡n táº¡i quáº§y Ä‘á»ƒ má»Ÿ trá»±c tiáº¿p thuyáº¿t minh cá»§a gian hÃ ng Ä‘Ã³, khÃ´ng cáº§n dá»±a vÃ o GPS.
+Offline caching: Táº£i trÆ°á»›c audio vÃ  thÃ´ng tin gian hÃ ng vÃ o bá»™ nhá»› mÃ¡y khi káº¿t ná»‘i WiFi, phÃ¡t offline khi khÃ´ng cÃ³ máº¡ng.
+Push Notification: Gá»­i thÃ´ng bÃ¡o khi du khÃ¡ch á»Ÿ gáº§n khu vá»±c VÄ©nh KhÃ¡nh ngay cáº£ khi app Ä‘ang cháº¡y ná»n.
+TÃ­ch há»£p Chatbot FAQ: Bot tráº£ lá»i cÃ¢u há»i vá» giá» má»Ÿ cá»­a, thá»±c Ä‘Æ¡n, Ä‘Æ°á»ng Ä‘i báº±ng ngÃ´n ngá»¯ cá»§a khÃ¡ch.
+6.2.2. Trung háº¡n (6-12 thÃ¡ng)
+AI-powered gá»£i Ã½ mÃ³n Äƒn: PhÃ¢n tÃ­ch lá»‹ch sá»­ nghe vÃ  Ä‘Ã¡nh giÃ¡ Ä‘á»ƒ gá»£i Ã½ gian hÃ ng vÃ  mÃ³n Äƒn phÃ¹ há»£p vá»›i sá»Ÿ thÃ­ch cÃ¡ nhÃ¢n cá»§a tá»«ng du khÃ¡ch.
+Tá»± Ä‘á»™ng dá»‹ch menu thá»i gian thá»±c: Du khÃ¡ch chá»¥p áº£nh thá»±c Ä‘Æ¡n, AI nháº­n diá»‡n vÄƒn báº£n (OCR) vÃ  dá»‹ch ngay láº­p tá»©c.
+Thá»±c táº¿ tÄƒng cÆ°á»ng (AR): Sá»­ dá»¥ng camera Ä‘iá»‡n thoáº¡i Ä‘á»ƒ hiá»ƒn thá»‹ thÃ´ng tin gian hÃ ng vÃ  Ä‘Æ°á»ng chá»‰ hÆ°á»›ng trá»±c tiáº¿p trÃªn mÃ n hÃ¬nh.
+PhÃ¢n tÃ­ch cáº£m xÃºc Ä‘Ã¡nh giÃ¡: NLP phÃ¢n tÃ­ch Ä‘Ã¡nh giÃ¡ vÄƒn báº£n Ä‘á»ƒ tá»•ng há»£p sentiment report cho chá»§ gian hÃ ng.
+6.2.3. DÃ i háº¡n (1-2 nÄƒm)
+Má»Ÿ rá»™ng Ä‘á»‹a Ä‘iá»ƒm: NhÃ¢n rá»™ng mÃ´ hÃ¬nh Ä‘áº¿n cÃ¡c phá»‘ áº©m thá»±c khÃ¡c táº¡i TP.HCM (BÃ¹i Viá»‡n, Phá»‘ TÃ¢y Balo...) vÃ  cÃ¡c tá»‰nh thÃ nh khÃ¡c.
+Ná»n táº£ng SaaS: Chuyá»ƒn Ä‘á»•i sang mÃ´ hÃ¬nh Software-as-a-Service cho phÃ©p cÃ¡c Ä‘á»‹a Ä‘iá»ƒm du lá»‹ch vÄƒn hÃ³a khÃ¡c tá»± triá»ƒn khai há»‡ thá»‘ng thuyáº¿t minh tÆ°Æ¡ng tá»±.
+Há»‡ sinh thÃ¡i du lá»‹ch: TÃ­ch há»£p vá»›i cÃ¡c dá»‹ch vá»¥ Ä‘áº·t bÃ n, giao hÃ ng vÃ  thanh toÃ¡n khÃ´ng tiá»n máº·t Ä‘á»ƒ táº¡o tráº£i nghiá»‡m khÃ©p kÃ­n.
+PhÃ¢n tÃ­ch dá»¯ liá»‡u lá»›n: Thu tháº­p vÃ  phÃ¢n tÃ­ch dá»¯ liá»‡u hÃ nh vi du lá»‹ch Ä‘á»ƒ há»— trá»£ quy hoáº¡ch Ä‘Ã´ thá»‹ vÃ  phÃ¡t triá»ƒn du lá»‹ch bá»n vá»¯ng.
+Káº¿t luáº­n
+Há»‡ thá»‘ng Thuyáº¿t minh Äa ngÃ´n ngá»¯ Phá»‘ áº©m thá»±c VÄ©nh KhÃ¡nh lÃ  má»™t giáº£i phÃ¡p cÃ´ng nghá»‡ cÃ³ tÃ­nh thá»±c tiá»…n cao, káº¿t há»£p hiá»‡u quáº£ giá»¯a Ä‘á»‹nh vá»‹ GPS, xá»­ lÃ½ ngÃ´n ngá»¯ tá»± nhiÃªn vÃ  á»©ng dá»¥ng di Ä‘á»™ng Ä‘a ná»n táº£ng. Dá»± Ã¡n khÃ´ng chá»‰ giáº£i quyáº¿t bÃ i toÃ¡n rÃ o cáº£n ngÃ´n ngá»¯ cho du khÃ¡ch quá»‘c táº¿ mÃ  cÃ²n táº¡o ra cÃ´ng cá»¥ sá»‘ hÃ³a máº¡nh máº½ cho cÃ¡c chá»§ gian hÃ ng nhá» láº», gÃ³p pháº§n hiá»‡n Ä‘áº¡i hÃ³a mÃ´ hÃ¬nh kinh doanh áº©m thá»±c Ä‘Æ°á»ng phá»‘ truyá»n thá»‘ng.
+Vá»›i kiáº¿n trÃºc linh hoáº¡t, mÃ´ hÃ¬nh kinh doanh bá»n vá»¯ng vÃ  lá»™ trÃ¬nh phÃ¡t triá»ƒn rÃµ rÃ ng, dá»± Ã¡n cÃ³ tiá»m nÄƒng lá»›n Ä‘á»ƒ nhÃ¢n rá»™ng vÃ  trá»Ÿ thÃ nh ná»n táº£ng tiÃªu chuáº©n cho du lá»‹ch thÃ´ng minh táº¡i Viá»‡t Nam.
+TÃ€I LIá»†U THAM KHáº¢O
+Microsoft Corporation. (2024). .NET MAUI Documentation. https://docs.microsoft.com/dotnet/maui
+Microsoft Corporation. (2024). Blazor Documentation. https://docs.microsoft.com/aspnet/core/blazor
+Microsoft Corporation. (2024). Azure Cognitive Services - Speech Service. https://docs.microsoft.com/azure/cognitive-services/speech-service
+Microsoft Corporation. (2024). Azure Cognitive Services - Translator. https://docs.microsoft.com/azure/cognitive-services/translator
+MudBlazor. (2024). MudBlazor - Material Design Components for Blazor. https://mudblazor.com
+PayOS Vietnam. (2024). PayOS Payment Gateway Documentation. https://payos.vn/docs
+CommunityToolkit.Maui. (2024). MediaElement Documentation. https://learn.microsoft.com/dotnet/communitytoolkit/maui
+Haversine formula. (2024). Great-circle distance calculation. Wikipedia. https://en.wikipedia.org/wiki/Haversine_formula
+Entity Framework Core. (2024). EF Core with MySQL (Pomelo). https://www.nuget.org/packages/Pomelo.EntityFrameworkCore.MySql
+AutoMapper. (2024). Object-to-Object Mapping for .NET. https://automapper.org
+BCrypt.Net. (2024). Password hashing library. https://www.nuget.org/packages/BCrypt.Net-Next
+OpenStreetMap / Leaflet.js. (2024). Interactive Map Library. https://leafletjs.com
+á»¦y ban NhÃ¢n dÃ¢n Quáº­n 4. (2023). Äá» Ã¡n PhÃ¡t triá»ƒn Du lá»‹ch Quáº­n 4 Ä‘áº¿n nÄƒm 2025. TP. Há»“ ChÃ­ Minh.
+Sá»Ÿ Du lá»‹ch TP.HCM. (2023). BÃ¡o cÃ¡o thá»‘ng kÃª Du lá»‹ch TP. Há»“ ChÃ­ Minh nÄƒm 2023. TP. Há»“ ChÃ­ Minh.
