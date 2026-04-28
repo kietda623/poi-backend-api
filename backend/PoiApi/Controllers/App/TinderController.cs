@@ -4,18 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PoiApi.Data;
 using PoiApi.DTOs.App;
-using PoiApi.Models;
 using PoiApi.Services;
 
 namespace PoiApi.Controllers.App;
 
-/// <summary>
-/// Tinder-style food swiping feature.
-/// Requires Tour Plus subscription.
-/// </summary>
 [ApiController]
 [Route("api/app/tinder")]
-[Authorize(Roles = RoleConstants.User)]
+[Authorize]
 public class TinderController : ControllerBase
 {
     private readonly AppDbContext _context;
@@ -32,29 +27,21 @@ public class TinderController : ControllerBase
         _logger = logger;
     }
 
-    /// <summary>
-    /// GET /api/app/tinder/cards
-    /// Lấy danh sách shop chưa quẹt (random order), trả về dạng card.
-    /// </summary>
     [HttpGet("cards")]
     public async Task<IActionResult> GetCards([FromQuery] int count = 10)
     {
         try
         {
-            var userId = GetUserId();
-
-            if (!await _subscriptionAccess.HasTinderAccessAsync(userId))
+            var actor = GetActorContext();
+            if (!await HasTinderAccessAsync(actor))
             {
-                return StatusCode(403, await BuildTinderAccessDeniedPayloadAsync(userId));
+                return StatusCode(403, await BuildTinderAccessDeniedPayloadAsync(actor));
             }
 
-            // Lấy danh sách ShopId đã quẹt rồi
-            var swipedShopIds = await _context.SwipedItems
-                .Where(si => si.UserId == userId)
+            var swipedShopIds = await BuildSwipeQuery(actor)
                 .Select(si => si.ShopId)
                 .ToListAsync();
 
-            // Lấy các shop chưa quẹt, có POI (có hình ảnh / vị trí)
             var cards = await _context.Shops
                 .Include(s => s.Poi)
                     .ThenInclude(p => p!.Translations)
@@ -62,7 +49,7 @@ public class TinderController : ControllerBase
                     .ThenInclude(m => m.MenuItems)
                 .Where(s => s.IsActive && s.Poi != null)
                 .Where(s => !swipedShopIds.Contains(s.Id))
-                .OrderBy(s => Guid.NewGuid()) // Random order
+                .OrderBy(s => Guid.NewGuid())
                 .Take(count)
                 .Select(s => new
                 {
@@ -74,12 +61,11 @@ public class TinderController : ControllerBase
                     Description = s.Poi!.Translations
                         .Where(t => t.LanguageCode == "vi")
                         .Select(t => t.Description)
-                        .FirstOrDefault() ?? s.Description ?? "",
-                    ImageUrl = s.Poi!.ImageUrl ?? "",
-                    Location = s.Address ?? s.Poi.Location ?? "",
+                        .FirstOrDefault() ?? s.Description ?? string.Empty,
+                    ImageUrl = s.Poi!.ImageUrl ?? string.Empty,
+                    Location = s.Address ?? s.Poi.Location ?? string.Empty,
                     s.AverageRating,
                     s.ListenCount,
-                    // Top 3 menu items as preview
                     TopItems = s.Menus!
                         .SelectMany(m => m.MenuItems)
                         .Where(mi => mi.IsAvailable)
@@ -102,35 +88,29 @@ public class TinderController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error fetching tinder cards");
-            return StatusCode(500, new { success = false, message = "Đã xảy ra lỗi." });
+            return StatusCode(500, new { success = false, message = "Da xay ra loi." });
         }
     }
 
-    /// <summary>
-    /// POST /api/app/tinder/swipe
-    /// Lưu kết quả quẹt trái (dislike) / phải (like).
-    /// </summary>
     [HttpPost("swipe")]
     public async Task<IActionResult> Swipe([FromBody] TinderSwipeRequestDto dto)
     {
         try
         {
-            var userId = GetUserId();
-
-            if (!await _subscriptionAccess.HasTinderAccessAsync(userId))
+            var actor = GetActorContext();
+            if (!await HasTinderAccessAsync(actor))
             {
-                return StatusCode(403, await BuildTinderAccessDeniedPayloadAsync(userId));
+                return StatusCode(403, await BuildTinderAccessDeniedPayloadAsync(actor));
             }
 
             var shop = await _context.Shops.FirstOrDefaultAsync(s => s.Id == dto.ShopId && s.IsActive);
             if (shop == null)
             {
-                return NotFound(new { success = false, message = "Quán ăn không tìm thấy." });
+                return NotFound(new { success = false, message = "Quan an khong tim thay." });
             }
 
-            // Upsert: nếu đã quẹt rồi thì cập nhật, chưa thì tạo mới
-            var existing = await _context.SwipedItems
-                .FirstOrDefaultAsync(si => si.UserId == userId && si.ShopId == dto.ShopId);
+            var existing = await BuildSwipeQuery(actor)
+                .FirstOrDefaultAsync(si => si.ShopId == dto.ShopId);
 
             if (existing != null)
             {
@@ -139,9 +119,10 @@ public class TinderController : ControllerBase
             }
             else
             {
-                _context.SwipedItems.Add(new SwipedItem
+                _context.SwipedItems.Add(new Models.SwipedItem
                 {
-                    UserId = userId,
+                    UserId = actor.UserId,
+                    DeviceId = actor.IsGuest ? actor.DeviceId : null,
                     ShopId = dto.ShopId,
                     IsLiked = dto.IsLiked,
                     SwipedAt = DateTime.UtcNow
@@ -160,31 +141,26 @@ public class TinderController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error swiping");
-            return StatusCode(500, new { success = false, message = "Đã xảy ra lỗi." });
+            return StatusCode(500, new { success = false, message = "Da xay ra loi." });
         }
     }
 
-    /// <summary>
-    /// GET /api/app/tinder/liked
-    /// Lấy danh sách quán đã thích (để đưa vào AI Tour Plan).
-    /// </summary>
     [HttpGet("liked")]
     public async Task<IActionResult> GetLikedShops()
     {
         try
         {
-            var userId = GetUserId();
-
-            if (!await _subscriptionAccess.HasTinderAccessAsync(userId))
+            var actor = GetActorContext();
+            if (!await HasTinderAccessAsync(actor))
             {
-                return StatusCode(403, await BuildTinderAccessDeniedPayloadAsync(userId));
+                return StatusCode(403, await BuildTinderAccessDeniedPayloadAsync(actor));
             }
 
-            var likedShops = await _context.SwipedItems
+            var likedShops = await BuildSwipeQuery(actor)
                 .Include(si => si.Shop)
                     .ThenInclude(s => s.Poi)
                         .ThenInclude(p => p!.Translations)
-                .Where(si => si.UserId == userId && si.IsLiked)
+                .Where(si => si.IsLiked)
                 .OrderByDescending(si => si.SwipedAt)
                 .Select(si => new
                 {
@@ -193,7 +169,7 @@ public class TinderController : ControllerBase
                         .Where(t => t.LanguageCode == "vi")
                         .Select(t => t.Name)
                         .FirstOrDefault() ?? si.Shop.Name,
-                    ImageUrl = si.Shop.Poi!.ImageUrl ?? "",
+                    ImageUrl = si.Shop.Poi!.ImageUrl ?? string.Empty,
                     si.Shop.AverageRating,
                     si.SwipedAt
                 })
@@ -209,22 +185,53 @@ public class TinderController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error fetching liked shops");
-            return StatusCode(500, new { success = false, message = "Đã xảy ra lỗi." });
+            return StatusCode(500, new { success = false, message = "Da xay ra loi." });
         }
     }
 
-    private int GetUserId() =>
-        int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
-    private async Task<object> BuildTinderAccessDeniedPayloadAsync(int userId)
+    private IQueryable<Models.SwipedItem> BuildSwipeQuery(RequestActorContext actor)
     {
-        var info = await _subscriptionAccess.GetUserSubscriptionInfoAsync(userId);
+        var query = _context.SwipedItems.AsQueryable();
+        return actor.IsGuest
+            ? query.Where(si => si.DeviceId == actor.DeviceId)
+            : query.Where(si => si.UserId == actor.UserId);
+    }
+
+    private async Task<bool> HasTinderAccessAsync(RequestActorContext actor)
+    {
+        return actor.IsGuest
+            ? await _subscriptionAccess.HasTinderAccessByDeviceAsync(actor.DeviceId!)
+            : await _subscriptionAccess.HasTinderAccessAsync(actor.UserId!.Value);
+    }
+
+    private RequestActorContext GetActorContext()
+    {
+        if (GuestTokenService.IsGuest(User))
+        {
+            var deviceId = GuestTokenService.GetDeviceId(User);
+            if (string.IsNullOrWhiteSpace(deviceId))
+            {
+                throw new InvalidOperationException("Guest session is missing device id.");
+            }
+
+            return new RequestActorContext(null, deviceId, true);
+        }
+
+        return new RequestActorContext(int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!), null, false);
+    }
+
+    private async Task<object> BuildTinderAccessDeniedPayloadAsync(RequestActorContext actor)
+    {
+        var info = actor.IsGuest
+            ? await _subscriptionAccess.GetSubscriptionInfoByDeviceAsync(actor.DeviceId!)
+            : await _subscriptionAccess.GetUserSubscriptionInfoAsync(actor.UserId!.Value);
+
         if (info == null)
         {
             return new
             {
                 success = false,
-                message = "Bạn chưa có gói Tour đang hoạt động. Hãy thanh toán Tour Plus và đồng bộ thanh toán để sử dụng Tinder Ẩm Thực.",
+                message = "Ban chua co goi Tour dang hoat dong. Hay thanh toan Tour Plus roi thu lai.",
                 requiredPackage = "Tour Plus",
                 reason = "no_active_subscription"
             };
@@ -233,11 +240,13 @@ public class TinderController : ControllerBase
         return new
         {
             success = false,
-            message = $"Gói hiện tại ({info.PackageName}) không bao gồm Tinder Ẩm Thực. Bạn cần Tour Plus còn hạn để sử dụng tính năng này.",
+            message = $"Goi hien tai ({info.PackageName}) khong bao gom Tinder Am Thuc hoac da het han. Ban can Tour Plus con han de su dung tinh nang nay.",
             requiredPackage = "Tour Plus",
             currentPackage = info.PackageName,
             subscriptionEndDate = info.EndDate,
             reason = "feature_not_in_package"
         };
     }
+
+    private sealed record RequestActorContext(int? UserId, string? DeviceId, bool IsGuest);
 }

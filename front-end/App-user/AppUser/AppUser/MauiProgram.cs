@@ -22,12 +22,6 @@ namespace AppUser
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                     
-                    // Be Vietnam Pro - Premium Vietnamese Font
-                    fonts.AddFont("BeVietnamPro-Regular.ttf", "BeVietnamPro");
-                    fonts.AddFont("BeVietnamPro-Medium.ttf", "BeVietnamProMedium");
-                    fonts.AddFont("BeVietnamPro-SemiBold.ttf", "BeVietnamProSemiBold");
-                    fonts.AddFont("BeVietnamPro-Bold.ttf", "BeVietnamProBold");
-
                 });
 
             // Register Services
@@ -51,6 +45,7 @@ namespace AppUser
             builder.Services.AddTransient<SubscriptionViewModel>();
             builder.Services.AddTransient<ProfileViewModel>();
             builder.Services.AddTransient<RegisterViewModel>();
+            builder.Services.AddTransient<WelcomeViewModel>();
             builder.Services.AddTransient<EditProfileViewModel>();
             builder.Services.AddTransient<TinderViewModel>();
             builder.Services.AddTransient<ChatViewModel>();
@@ -66,6 +61,7 @@ namespace AppUser
             builder.Services.AddTransient<Pages.SubscriptionPage>();
             builder.Services.AddTransient<Pages.ProfilePage>();
             builder.Services.AddTransient<Pages.RegisterPage>();
+            builder.Services.AddTransient<Pages.WelcomePage>();
             builder.Services.AddTransient<Pages.EditProfilePage>();
             builder.Services.AddTransient<Pages.TinderPage>();
             builder.Services.AddTransient<Pages.ChatPage>();

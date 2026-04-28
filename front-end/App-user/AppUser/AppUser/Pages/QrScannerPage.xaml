@@ -5,7 +5,7 @@
              xmlns:vm="clr-namespace:AppUser.ViewModels"
              x:Class="AppUser.Pages.QrScannerPage"
              x:DataType="vm:QrScannerViewModel"
-             Title="Quét mã QR"
+             Title="Scan QR"
              Shell.NavBarIsVisible="False"
              BackgroundColor="Black">
 
@@ -58,11 +58,11 @@
             VerticalOptions="Start"
             Spacing="12">
             <Button
-                Text="← Quay lại"
+                Text="← Back"
                 Command="{Binding GoBackCommand}"
                 BackgroundColor="Transparent"
                 TextColor="White"
-                FontFamily="BeVietnamProSemiBold"
+                FontFamily="{x:Null}"
                 FontSize="16" />
         </HorizontalStackLayout>
 
@@ -85,7 +85,7 @@
                            HorizontalOptions="Center" />
                     <Label Text="{Binding StatusMessage}"
                            TextColor="White"
-                           FontFamily="BeVietnamProMedium"
+                           FontFamily="{x:Null}"
                            FontSize="15"
                            HorizontalTextAlignment="Center" />
                 </VerticalStackLayout>
@@ -98,12 +98,12 @@
                                HorizontalOptions="Center" />
 
             <!-- Nút quét lại (hiện khi đã dừng quét) -->
-            <Button Text="🔄 Quét lại"
+            <Button Text="Scan Again"
                     Command="{Binding ResetScannerCommand}"
                     IsVisible="{Binding IsScanning, Converter={StaticResource BoolInverterConverter}}"
                     BackgroundColor="#FF6B35"
                     TextColor="White"
-                    FontFamily="BeVietnamProSemiBold"
+                    FontFamily="{x:Null}"
                     FontSize="15"
                     CornerRadius="12"
                     HeightRequest="48"

@@ -116,6 +116,41 @@ public class PayOsService
         return apiResponse.Data;
     }
 
+    public async Task<PayOsPaymentRequestInfoResult?> TryGetPaymentLinkInfoAsync(params string?[] references)
+    {
+        var candidates = references
+            .Where(reference => !string.IsNullOrWhiteSpace(reference))
+            .Select(reference => reference!.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (!candidates.Any())
+        {
+            return null;
+        }
+
+        Exception? lastException = null;
+
+        foreach (var candidate in candidates)
+        {
+            try
+            {
+                return await GetPaymentLinkInfoAsync(candidate);
+            }
+            catch (Exception ex)
+            {
+                lastException = ex;
+            }
+        }
+
+        if (lastException != null)
+        {
+            throw lastException;
+        }
+
+        return null;
+    }
+
     public bool VerifyWebhookSignature(JsonElement dataElement, string? signature)
     {
         if (string.IsNullOrWhiteSpace(signature) || string.IsNullOrWhiteSpace(_options.ChecksumKey))

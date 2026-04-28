@@ -7,7 +7,8 @@
     xmlns:models="clr-namespace:AppUser.Models"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:DataType="vm:AudioPlayerViewModel"
-    Shell.NavBarIsVisible="False">
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False">
 
     <ContentPage.Resources>
         <!-- Animations for button feedback -->
@@ -78,14 +79,14 @@
 
                 <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" Spacing="2">
                     <Label Text="{Binding NowPlayingLabel}"
-                           FontFamily="BeVietnamProBold"
+                           FontFamily="{x:Null}"
                            FontSize="10"
                            TextColor="#99FFFFFF"
                            HorizontalOptions="Center"
                            CharacterSpacing="2"/>
                     <Label Text="{Binding POIName}"
                            FontSize="14"
-                           FontFamily="BeVietnamProSemiBold"
+                           FontFamily="{x:Null}"
                            TextColor="White"
                            HorizontalOptions="Center"
                            Opacity="0.9"/>
@@ -98,7 +99,7 @@
                     <Button Text="{Binding PlaybackSpeed, StringFormat='{0}x'}"
                             Style="{StaticResource MediaControlButtonStyle}"
                             Command="{Binding CycleSpeedCommand}"
-                            FontFamily="BeVietnamProBold"
+                            FontFamily="{x:Null}"
                             FontSize="12"
                             Padding="0"/>
                 </Border>
@@ -110,10 +111,10 @@
                                    Spacing="10"
                                    IsVisible="{Binding HasMultipleLanguages}"
                                    Margin="0,24,0,0">
-                <Button Text="Tiếng Việt"
+                <Button Text="Vietnamese"
                         Command="{Binding SwitchLanguageByCodeCommand}"
                         CommandParameter="vi"
-                        FontFamily="BeVietnamProMedium"
+                        FontFamily="{x:Null}"
                         FontSize="12"
                         Padding="16,8"
                         CornerRadius="14"
@@ -135,7 +136,7 @@
                 <Button Text="English"
                         Command="{Binding SwitchLanguageByCodeCommand}"
                         CommandParameter="en"
-                        FontFamily="BeVietnamProMedium"
+                        FontFamily="{x:Null}"
                         FontSize="12"
                         Padding="16,8"
                         CornerRadius="14"
@@ -157,7 +158,7 @@
                 <Button Text="中文"
                         Command="{Binding SwitchLanguageByCodeCommand}"
                         CommandParameter="zh"
-                        FontFamily="BeVietnamProMedium"
+                        FontFamily="{x:Null}"
                         FontSize="12"
                         Padding="16,8"
                         CornerRadius="14"
@@ -204,14 +205,14 @@
             <!-- Guide Details -->
             <Label Text="{Binding GuideTitle}"
                    FontSize="26"
-                   FontFamily="BeVietnamProBold"
+                   FontFamily="{x:Null}"
                    TextColor="White"
                    HorizontalOptions="Center"
                    HorizontalTextAlignment="Center"
                    Margin="0,0,0,10"/>
             <Label Text="{Binding SubTitleLabel}"
                    FontSize="15"
-                   FontFamily="BeVietnamProMedium"
+                   FontFamily="{x:Null}"
                    TextColor="{StaticResource Primary}"
                    HorizontalOptions="Center"
                    Opacity="0.9"
@@ -219,23 +220,26 @@
 
             <!-- ── PROGRESS BAR ── -->
             <VerticalStackLayout Spacing="12" HorizontalOptions="Fill" Margin="0,0,0,48">
-                <Slider Value="{Binding Progress}"
+                <Slider x:Name="ProgressSlider"
+                        Value="{Binding Progress}"
                         Minimum="0" Maximum="1"
                         MinimumTrackColor="{StaticResource Primary}"
                         MaximumTrackColor="#15FFFFFF"
-                        ThumbColor="White"/>
+                        ThumbColor="White"
+                        DragStarted="OnSliderDragStarted"
+                        DragCompleted="OnSliderDragCompleted"/>
 
                 <Grid ColumnDefinitions="*,*">
                     <Label Grid.Column="0"
                            Text="{Binding PositionText}"
                            FontSize="13"
                            TextColor="#99FFFFFF"
-                           FontFamily="BeVietnamProMedium"/>
+                           FontFamily="{x:Null}"/>
                     <Label Grid.Column="1"
                            Text="{Binding DurationText}"
                            FontSize="13"
                            TextColor="#99FFFFFF"
-                           FontFamily="BeVietnamProMedium"
+                           FontFamily="{x:Null}"
                            HorizontalOptions="End"/>
                 </Grid>
             </VerticalStackLayout>
@@ -253,18 +257,23 @@
                         HorizontalOptions="Center"/>
 
                 <Border Grid.Column="1"
-                        BackgroundColor="White"
                         StrokeShape="RoundRectangle 45"
                         StrokeThickness="0"
                         WidthRequest="90" HeightRequest="90">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="{StaticResource Primary}" Offset="0.0" />
+                            <GradientStop Color="{StaticResource PrimaryDark}" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
                     <Border.Shadow>
-                        <Shadow Brush="{StaticResource Primary}" Offset="0,15" Radius="30" Opacity="0.4"/>
+                        <Shadow Brush="{StaticResource Primary}" Offset="0,10" Radius="24" Opacity="0.5"/>
                     </Border.Shadow>
                     <Button x:Name="PlayPauseBtn"
                             Style="{StaticResource MediaControlButtonStyle}"
                             Command="{Binding TogglePlayPauseCommand}"
                             Text="▶"
-                            TextColor="#0F172A"
+                            TextColor="White"
                             FontSize="36"
                             WidthRequest="90" HeightRequest="90">
                         <Button.Triggers>
@@ -287,11 +296,11 @@
             </Grid>
 
             <!-- Show Review Button -->
-            <Button Text="⭐ Giúp chúng tôi đánh giá bài thuyết minh"
+            <Button Text="Rate this audio guide"
                     Command="{Binding ShowReviewCommand}"
                     BackgroundColor="Transparent"
                     TextColor="#99FFFFFF"
-                    FontFamily="BeVietnamProMedium"
+                    FontFamily="{x:Null}"
                     FontSize="12"
                     Margin="0,32,0,0"
                     HorizontalOptions="Center" />
@@ -309,11 +318,11 @@
                 StrokeThickness="0"
                 VerticalOptions="End">
             <VerticalStackLayout Spacing="8">
-                <Label Text="Trình phát dự phòng"
+                <Label Text="Fallback player"
                        FontSize="12"
                        TextColor="#CCFFFFFF"
                        HorizontalOptions="Center"
-                       FontFamily="BeVietnamPro"/>
+                       FontFamily="{x:Null}"/>
                 <WebView x:Name="FallbackAudioWebView"
                          HeightRequest="96"/>
             </VerticalStackLayout>
@@ -333,53 +342,53 @@
                 Padding="24">
             <VerticalStackLayout Spacing="16">
                 
-                <Label Text="Đánh giá Trải nghiệm"
+                <Label Text="Rate your experience"
                        FontSize="18"
-                       FontFamily="BeVietnamProBold"
+                       FontFamily="{x:Null}"
                        TextColor="White"
                        HorizontalOptions="Center" />
 
                 <!-- Simple Rating Label (Alternatively a Slider for rating) -->
-                <Label Text="Điểm đánh giá (1-5)"
+                <Label Text="Rating (1-5)"
                        FontSize="12"
-                       FontFamily="BeVietnamProMedium"
+                       FontFamily="{x:Null}"
                        TextColor="#99FFFFFF"/>
                 <Slider Minimum="1" Maximum="5" Value="{Binding ReviewRating}" 
                         MinimumTrackColor="{StaticResource Primary}" 
                         MaximumTrackColor="#33FFFFFF"
                         ThumbColor="White"/>
-                <Label Text="{Binding ReviewRating, StringFormat='{0:F0} Sao'}"
+                <Label Text="{Binding ReviewRating, StringFormat='{0:F0} Stars'}"
                        TextColor="{StaticResource Primary}"
-                       FontFamily="BeVietnamProBold"
+                       FontFamily="{x:Null}"
                        HorizontalOptions="Center"/>
 
-                <Editor Placeholder="Bình luận bài thuyết minh..."
+                <Editor Placeholder="Share your feedback..."
                         Text="{Binding ReviewComment}"
                         PlaceholderColor="#66FFFFFF"
                         TextColor="White"
                         BackgroundColor="#2A2A5A"
                         HeightRequest="80"
                         Margin="0,0,0,16"
-                        FontFamily="BeVietnamPro"/>
+                        FontFamily="{x:Null}"/>
 
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
                     <Button Grid.Column="0"
-                            Text="Hủy"
+                            Text="Cancel"
                             BackgroundColor="Transparent"
                             TextColor="#99FFFFFF"
                             BorderColor="#66FFFFFF"
                             BorderWidth="1"
                             CornerRadius="12"
                             Command="{Binding CancelReviewCommand}"
-                            FontFamily="BeVietnamProSemiBold" />
+                            FontFamily="{x:Null}" />
                             
                     <Button Grid.Column="1"
-                            Text="Gửi"
+                            Text="Submit"
                             BackgroundColor="{StaticResource Primary}"
                             TextColor="White"
                             CornerRadius="12"
                             Command="{Binding SubmitReviewCommand}"
-                            FontFamily="BeVietnamProBold" />
+                            FontFamily="{x:Null}" />
                 </Grid>
                 
             </VerticalStackLayout>

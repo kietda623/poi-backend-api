@@ -20,7 +20,7 @@ namespace AppUser.ViewModels
         private bool isLoading = false;
 
         [ObservableProperty]
-        private string greetingText = "Chào buổi tối!";
+        private string greetingText = "Good Evening!";
 
         [ObservableProperty]
         private string userEmail = string.Empty;
@@ -29,28 +29,28 @@ namespace AppUser.ViewModels
         private string currentLanguage = "en";
 
         [ObservableProperty]
-        private string pageTitle = "Khám phá ẩm thực";
+        private string pageTitle = "Explore Cuisine";
 
         [ObservableProperty]
-        private string searchPlaceholder = "Tìm điểm ẩm thực...";
+        private string searchPlaceholder = "Find food spots...";
 
         [ObservableProperty]
-        private string featuredSectionTitle = "✨ Điểm ẩm thực nổi bật";
+        private string featuredSectionTitle = "Featured food spots";
 
         [ObservableProperty]
-        private string seeAllText = "Xem tất cả";
+        private string seeAllText = "See all";
 
         [ObservableProperty]
-        private string discoverMoreTitle = "🗺️ Khám phá thêm";
+        private string discoverMoreTitle = "Discover more";
 
         [ObservableProperty]
-        private string listenNowText = "Nghe ngay";
+        private string listenNowText = "Listen now";
 
         [ObservableProperty]
-        private string noAudioTitle = "Không có audio";
+        private string noAudioTitle = "No audio";
 
         [ObservableProperty]
-        private string noAudioMessage = "Điểm ẩm thực này chưa có thuyết minh audio.";
+        private string noAudioMessage = "This food spot does not have an audio guide yet.";
 
         [ObservableProperty]
         private string okText = "OK";
@@ -88,7 +88,7 @@ namespace AppUser.ViewModels
             CurrentLanguage = _audioService.CurrentLanguage;
             UpdateGreeting();
             UpdateLocalizedTexts();
-            UserEmail = _authService.CurrentUser?.Email ?? (_authService.IsGuest ? "Khách tham quan" : string.Empty);
+            UserEmail = _authService.CurrentUser?.Email ?? (_authService.IsGuest ? "Guest user" : string.Empty);
             await LoadFeaturedPOIsAsync();
         }
 
@@ -159,9 +159,9 @@ namespace AppUser.ViewModels
             if (!canAccessAudio)
             {
                 var goToPackages = await Shell.Current.DisplayAlert(
-                    "Cần gói Tour",
-                    "Bạn cần mua gói Tour Basic hoặc Tour Plus để nghe thuyết minh.",
-                    "Đăng ký gói", "Để sau");
+                    "Tour package required",
+                    "Audio guides are available for users with an active package, including guest accounts.",
+                    "View packages", "Later");
                 if (goToPackages)
                 {
                     await Shell.Current.GoToAsync("subscriptionPackages");
@@ -191,25 +191,25 @@ namespace AppUser.ViewModels
         private async Task ChangeLanguageAsync()
         {
             string currentDisplay = CurrentLanguage switch {
-                "vi" => "🇻🇳 Tiếng Việt",
+                "vi" => "🇻🇳 Vietnamese",
                 "en" => "🇬🇧 English",
                 "zh" => "🇨🇳 中文",
                 _ => "🇬🇧 English"
             };
 
-            string title = CurrentLanguage == "vi" ? "Chọn Ngôn Ngữ" : 
+            string title = CurrentLanguage == "vi" ? "Select Language" : 
                            (CurrentLanguage == "en" ? "Select Language" : "选择语言");
-            string cancel = CurrentLanguage == "vi" ? "Hủy" : 
+            string cancel = CurrentLanguage == "vi" ? "Cancel" : 
                             (CurrentLanguage == "en" ? "Cancel" : "取消");
 
             var action = await Shell.Current.DisplayActionSheet(
                 $"{title} (Current: {currentDisplay})", 
                 cancel, null, 
-                "🇻🇳 Tiếng Việt", "🇬🇧 English", "🇨🇳 中文");
+                "🇻🇳 Vietnamese", "🇬🇧 English", "🇨🇳 中文");
 
             string newLang = action switch
             {
-                "🇻🇳 Tiếng Việt" => "vi",
+                "🇻🇳 Vietnamese" => "vi",
                 "🇬🇧 English" => "en",
                 "🇨🇳 中文" => "zh",
                 _ => CurrentLanguage
@@ -284,14 +284,14 @@ namespace AppUser.ViewModels
                     OkText = "确定";
                     break;
                 default:
-                    PageTitle = "Khám phá ẩm thực";
-                    SearchPlaceholder = "Tìm điểm ẩm thực...";
-                    FeaturedSectionTitle = "✨ Điểm ẩm thực nổi bật";
-                    SeeAllText = "Xem tất cả";
-                    DiscoverMoreTitle = "🗺️ Khám phá thêm";
-                    ListenNowText = "Nghe ngay";
-                    NoAudioTitle = "Không có audio";
-                    NoAudioMessage = "Điểm ẩm thực này chưa có thuyết minh audio.";
+                    PageTitle = "Explore Cuisine";
+                    SearchPlaceholder = "Find food spots...";
+                    FeaturedSectionTitle = "Featured food spots";
+                    SeeAllText = "See all";
+                    DiscoverMoreTitle = "Discover more";
+                    ListenNowText = "Listen now";
+                    NoAudioTitle = "No audio";
+                    NoAudioMessage = "This food spot does not have an audio guide yet.";
                     OkText = "OK";
                     break;
             }

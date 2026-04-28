@@ -9,8 +9,9 @@ namespace PoiApi.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
+
+        public string? DeviceId { get; set; }
 
         [Required]
         public int ShopId { get; set; }
@@ -21,7 +22,7 @@ namespace PoiApi.Models
         public DateTime SwipedAt { get; set; } = DateTime.UtcNow;
 
         [ForeignKey("UserId")]
-        public User User { get; set; } = null!;
+        public User? User { get; set; }
 
         [ForeignKey("ShopId")]
         public Shop Shop { get; set; } = null!;

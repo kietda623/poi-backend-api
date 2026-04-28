@@ -45,7 +45,7 @@ namespace AppUser.Services
         {
             if (string.IsNullOrWhiteSpace(langCode))
             {
-                langCode = "vi";
+                langCode = "en";
             }
 
             if (CurrentLanguage == langCode)
@@ -60,9 +60,9 @@ namespace AppUser.Services
         /// <summary>Get audio guide for a POI in current language</summary>
         public AudioGuideDto? GetGuideForPOI(POIDto poi)
         {
-            // First try current language, fallback to "vi"
+            // First try current language, fallback to English.
             return poi.AudioGuides.FirstOrDefault(g => g.LanguageCode == CurrentLanguage)
-                ?? poi.AudioGuides.FirstOrDefault(g => g.LanguageCode == "vi")
+                ?? poi.AudioGuides.FirstOrDefault(g => g.LanguageCode == "en")
                 ?? poi.AudioGuides.FirstOrDefault();
         }
 

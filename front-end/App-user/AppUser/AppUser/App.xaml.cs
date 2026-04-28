@@ -27,6 +27,7 @@ public partial class App : Application
         window.Created += async (_, _) =>
         {
             await SafeAppSessionInitializationAsync();
+            await RouteInitialPageAsync();
             await SafePresenceActionAsync(() => _appPresenceService.ConnectAsync());
         };
         window.Activated += async (_, _) => await SafePresenceActionAsync(() => _appPresenceService.ConnectAsync());
@@ -42,14 +43,23 @@ public partial class App : Application
         try
         {
             await _authService.EnsureSessionLoadedAsync();
-            if (!_authService.IsLoggedIn)
-            {
-                await _authService.InitGuestSessionAsync();
-            }
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"App session initialization error: {ex.Message}");
+        }
+    }
+
+    private async Task RouteInitialPageAsync()
+    {
+        try
+        {
+            // Always start at Login page so user can choose login method
+            await Shell.Current.GoToAsync("login");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Initial route error: {ex.Message}");
         }
     }
 

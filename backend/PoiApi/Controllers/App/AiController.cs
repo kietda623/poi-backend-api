@@ -16,7 +16,7 @@ namespace PoiApi.Controllers.App;
 /// </summary>
 [ApiController]
 [Route("api/ai")]
-[Authorize(Roles = RoleConstants.User)]
+[Authorize]
 public class AiController : ControllerBase
 {
     private readonly AppDbContext _context;
@@ -47,12 +47,14 @@ public class AiController : ControllerBase
     {
         try
         {
-            var userId = GetUserId();
+            var actor = GetActorContext();
+            var userId = actor.UserId ?? 0;
 
-            // Kiểm tra quyền Tour Plus
-            if (!await _subscriptionAccess.HasAiPlanAccessAsync(userId))
+            if (!(actor.IsGuest
+                ? await _subscriptionAccess.HasAiPlanAccessByDeviceAsync(actor.DeviceId!)
+                : await _subscriptionAccess.HasAiPlanAccessAsync(actor.UserId!.Value)))
             {
-                return StatusCode(403, await BuildAiAccessDeniedPayloadAsync(userId, "ai_plan"));
+                return StatusCode(403, await BuildAiAccessDeniedPayloadAsync(actor, "ai_plan"));
             }
 
             if (dto.LikedShopIds == null || !dto.LikedShopIds.Any())
@@ -159,12 +161,14 @@ public class AiController : ControllerBase
     {
         try
         {
-            var userId = GetUserId();
+            var actor = GetActorContext();
+            var userId = actor.UserId ?? 0;
 
-            // Kiểm tra quyền Tour Plus
-            if (!await _subscriptionAccess.HasChatbotAccessAsync(userId))
+            if (!(actor.IsGuest
+                ? await _subscriptionAccess.HasChatbotAccessByDeviceAsync(actor.DeviceId!)
+                : await _subscriptionAccess.HasChatbotAccessAsync(actor.UserId!.Value)))
             {
-                return StatusCode(403, await BuildAiAccessDeniedPayloadAsync(userId, "chatbot"));
+                return StatusCode(403, await BuildAiAccessDeniedPayloadAsync(actor, "chatbot"));
             }
 
             if (string.IsNullOrWhiteSpace(dto.Message))
@@ -261,14 +265,17 @@ public class AiController : ControllerBase
     {
         try
         {
-            var userId = GetUserId();
-            _logger.LogInformation("Getting AI subscription info for UserID: {UserId}", userId);
+            var actor = GetActorContext();
+            var userId = actor.UserId ?? 0;
+            _logger.LogInformation("Getting AI subscription info for actor. IsGuest={IsGuest}, UserId={UserId}, DeviceId={DeviceId}", actor.IsGuest, actor.UserId, actor.DeviceId);
             
-            var info = await _subscriptionAccess.GetUserSubscriptionInfoAsync(userId);
+            var info = actor.IsGuest
+                ? await _subscriptionAccess.GetSubscriptionInfoByDeviceAsync(actor.DeviceId!)
+                : await _subscriptionAccess.GetUserSubscriptionInfoAsync(actor.UserId!.Value);
 
             if (info == null)
             {
-                _logger.LogWarning("No active user subscription found for UserID: {UserId}", userId);
+                _logger.LogWarning("No active subscription found for actor. IsGuest={IsGuest}, UserId={UserId}, DeviceId={DeviceId}", actor.IsGuest, actor.UserId, actor.DeviceId);
                 return Ok(new AiSubscriptionResponseDto
                 {
                     HasSubscription = false,
@@ -280,8 +287,8 @@ public class AiController : ControllerBase
                 });
             }
 
-            _logger.LogInformation("User {UserId} has active package {PackageName} (Tier: {Tier}). Flags: Tinder={AllowTinder}, AiPlan={AllowAiPlan}, Chatbot={AllowChatbot}", 
-                userId, info.PackageName, info.Tier, info.AllowTinder, info.AllowAiPlan, info.AllowChatbot);
+            _logger.LogInformation("Actor has active package {PackageName} (Tier: {Tier}). Flags: Tinder={AllowTinder}, AiPlan={AllowAiPlan}, Chatbot={AllowChatbot}", 
+                info.PackageName, info.Tier, info.AllowTinder, info.AllowAiPlan, info.AllowChatbot);
 
             return Ok(new AiSubscriptionResponseDto
             {
@@ -304,12 +311,27 @@ public class AiController : ControllerBase
 
     // ===== HELPER METHODS =====
 
-    private int GetUserId() =>
-        int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
-    private async Task<object> BuildAiAccessDeniedPayloadAsync(int userId, string feature)
+    private RequestActorContext GetActorContext()
     {
-        var info = await _subscriptionAccess.GetUserSubscriptionInfoAsync(userId);
+        if (GuestTokenService.IsGuest(User))
+        {
+            var deviceId = GuestTokenService.GetDeviceId(User);
+            if (string.IsNullOrWhiteSpace(deviceId))
+            {
+                throw new InvalidOperationException("Guest session is missing device id.");
+            }
+
+            return new RequestActorContext(null, deviceId, true);
+        }
+
+        return new RequestActorContext(int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!), null, false);
+    }
+
+    private async Task<object> BuildAiAccessDeniedPayloadAsync(RequestActorContext actor, string feature)
+    {
+        var info = actor.IsGuest
+            ? await _subscriptionAccess.GetSubscriptionInfoByDeviceAsync(actor.DeviceId!)
+            : await _subscriptionAccess.GetUserSubscriptionInfoAsync(actor.UserId!.Value);
         if (info == null)
         {
             return new
@@ -333,6 +355,8 @@ public class AiController : ControllerBase
             reason = "feature_not_in_package"
         };
     }
+
+    private sealed record RequestActorContext(int? UserId, string? DeviceId, bool IsGuest);
 
     /// <summary>Append shop info to context StringBuilder for AI prompt injection</summary>
     private static void AppendShopContext(StringBuilder sb, Shop shop, string tag)
@@ -687,3 +711,5 @@ QUY TẮC:
         };
     }
 }
+
+

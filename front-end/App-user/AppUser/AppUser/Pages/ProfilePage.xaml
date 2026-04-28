@@ -6,12 +6,12 @@
     xmlns:vm="clr-namespace:AppUser.ViewModels"
     xmlns:models="clr-namespace:AppUser.Models"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
-    Title="Hồ sơ"
+    Title="Profile"
     BackgroundColor="{StaticResource Background}">
 
     <Shell.TitleView>
         <Label Text="{Binding PageTitle}"
-               FontFamily="BeVietnamProBold"
+               FontFamily="{x:Null}"
                FontSize="18"
                TextColor="White"
                VerticalOptions="Center"/>
@@ -60,10 +60,10 @@
                                Style="{StaticResource BodyMedium}"
                                TextColor="#CCFFFFFF"
                                HorizontalOptions="Center"
-                               FontFamily="BeVietnamPro"/>
+                               FontFamily="{x:Null}"/>
 
                         <!-- Guest mode header -->
-                        <Label Text="Khách tham quan"
+                        <Label Text="Guest user"
                                IsVisible="{Binding IsGuest}"
                                Style="{StaticResource HeadlineSmall}"
                                TextColor="White"
@@ -75,7 +75,7 @@
                                TextColor="#CCFFFFFF"
                                HorizontalOptions="Center"
                                HorizontalTextAlignment="Center"
-                               FontFamily="BeVietnamPro"/>
+                               FontFamily="{x:Null}"/>
                     </VerticalStackLayout>
 
                     <!-- Nút Edit Profile (chỉ cho User) -->
@@ -88,7 +88,7 @@
                             HeightRequest="42"
                             HorizontalOptions="Center"
                             Padding="20,0"
-                            FontFamily="BeVietnamProSemiBold"
+                            FontFamily="{x:Null}"
                             FontSize="13"
                             Margin="0,4,0,0"/>
 
@@ -102,7 +102,7 @@
                             HeightRequest="42"
                             HorizontalOptions="Center"
                             Padding="20,0"
-                            FontFamily="BeVietnamProSemiBold"
+                            FontFamily="{x:Null}"
                             FontSize="14"
                             Margin="0,4,0,0"/>
 
@@ -114,7 +114,7 @@
                         <Label Text="{Binding FoodieBadgeText}"
                                Style="{StaticResource LabelCaption}"
                                TextColor="White"
-                               FontFamily="BeVietnamProBold"
+                               FontFamily="{x:Null}"
                                FontSize="10"
                                CharacterSpacing="1"/>
                     </Border>
@@ -135,7 +135,7 @@
                                        Style="{StaticResource LabelCaption}"
                                        TextColor="#90FFFFFF"
                                        HorizontalOptions="Center"
-                                       FontFamily="BeVietnamProMedium"/>
+                                       FontFamily="{x:Null}"/>
                             </VerticalStackLayout>
                         </Border>
 
@@ -153,12 +153,12 @@
                                        TextColor="White"
                                        HorizontalOptions="Center"
                                        FontSize="18"
-                                       FontFamily="BeVietnamProBold"/>
+                                       FontFamily="{x:Null}"/>
                                 <Label Text="{Binding CurrentLanguageLabel}"
                                        Style="{StaticResource LabelCaption}"
                                        TextColor="#90FFFFFF"
                                        HorizontalOptions="Center"
-                                       FontFamily="BeVietnamProMedium"/>
+                                       FontFamily="{x:Null}"/>
                             </VerticalStackLayout>
                         </Border>
                     </Grid>
@@ -200,7 +200,7 @@
                                     <Label Text="{Binding CurrentLanguageDisplay}"
                                            Style="{StaticResource BodySmall}"
                                            TextColor="{StaticResource Primary}"
-                                           FontFamily="BeVietnamProSemiBold"/>
+                                           FontFamily="{x:Null}"/>
                                 </VerticalStackLayout>
                                 <Label Grid.Column="2" Text="〉" FontSize="18" VerticalOptions="Center" TextColor="{StaticResource Border}"/>
                             </Grid>
@@ -228,7 +228,7 @@
                                     <Label Text="PayOS"
                                            Style="{StaticResource BodySmall}"
                                            TextColor="{StaticResource Primary}"
-                                           FontFamily="BeVietnamProSemiBold"/>
+                                           FontFamily="{x:Null}"/>
                                 </VerticalStackLayout>
                                 <Label Grid.Column="2" Text="〉" FontSize="18" VerticalOptions="Center" TextColor="{StaticResource Border}"/>
                             </Grid>
@@ -255,7 +255,7 @@
                                        TextColor="{StaticResource TextSecondary}"
                                        HorizontalOptions="Center"
                                        HorizontalTextAlignment="Center"
-                                       FontFamily="BeVietnamPro"/>
+                                       FontFamily="{x:Null}"/>
                             </VerticalStackLayout>
                         </Border>
 
@@ -292,7 +292,7 @@
                                                            TextColor="{StaticResource TextSecondary}"
                                                            LineBreakMode="TailTruncation"
                                                            MaxLines="1"
-                                                           FontFamily="BeVietnamPro"/>
+                                                           FontFamily="{x:Null}"/>
                                                 </HorizontalStackLayout>
                                             </VerticalStackLayout>
 
@@ -319,7 +319,7 @@
                     BackgroundColor="{StaticResource SurfaceVariant}"
                     CornerRadius="16"
                     HeightRequest="56"
-                    FontFamily="BeVietnamProBold"
+                    FontFamily="{x:Null}"
                     FontSize="15"
                     Margin="20,8,20,40"
                     HorizontalOptions="Fill"/>
@@ -332,7 +332,7 @@
                     BackgroundColor="{StaticResource Primary}"
                     CornerRadius="16"
                     HeightRequest="56"
-                    FontFamily="BeVietnamProBold"
+                    FontFamily="{x:Null}"
                     FontSize="15"
                     Margin="20,8,20,40"
                     HorizontalOptions="Fill"/>

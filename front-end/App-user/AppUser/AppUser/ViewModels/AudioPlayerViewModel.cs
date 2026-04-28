@@ -249,6 +249,14 @@ namespace AppUser.ViewModels
             SeekRequested?.Invoke(this, newPos);
         }
 
+        /// <summary>Seek to an exact position (0.0–1.0) when user finishes dragging the slider.</summary>
+        public void SeekToPosition(double position)
+        {
+            var clamped = Math.Clamp(position, 0, 1);
+            Progress = clamped;
+            SeekRequested?.Invoke(this, clamped);
+        }
+
         [RelayCommand]
         private void CycleSpeed()
         {

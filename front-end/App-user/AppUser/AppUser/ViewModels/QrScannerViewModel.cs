@@ -17,7 +17,7 @@ public partial class QrScannerViewModel : ObservableObject
     private bool isProcessing = false;
 
     [ObservableProperty]
-    private string statusMessage = "Hướng camera vào mã QR tại gian hàng";
+    private string statusMessage = "Point your camera at a QR code";
 
     // Flag tránh xử lý nhiều lần cùng lúc
     private bool _hasNavigated = false;
@@ -42,22 +42,22 @@ public partial class QrScannerViewModel : ObservableObject
 
         try
         {
-            Debug.WriteLine($"[QrScanner] Đã quét: {qrValue}");
+            Debug.WriteLine($"[QrScanner] Scanned: {qrValue}");
 
             var poiId = ParsePoiIdFromQr(qrValue.Trim());
 
             if (poiId.HasValue)
             {
-                StatusMessage = $"Đã nhận diện POI #{poiId}. Đang chuyển trang...";
-                Debug.WriteLine($"[QrScanner] Navigate đến POI ID: {poiId}");
+                StatusMessage = $"POI #{poiId} detected. Redirecting...";
+                Debug.WriteLine($"[QrScanner] Navigating to POI ID: {poiId}");
 
                 // Navigate đến trang chi tiết POI
                 await Shell.Current.GoToAsync($"poiDetail?id={poiId}");
             }
             else
             {
-                StatusMessage = "Mã QR không hợp lệ. Vui lòng thử lại.";
-                Debug.WriteLine($"[QrScanner] Không parse được POI ID từ: {qrValue}");
+                StatusMessage = "Invalid QR code. Please try again.";
+                Debug.WriteLine($"[QrScanner] Could not parse POI ID from: {qrValue}");
 
                 // Cho phép quét lại sau 2 giây
                 await Task.Delay(2000);
@@ -66,8 +66,8 @@ public partial class QrScannerViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[QrScanner] Lỗi xử lý QR: {ex.Message}");
-            StatusMessage = "Đã xảy ra lỗi. Vui lòng thử lại.";
+            Debug.WriteLine($"[QrScanner] QR processing error: {ex.Message}");
+            StatusMessage = "An error occurred. Please try again.";
             await Task.Delay(2000);
             ResetScanner();
         }
@@ -86,7 +86,7 @@ public partial class QrScannerViewModel : ObservableObject
         _hasNavigated = false;
         IsScanning = true;
         IsProcessing = false;
-        StatusMessage = "Hướng camera vào mã QR tại gian hàng";
+        StatusMessage = "Point your camera at a QR code";
     }
 
     /// <summary>

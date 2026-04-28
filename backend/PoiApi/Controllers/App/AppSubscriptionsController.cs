@@ -263,14 +263,49 @@ public class AppSubscriptionsController : ControllerBase
     [HttpPost("{id:int}/sync-payment")]
     public async Task<IActionResult> SyncMySubscriptionPayment(int id)
     {
-        var userId = GetUserId();
-        var sub = await _context.Subscriptions
-            .Include(s => s.ServicePackage)
-            .FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId && s.ServicePackage.Audience == RoleConstants.User);
+        var isGuest = GuestTokenService.IsGuest(User);
+        Subscription? sub;
+        int? userId = null;
+        string? guestDeviceId = null;
+
+        if (isGuest)
+        {
+            guestDeviceId = GuestTokenService.GetDeviceId(User) ?? string.Empty;
+            sub = await _context.Subscriptions
+                .Include(s => s.ServicePackage)
+                .FirstOrDefaultAsync(s =>
+                    s.Id == id &&
+                    s.DeviceId == guestDeviceId &&
+                    s.UserId == null &&
+                    s.ServicePackage.Audience == RoleConstants.User);
+        }
+        else
+        {
+            userId = GetUserId();
+            sub = await _context.Subscriptions
+                .Include(s => s.ServicePackage)
+                .FirstOrDefaultAsync(s =>
+                    s.Id == id &&
+                    s.UserId == userId &&
+                    s.ServicePackage.Audience == RoleConstants.User);
+        }
 
         if (sub == null)
         {
             return NotFound(new { message = "Subscription not found." });
+        }
+
+        if (string.Equals(sub.Status, SubscriptionConstants.Active, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(sub.PaymentStatus, SubscriptionConstants.PaymentPaid, StringComparison.OrdinalIgnoreCase))
+        {
+            if (isGuest)
+            {
+                await MarkExpiredSubscriptionsByDeviceAsync(guestDeviceId!);
+                return Ok(await BuildCurrentSubscriptionEnvelopeByDeviceAsync(guestDeviceId!));
+            }
+
+            await MarkExpiredSubscriptionsAsync(userId!.Value);
+            return Ok(await BuildCurrentSubscriptionEnvelopeAsync(userId.Value));
         }
 
         if (!string.Equals(sub.PaymentProvider, "PayOS", StringComparison.OrdinalIgnoreCase))
@@ -278,18 +313,44 @@ public class AppSubscriptionsController : ControllerBase
             return BadRequest(new { message = "Only PayOS subscriptions can be synced." });
         }
 
-        var paymentReference = !string.IsNullOrWhiteSpace(sub.PaymentLinkId)
-            ? sub.PaymentLinkId
-            : sub.PaymentOrderCode?.ToString();
+        var paymentLinkId = string.IsNullOrWhiteSpace(sub.PaymentLinkId)
+            ? null
+            : sub.PaymentLinkId.Trim();
+        var paymentOrderCode = sub.PaymentOrderCode?.ToString();
 
-        if (string.IsNullOrWhiteSpace(paymentReference))
+        if (string.IsNullOrWhiteSpace(paymentLinkId) && string.IsNullOrWhiteSpace(paymentOrderCode))
         {
-            return BadRequest(new { message = "Subscription does not have a PayOS payment reference." });
+            if (isGuest)
+            {
+                await MarkExpiredSubscriptionsByDeviceAsync(guestDeviceId!);
+                return Ok(await BuildCurrentSubscriptionEnvelopeByDeviceAsync(guestDeviceId!));
+            }
+
+            await MarkExpiredSubscriptionsAsync(userId!.Value);
+            return Ok(await BuildCurrentSubscriptionEnvelopeAsync(userId.Value));
         }
 
         try
         {
-            var paymentInfo = await _payOsService.GetPaymentLinkInfoAsync(paymentReference);
+            var paymentInfo = await _payOsService.TryGetPaymentLinkInfoAsync(paymentLinkId, paymentOrderCode);
+            if (paymentInfo == null)
+            {
+                _logger.LogWarning(
+                    "PayOS sync returned no payment info for app subscription {SubscriptionId}. PaymentLinkId={PaymentLinkId}, OrderCode={OrderCode}",
+                    sub.Id,
+                    paymentLinkId,
+                    paymentOrderCode);
+
+                if (isGuest)
+                {
+                    await MarkExpiredSubscriptionsByDeviceAsync(guestDeviceId!);
+                    return Ok(await BuildCurrentSubscriptionEnvelopeByDeviceAsync(guestDeviceId!));
+                }
+
+                await MarkExpiredSubscriptionsAsync(userId!.Value);
+                return Ok(await BuildCurrentSubscriptionEnvelopeAsync(userId.Value));
+            }
+
             if (!string.IsNullOrWhiteSpace(paymentInfo.Id))
             {
                 sub.PaymentLinkId = paymentInfo.Id;
@@ -308,13 +369,30 @@ public class AppSubscriptionsController : ControllerBase
                 effectiveStatus);
             await _subscriptionAccessService.ApplyPayOsPaymentStateAsync(sub, effectiveStatus);
             await _context.SaveChangesAsync();
-            await MarkExpiredSubscriptionsAsync(userId);
+            if (isGuest)
+            {
+                await MarkExpiredSubscriptionsByDeviceAsync(guestDeviceId!);
+                return Ok(await BuildCurrentSubscriptionEnvelopeByDeviceAsync(guestDeviceId!));
+            }
 
-            return Ok(await BuildCurrentSubscriptionEnvelopeAsync(userId));
+            await MarkExpiredSubscriptionsAsync(userId!.Value);
+            return Ok(await BuildCurrentSubscriptionEnvelopeAsync(userId.Value));
         }
         catch (Exception ex)
         {
-            return StatusCode(502, new { message = ex.Message });
+            _logger.LogWarning(
+                ex,
+                "PayOS sync failed for app subscription {SubscriptionId}. Returning current subscription envelope instead of error.",
+                sub.Id);
+
+            if (isGuest)
+            {
+                await MarkExpiredSubscriptionsByDeviceAsync(guestDeviceId!);
+                return Ok(await BuildCurrentSubscriptionEnvelopeByDeviceAsync(guestDeviceId!));
+            }
+
+            await MarkExpiredSubscriptionsAsync(userId!.Value);
+            return Ok(await BuildCurrentSubscriptionEnvelopeAsync(userId.Value));
         }
     }
 
@@ -354,6 +432,28 @@ public class AppSubscriptionsController : ControllerBase
         var expired = await _context.Subscriptions
             .Include(s => s.ServicePackage)
             .Where(s => s.UserId == userId && s.ServicePackage.Audience == RoleConstants.User)
+            .Where(s => s.Status == SubscriptionConstants.Active && s.EndDate <= now)
+            .ToListAsync();
+
+        if (!expired.Any())
+        {
+            return;
+        }
+
+        foreach (var item in expired)
+        {
+            item.Status = SubscriptionConstants.Expired;
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task MarkExpiredSubscriptionsByDeviceAsync(string deviceId)
+    {
+        var now = DateTime.UtcNow;
+        var expired = await _context.Subscriptions
+            .Include(s => s.ServicePackage)
+            .Where(s => s.DeviceId == deviceId && s.UserId == null && s.ServicePackage.Audience == RoleConstants.User)
             .Where(s => s.Status == SubscriptionConstants.Active && s.EndDate <= now)
             .ToListAsync();
 
@@ -415,7 +515,8 @@ public class AppSubscriptionsController : ControllerBase
     private static long BuildOrderCode(int userId)
     {
         var seconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        return long.Parse($"{seconds}{userId % 1000:D3}");
+        var suffix = Math.Abs((long)userId % 1000L);
+        return checked(seconds * 1000L + suffix);
     }
 
     private static string? NormalizeBillingCycle(string? billingCycle)

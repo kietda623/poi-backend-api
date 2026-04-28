@@ -10,7 +10,7 @@
 }
 
 html, body {
-    font-family: 'Inter', sans-serif;
+    font-family: "Segoe UI", Arial, sans-serif;
     background-color: #F8FAFC;
     height: 100%;
     margin: 0;
@@ -20,7 +20,7 @@ html, body {
 }
 
 h1, h2, h3, h4, h5, h6, .mud-typography-h1, .mud-typography-h2, .mud-typography-h3, .mud-typography-h4, .mud-typography-h5, .mud-typography-h6 {
-    font-family: 'Inter', sans-serif !important;
+    font-family: "Segoe UI", Arial, sans-serif !important;
     letter-spacing: -0.025em;
 }
 

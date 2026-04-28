@@ -33,6 +33,7 @@ public class AiService
     {
         try
         {
+            await _authService.InitGuestSessionAsync();
             ApplyAuth();
             var response = await _httpClient.GetAsync("ai/subscription-info");
             if (response.IsSuccessStatusCode)
@@ -56,6 +57,7 @@ public class AiService
     {
         try
         {
+            await _authService.InitGuestSessionAsync();
             ApplyAuth();
             var response = await _httpClient.PostAsJsonAsync("ai/tour-plan", request);
             if (response.IsSuccessStatusCode)
@@ -76,6 +78,7 @@ public class AiService
     {
         try
         {
+            await _authService.InitGuestSessionAsync();
             ApplyAuth();
             var response = await _httpClient.PostAsJsonAsync("ai/chatbot", request);
             if (response.IsSuccessStatusCode)
@@ -96,6 +99,7 @@ public class AiService
     {
         try
         {
+            await _authService.InitGuestSessionAsync();
             ApplyAuth();
             var response = await _httpClient.GetAsync($"app/tinder/cards?count={count}");
             if (response.IsSuccessStatusCode)
@@ -115,6 +119,7 @@ public class AiService
     {
         try
         {
+            await _authService.InitGuestSessionAsync();
             ApplyAuth();
             var response = await _httpClient.PostAsJsonAsync("app/tinder/swipe", new { shopId, isLiked });
             return response.IsSuccessStatusCode;
@@ -130,6 +135,7 @@ public class AiService
     {
         try
         {
+            await _authService.InitGuestSessionAsync();
             ApplyAuth();
             var response = await _httpClient.GetAsync("app/tinder/liked");
             if (response.IsSuccessStatusCode)

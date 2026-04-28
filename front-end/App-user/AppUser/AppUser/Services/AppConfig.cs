@@ -4,7 +4,7 @@ namespace AppUser.Services
     {
         // Change this to your current HTTPS ngrok domain when testing on a real phone.
         // Example: "https://abc-123.ngrok-free.app"
-        public static string NgrokBaseUrl = "https://sandpaper-pawing-alive.ngrok-free.dev";
+        public static string NgrokBaseUrl = "https://humvee-surprise-splice.ngrok-free.dev";
 
         // Set true to force all requests through ngrok (required for physical devices).
         public static bool UseNgrokTunnel = true;

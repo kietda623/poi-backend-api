@@ -11,6 +11,7 @@ namespace AppUser.Pages
         private bool _isLoadingSource;
         private string _currentUrl = string.Empty;
         private bool _completionReviewTriggered;
+        private bool _isDragging;
 
         public AudioPlayerPage(AudioPlayerViewModel vm)
         {
@@ -158,7 +159,11 @@ namespace AppUser.Pages
 
         private void OnMediaElementPositionChanged(object? sender, MediaPositionChangedEventArgs e)
         {
-            _vm.UpdateProgress(e.Position, MediaElement.Duration);
+            // Skip auto-updating progress while user is dragging the slider
+            if (!_isDragging)
+            {
+                _vm.UpdateProgress(e.Position, MediaElement.Duration);
+            }
 
             if (_completionReviewTriggered)
             {
@@ -261,6 +266,20 @@ namespace AppUser.Pages
                 FallbackAudioWebView.Source = new HtmlWebViewSource { Html = html };
                 FallbackAudioContainer.IsVisible = true;
             });
+        }
+
+        // === Slider drag-to-seek handlers ===
+
+        private void OnSliderDragStarted(object? sender, EventArgs e)
+        {
+            _isDragging = true;
+        }
+
+        private void OnSliderDragCompleted(object? sender, EventArgs e)
+        {
+            _isDragging = false;
+            var position = ProgressSlider.Value;
+            _vm.SeekToPosition(position);
         }
     }
 }

@@ -8,12 +8,12 @@
 <PageTitle>Thống kê doanh thu</PageTitle>
 
 <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
-    <MudText Typo="Typo.h4">Thống kê doanh thu</MudText>
+    <MudText Typo="Typo.h4">Thống kê doanh thu chi tiết</MudText>
     <MudSpacer />
     <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.PictureAsPdf"
-               Color="Color.Error" Size="Size.Small" Class="mr-2">Export CSV</MudButton>
+               Color="Color.Error" Size="Size.Small" Class="mr-2">Xuất CSV</MudButton>
     <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.TableChart"
-               Color="Color.Success" Size="Size.Small">Export PDF</MudButton>
+               Color="Color.Success" Size="Size.Small">Xuất PDF</MudButton>
 </MudStack>
 
 <MudPaper Class="pa-3 mb-4" Elevation="1">
@@ -39,15 +39,9 @@
         </MudItem>
         <MudItem xs="12" md="4">
             <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search"
-                       OnClick="LoadRevenue" FullWidth="true">Lọc doanh thu</MudButton>
+                       OnClick="LoadRevenue" FullWidth="true">Lọc dữ liệu</MudButton>
         </MudItem>
     </MudGrid>
-</MudPaper>
-
-<MudPaper Class="pa-4 text-center mb-4" Elevation="2">
-    <MudIcon Icon="@Icons.Material.Filled.AttachMoney" Color="Color.Warning" Size="Size.Large" />
-    <MudText Typo="MudBlazor.Typo.h4" Color="Color.Warning"><b>@totalRevenue.ToString("N0") đ</b></MudText>
-    <MudText Typo="MudBlazor.Typo.body2">Tổng doanh thu</MudText>
 </MudPaper>
 
 @if (isLoading)
@@ -55,65 +49,137 @@
     <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-4" />
 }
 
-<MudGrid>
-    <MudItem xs="12" md="6">
-        <MudPaper Class="pa-4" Elevation="2">
-            <MudText Typo="Typo.h6" Class="mb-3">Doanh thu theo tháng (@filterYear)</MudText>
+@if (statsSummary != null)
+{
+    <MudGrid Class="mb-6">
+        <MudItem xs="12" md="4">
+            <MudPaper Class="pa-4 text-center" Elevation="2" Style="border-left: 5px solid #059669;">
+                <MudText Typo="Typo.body1" Color="Color.Success">Tổng Doanh Thu Hệ Thống</MudText>
+                <MudText Typo="Typo.h4"><b>@statsSummary.TotalRevenue.ToString("N0") đ</b></MudText>
+                <MudText Typo="Typo.caption">Đã trừ chi phí vận hành (nếu có)</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudPaper Class="pa-4 text-center" Elevation="2" Style="border-left: 5px solid #0284c7;">
+                <MudText Typo="Typo.body1" Color="Color.Info">Từ Nguồn Seller (100%)</MudText>
+                <MudText Typo="Typo.h4"><b>@statsSummary.SellerRevenue.ToString("N0") đ</b></MudText>
+                <MudText Typo="Typo.caption">Gói đăng ký gian hàng</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudPaper Class="pa-4 text-center" Elevation="2" Style="border-left: 5px solid #d97706;">
+                <MudText Typo="Typo.body1" Color="Color.Warning">Từ Nguồn User (@statsSummary.UserSharePercent%)</MudText>
+                <MudText Typo="Typo.h4"><b>@statsSummary.PlatformShare.ToString("N0") đ</b></MudText>
+                <MudText Typo="Typo.caption">Tổng thu User: @statsSummary.UserRevenueTotal.ToString("N0") đ</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+        <MudTabPanel Text="Doanh thu Seller" Icon="@Icons.Material.Filled.Store">
+            <MudGrid>
+                <MudItem xs="12" md="4">
+                    <MudPaper Class="pa-4" Elevation="0" Outlined="true">
+                        <MudText Typo="Typo.h6" Class="mb-2">Thống kê theo gói</MudText>
+                        <MudList T="string" Dense="true">
+                            @foreach (var tier in sellerStats.ByTier)
+                            {
+                                <MudListItem T="string">
+                                    <div class="d-flex justify-space-between w-100">
+                                        <MudText><b>@tier.Tier</b> (@tier.Count GD)</MudText>
+                                        <MudText Color="Color.Primary">@tier.Revenue.ToString("N0") đ</MudText>
+                                    </div>
+                                </MudListItem>
+                            }
+                        </MudList>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" md="8">
+                    <MudText Typo="Typo.h6" Class="mb-2">Bảng xếp hạng Seller</MudText>
+                    <MudTable Items="@sellerStats.BySeller" Hover="true" Dense="true" Striped="true">
+                        <HeaderContent>
+                            <MudTh>Người bán</MudTh>
+                            <MudTh>Gói sử dụng</MudTh>
+                            <MudTh>Số GD</MudTh>
+                            <MudTh>Tổng doanh thu</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>
+                                <MudText Typo="Typo.body2"><b>@context.SellerName</b></MudText>
+                                <MudText Typo="Typo.caption">@context.Email</MudText>
+                            </MudTd>
+                            <MudTd>@context.PackageName</MudTd>
+                            <MudTd>@context.SubscriptionCount</MudTd>
+                            <MudTd><MudText Color="Color.Success"><b>@context.Revenue.ToString("N0") đ</b></MudText></MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager />
+                        </PagerContent>
+                    </MudTable>
+                </MudItem>
+            </MudGrid>
+        </MudTabPanel>
+
+        <MudTabPanel Text="Doanh thu User" Icon="@Icons.Material.Filled.Person">
+            <MudGrid>
+                <MudItem xs="12" md="4">
+                    <MudPaper Class="pa-4" Elevation="0" Outlined="true">
+                        <MudText Typo="Typo.h6" Class="mb-2">Thống kê theo gói</MudText>
+                        <MudList T="string" Dense="true">
+                            @foreach (var tier in userStats.ByTier)
+                            {
+                                <MudListItem T="string">
+                                    <div class="d-flex justify-space-between w-100">
+                                        <MudText><b>@tier.Tier</b> (@tier.Count GD)</MudText>
+                                        <MudText Color="Color.Primary">@tier.Revenue.ToString("N0") đ</MudText>
+                                    </div>
+                                </MudListItem>
+                            }
+                        </MudList>
+                        <MudDivider Class="my-3"/>
+                        <MudText Typo="Typo.body2">Tổng thu thập: <b>@userStats.TotalRevenue.ToString("N0") đ</b></MudText>
+                        <MudText Typo="Typo.body2">Tỷ lệ nền tảng giữ lại: <b>@userStats.PlatformSharePercent%</b></MudText>
+                        <MudText Typo="Typo.h6" Color="Color.Warning" Class="mt-2">Thực nhận: @userStats.PlatformShareAmount.ToString("N0") đ</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" md="8">
+                    <MudAlert Severity="Severity.Info">
+                        Phần doanh thu từ User (khách du lịch) đăng ký các gói dịch vụ như Tour Basic, Tour Plus. Nền tảng chia sẻ một phần % doanh thu.
+                    </MudAlert>
+                </MudItem>
+            </MudGrid>
+        </MudTabPanel>
+
+        <MudTabPanel Text="Chi tiết theo tháng" Icon="@Icons.Material.Filled.CalendarMonth">
             <MudTable Items="@revenueByMonth" Hover="true" Dense="true" Striped="true">
                 <HeaderContent>
                     <MudTh>Tháng</MudTh>
-                    <MudTh>Đơn hàng</MudTh>
-                    <MudTh>Doanh thu</MudTh>
+                    <MudTh>Giao dịch</MudTh>
+                    <MudTh>Từ Seller</MudTh>
+                    <MudTh>Từ User (Thực nhận)</MudTh>
+                    <MudTh>Tổng cộng</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>Tháng @context.Month</MudTd>
-                    <MudTd>@context.OrderCount</MudTd>
-                    <MudTd>
-                        <MudProgressLinear Value="@GetRevenueProgress(context.Revenue)" Color="Color.Warning" Rounded="true" Class="my-1" />
-                        <MudText Typo="Typo.caption">@FormatCurrency(context.Revenue)</MudText>
-                    </MudTd>
+                    <MudTd>@context.SubscriptionCount</MudTd>
+                    <MudTd>@context.SellerRevenue.ToString("N0") đ</MudTd>
+                    <MudTd>@context.UserRevenue.ToString("N0") đ <MudText Typo="Typo.caption">(Tổng: @context.UserRevenueTotal.ToString("N0"))</MudText></MudTd>
+                    <MudTd><MudText Color="Color.Success"><b>@context.TotalRevenue.ToString("N0") đ</b></MudText></MudTd>
                 </RowTemplate>
-                <NoRecordsContent>
-                    <MudText>Chua co du lieu doanh thu.</MudText>
-                </NoRecordsContent>
             </MudTable>
-        </MudPaper>
-    </MudItem>
-
-    <MudItem xs="12" md="6">
-        <MudPaper Class="pa-4" Elevation="2">
-            <MudText Typo="Typo.h6" Class="mb-3">Doanh thu theo cửa hàng</MudText>
-            <MudTable Items="@revenueByShop" Hover="true" Dense="true" Striped="true">
-                <HeaderContent>
-                    <MudTh>#</MudTh>
-                    <MudTh>Cửa hàng</MudTh>
-                    <MudTh>Đơn hàng</MudTh>
-                    <MudTh>Doanh thu</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd>@(revenueByShop.IndexOf(context) + 1)</MudTd>
-                    <MudTd>@context.ShopName</MudTd>
-                    <MudTd>@context.OrderCount</MudTd>
-                    <MudTd>
-                        <MudProgressLinear Value="@GetRevenueProgress(context.Revenue)" Color="Color.Warning" Rounded="true" Class="my-1" />
-                        <MudText Typo="Typo.caption">@FormatCurrency(context.Revenue)</MudText>
-                    </MudTd>
-                </RowTemplate>
-                <NoRecordsContent>
-                    <MudText>Chưa có dữ liệu doanh thu.</MudText>
-                </NoRecordsContent>
-            </MudTable>
-        </MudPaper>
-    </MudItem>
-</MudGrid>
+        </MudTabPanel>
+    </MudTabs>
+}
 
 @code {
     private int filterYear = DateTime.Now.Year;
     private int filterMonth = 0;
-    private decimal totalRevenue;
     private bool isLoading;
-    private List<foodstreet_admin.Models.ShopRevenueItem> revenueByShop = new();
-    private List<foodstreet_admin.Models.MonthlyRevenueItem> revenueByMonth = new();
+
+    private foodstreet_admin.Models.AdminStatsSummary? statsSummary;
+    private foodstreet_admin.Models.SellerStatsSection sellerStats = new();
+    private foodstreet_admin.Models.UserStatsSection userStats = new();
+    private List<foodstreet_admin.Models.MonthlyRevenueBreakdown> revenueByMonth = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -126,41 +192,17 @@
         StateHasChanged();
 
         int? month = filterMonth > 0 ? filterMonth : null;
-        var revenue = await StoreSvc.GetAdminRevenueAsync(month, filterYear);
+        var data = await StoreSvc.GetAdminStatsAsync(filterYear, month);
 
-        if (revenue != null)
+        if (data != null)
         {
-            totalRevenue = revenue.TotalRevenue;
-            revenueByShop = revenue.RevenueByShop;
-            revenueByMonth = revenue.RevenueByMonth;
-        }
-        else
-        {
-            totalRevenue = 0;
-            revenueByShop = new();
-            revenueByMonth = new();
+            statsSummary = data.Summary;
+            sellerStats = data.SellerStats;
+            userStats = data.UserStats;
+            revenueByMonth = data.RevenueByMonth;
         }
 
         isLoading = false;
         StateHasChanged();
     }
-
-    private decimal GetRevenueMax()
-    {
-        var maxMonth = revenueByMonth.Any() ? revenueByMonth.Max(x => x.Revenue) : 0;
-        var maxShop = revenueByShop.Any() ? revenueByShop.Max(x => x.Revenue) : 0;
-        return new[] { totalRevenue, maxMonth, maxShop }.Max();
-    }
-
-    private double GetRevenueProgress(decimal revenue)
-    {
-        var maxRevenue = GetRevenueMax();
-        if (maxRevenue <= 0)
-        {
-            return 0;
-        }
-        return (double)(revenue / maxRevenue) * 100d;
-    }
-
-    private static string FormatCurrency(decimal value) => $"{value:N0} đ";
 }

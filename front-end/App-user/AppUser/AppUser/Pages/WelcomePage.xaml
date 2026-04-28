@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="AppUser.Pages.WelcomePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:AppUser.ViewModels"
+    x:DataType="vm:WelcomeViewModel"
+    Shell.NavBarIsVisible="False">
+
+    <Grid Padding="24,48,24,24" RowDefinitions="Auto,*,Auto">
+        <VerticalStackLayout Spacing="12">
+            <Border
+                WidthRequest="64"
+                HeightRequest="64"
+                StrokeThickness="0"
+                BackgroundColor="{StaticResource Surface}"
+                StrokeShape="RoundRectangle 18">
+                <Label
+                    Text="FT"
+                    FontSize="24"
+                    FontAttributes="Bold"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    TextColor="{StaticResource Primary}" />
+            </Border>
+
+            <Label Text="FoodTour" Style="{StaticResource HeadlineMedium}" />
+            <Label
+                Text="Discover places, food stories, and audio guides with a clean and friendly experience."
+                Style="{StaticResource BodyMedium}" />
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.Row="1" VerticalOptions="End" Spacing="12">
+            <Button
+                Text="Sign In"
+                Style="{StaticResource PrimaryButton}"
+                Command="{Binding GoToLoginCommand}" />
+            <Button
+                Text="Create Account"
+                Style="{StaticResource SecondaryButton}"
+                Command="{Binding GoToRegisterCommand}" />
+            <Button
+                Text="Continue as Guest"
+                Style="{StaticResource OutlineButton}"
+                Command="{Binding ContinueAsGuestCommand}"
+                IsEnabled="{Binding IsBusy, Converter={StaticResource BoolInverterConverter}}" />
+            <ActivityIndicator
+                IsVisible="{Binding IsBusy}"
+                IsRunning="{Binding IsBusy}"
+                HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <Label
+            Grid.Row="2"
+            Text="English is currently set as default language."
+            HorizontalOptions="Center"
+            Style="{StaticResource BodySmall}" />
+    </Grid>
+</ContentPage>

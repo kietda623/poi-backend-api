@@ -83,41 +83,83 @@ namespace AppUser.ViewModels
 
             if (UserLocation == null) return;
 
-            // Find nearest POI within 100 meters
-            var nearestPoi = _allPOIs
+            // Find all POIs within 100 meters that haven't been notified yet
+            var nearbyPois = _allPOIs
                 .Where(p => p.Latitude.HasValue && p.Longitude.HasValue && !_notifiedPoiIds.Contains(p.Id))
-                .Select(p => new 
-                { 
-                    Poi = p, 
+                .Select(p => new
+                {
+                    Poi = p,
                     Distance = Location.CalculateDistance(
-                        UserLocation.Latitude, UserLocation.Longitude, 
-                        p.Latitude!.Value, p.Longitude!.Value, 
+                        UserLocation.Latitude, UserLocation.Longitude,
+                        p.Latitude!.Value, p.Longitude!.Value,
                         DistanceUnits.Kilometers) * 1000 // meters
                 })
                 .Where(x => x.Distance <= 100) // Within 100 meters
-                .OrderBy(x => x.Distance)
-                .FirstOrDefault();
+                .ToList();
 
-            if (nearestPoi != null)
-            {
-                _notifiedPoiIds.Add(nearestPoi.Poi.Id);
-                
-                // Prompt user
-                Application.Current?.Dispatcher.Dispatch(async () =>
+            if (nearbyPois.Count == 0) return;
+
+            // Pick the best POI using Priority Score (not just nearest)
+            var bestPoi = nearbyPois
+                .Select(x => new
                 {
-                    bool wantToListen = await Shell.Current.DisplayAlert(
-                        "Nearby Food Spot!",
-                        $"You are very close to {nearestPoi.Poi.Shop?.Name}. Would you like to listen to the audio guide?",
-                        "Listen Now",
-                        "Skip"
-                    );
+                    x.Poi,
+                    x.Distance,
+                    Score = CalculateProximityScore(x.Poi, x.Distance)
+                })
+                .OrderByDescending(x => x.Score)
+                .First();
 
-                    if (wantToListen)
-                    {
-                        await NavigateToPOIAsync(nearestPoi.Poi);
-                    }
-                });
-            }
+            _notifiedPoiIds.Add(bestPoi.Poi.Id);
+
+            // Prompt user
+            Application.Current?.Dispatcher.Dispatch(async () =>
+            {
+                bool wantToListen = await Shell.Current.DisplayAlert(
+                    "Nearby Food Spot!",
+                    $"You are very close to {bestPoi.Poi.Shop?.Name} ({bestPoi.Distance:F0}m away). Would you like to listen to the audio guide?",
+                    "Listen Now",
+                    "Skip"
+                );
+
+                if (wantToListen)
+                {
+                    await NavigateToPOIAsync(bestPoi.Poi);
+                }
+            });
+        }
+
+        /// <summary>
+        /// Calculate a priority score (0.0–1.0) for a nearby POI.
+        /// Higher score = should be suggested first.
+        /// 
+        /// Factors:
+        ///   - Distance (50%): closer POI scores higher
+        ///   - Has audio in current language (25%): POI with audio guide is preferred
+        ///   - Not listened before (15%): unvisited POI is preferred
+        ///   - Bonus (10%): base bonus for having a shop/name
+        /// </summary>
+        private double CalculateProximityScore(POIDto poi, double distanceMeters)
+        {
+            // Distance score: 0m = 1.0, 100m = 0.0
+            var distanceScore = Math.Max(0, 1.0 - distanceMeters / 100.0);
+
+            // Audio availability: does this POI have audio in user's current language?
+            var hasAudioInLang = poi.AudioGuides.Any(g => g.LanguageCode == _audioService.CurrentLanguage);
+            var hasAnyAudio = poi.AudioGuides.Any();
+            var audioScore = hasAudioInLang ? 1.0 : (hasAnyAudio ? 0.5 : 0.0);
+
+            // Not listened before: check against AudioService history
+            var alreadyListened = _audioService.History.Any(h => h.POI.Id == poi.Id);
+            var freshnessScore = alreadyListened ? 0.0 : 1.0;
+
+            // Bonus: POI has a shop name (valid data)
+            var bonusScore = !string.IsNullOrWhiteSpace(poi.Shop?.Name) ? 1.0 : 0.0;
+
+            return distanceScore * 0.50
+                 + audioScore * 0.25
+                 + freshnessScore * 0.15
+                 + bonusScore * 0.10;
         }
 
         private async Task RequestLocationPermissionAsync()

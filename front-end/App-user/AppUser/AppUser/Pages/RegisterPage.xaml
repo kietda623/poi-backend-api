@@ -5,169 +5,63 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:AppUser.ViewModels"
     x:DataType="vm:RegisterViewModel"
-    Shell.NavBarIsVisible="False"
-    BackgroundColor="{StaticResource Background}">
+    Shell.NavBarIsVisible="False">
 
     <ScrollView>
-        <Grid RowDefinitions="Auto,*,Auto" MinimumHeightRequest="750">
+        <VerticalStackLayout Padding="24,48,24,24" Spacing="16">
+            <Button Text="Back to Sign In" Style="{StaticResource OutlineButton}" Command="{Binding GoBackToLoginCommand}" />
+            <Label Text="Create your account" Style="{StaticResource HeadlineMedium}" />
+            <Label Text="Set up your profile to save favorites and sync your journey." Style="{StaticResource BodyMedium}" />
 
-            <!-- ── TOP DECORATIVE AREA ── -->
-            <Grid Grid.Row="0" HeightRequest="240" BackgroundColor="{StaticResource Primary}">
-
-                <!-- Background gradient overlay -->
-                <BoxView Color="{StaticResource PrimaryDark}" Opacity="0.3"
-                         HorizontalOptions="Fill" VerticalOptions="Fill"/>
-
-                <!-- Decorative circles -->
-                <Ellipse Fill="{StaticResource PrimaryLight}" Opacity="0.2"
-                         WidthRequest="150" HeightRequest="150"
-                         HorizontalOptions="End" VerticalOptions="Start"
-                         Margin="0,-40,-40,0"/>
-                <Ellipse Fill="{StaticResource Secondary}" Opacity="0.15"
-                         WidthRequest="100" HeightRequest="100"
-                         HorizontalOptions="Start" VerticalOptions="End"
-                         Margin="-20,0,0,20"/>
-
-                <!-- Header Content -->
-                <VerticalStackLayout Spacing="5" Padding="20,40,20,0">
-                    <Button Text="←" Style="{StaticResource IconButton}" 
-                            HorizontalOptions="Start" TextColor="White" FontSize="24"
-                            Command="{Binding GoBackToLoginCommand}" />
-                    
-                    <Label Text="Create an account"
-                           Style="{StaticResource HeadlineMedium}"
-                           TextColor="White"
-                           HorizontalOptions="Center"
-                           FontFamily="BeVietnamProBold"/>
-                    <Label Text="Join the FoodTour community"
-                           Style="{StaticResource BodyMedium}"
-                           TextColor="#E8FFFFFF"
-                           HorizontalOptions="Center"
-                           FontFamily="BeVietnamPro"/>
-                </VerticalStackLayout>
-            </Grid>
-
-            <!-- ── REGISTER FORM CARD ── -->
-            <Border Grid.Row="1"
-                    BackgroundColor="{StaticResource Surface}"
-                    StrokeShape="RoundRectangle 28,28,0,0"
-                    StrokeThickness="0"
-                    Margin="0,-28,0,0"
-                    Padding="28,36,28,20">
-
-                <VerticalStackLayout Spacing="0">
-
-                    <!-- Error Banner -->
-                    <Border BackgroundColor="#FFF3F3"
-                            StrokeShape="RoundRectangle 10"
-                            StrokeThickness="0"
-                            Padding="14,12"
-                            Margin="0,0,0,16"
-                            IsVisible="{Binding HasError}">
-                        <HorizontalStackLayout Spacing="8">
-                            <Label Text="⚠️" FontSize="16" VerticalOptions="Center"/>
-                            <Label Text="{Binding ErrorMessage}"
-                                   Style="{StaticResource BodySmall}"
-                                   TextColor="{StaticResource Error}"
-                                   VerticalOptions="Center"/>
-                        </HorizontalStackLayout>
-                    </Border>
-
-                    <!-- Full Name Field -->
-                    <Label Text="Full Name" Style="{StaticResource TitleMedium}" Margin="0,0,0,6"/>
-                    <Border BackgroundColor="{StaticResource SurfaceVariant}"
-                            StrokeShape="RoundRectangle 12" StrokeThickness="1.5" Stroke="{StaticResource Border}"
-                            Padding="16,4" Margin="0,0,0,16">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Entry Grid.Column="0"
-                                   Style="{StaticResource InputEntry}"
-                                   Placeholder="John Doe"
-                                   Text="{Binding FullName}"
-                                   ReturnType="Next"/>
-                            <Label Grid.Column="1" Text="👤" FontSize="18" VerticalOptions="Center"/>
-                        </Grid>
-                    </Border>
-
-                    <!-- Email Field -->
-                    <Label Text="Email" Style="{StaticResource TitleMedium}" Margin="0,0,0,6"/>
-                    <Border BackgroundColor="{StaticResource SurfaceVariant}"
-                            StrokeShape="RoundRectangle 12" StrokeThickness="1.5" Stroke="{StaticResource Border}"
-                            Padding="16,4" Margin="0,0,0,16">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Entry Grid.Column="0"
-                                   Style="{StaticResource InputEntry}"
-                                   Placeholder="email@example.com"
-                                   Text="{Binding Email}"
-                                   Keyboard="Email"
-                                   ReturnType="Next"/>
-                            <Label Grid.Column="1" Text="📧" FontSize="18" VerticalOptions="Center"/>
-                        </Grid>
-                    </Border>
-
-                    <!-- Password Field -->
-                    <Label Text="Password" Style="{StaticResource TitleMedium}" Margin="0,0,0,6"/>
-                    <Border BackgroundColor="{StaticResource SurfaceVariant}"
-                            StrokeShape="RoundRectangle 12" StrokeThickness="1.5" Stroke="{StaticResource Border}"
-                            Padding="16,4" Margin="0,0,0,16">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Entry Grid.Column="0"
-                                   Style="{StaticResource InputEntry}"
-                                   Placeholder="At least 6 characters"
-                                   Text="{Binding Password}"
-                                   IsPassword="{Binding IsPasswordVisible, Converter={StaticResource BoolInverterConverter}}"
-                                   ReturnType="Next" />
-                            <Button Grid.Column="1" Text="👁️" Command="{Binding TogglePasswordVisibilityCommand}"
-                                    Style="{StaticResource IconButton}" FontSize="18"/>
-                        </Grid>
-                    </Border>
-
-                    <!-- Confirm Password Field -->
-                    <Label Text="Confirm password" Style="{StaticResource TitleMedium}" Margin="0,0,0,6"/>
-                    <Border BackgroundColor="{StaticResource SurfaceVariant}"
-                            StrokeShape="RoundRectangle 12" StrokeThickness="1.5" Stroke="{StaticResource Border}"
-                            Padding="16,4" Margin="0,0,0,28">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Entry Grid.Column="0"
-                                   Style="{StaticResource InputEntry}"
-                                   Placeholder="Re-enter password"
-                                   Text="{Binding ConfirmPassword}"
-                                   IsPassword="{Binding IsPasswordVisible, Converter={StaticResource BoolInverterConverter}}"
-                                   ReturnType="Done"
-                                   ReturnCommand="{Binding RegisterCommand}"/>
-                            <Label Grid.Column="1" Text="🔒" FontSize="18" VerticalOptions="Center"/>
-                        </Grid>
-                    </Border>
-
-                    <!-- Register Button -->
-                    <Button Text="Sign Up"
-                            Command="{Binding RegisterCommand}"
-                            Style="{StaticResource PrimaryButton}"
-                            IsEnabled="{Binding IsLoading, Converter={StaticResource BoolInverterConverter}}"
-                            HorizontalOptions="Fill"/>
-
-                    <!-- Loading Indicator -->
-                    <ActivityIndicator IsRunning="{Binding IsLoading}"
-                                       IsVisible="{Binding IsLoading}"
-                                       HorizontalOptions="Center"
-                                       Margin="0,16,0,0"/>
-
-                </VerticalStackLayout>
+            <Border IsVisible="{Binding HasError}" BackgroundColor="#FEF2F2" Stroke="{StaticResource Error}" StrokeShape="RoundRectangle 12" StrokeThickness="1" Padding="12,10">
+                <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource Error}" Style="{StaticResource BodySmall}" />
             </Border>
 
-            <!-- ── FOOTER ── -->
-            <VerticalStackLayout Grid.Row="2"
-                                 Padding="28,20"
-                                 BackgroundColor="{StaticResource Surface}">
-                <HorizontalStackLayout HorizontalOptions="Center" Spacing="4">
-                    <Label Text="Already have an account?" Style="{StaticResource BodyMedium}" />
-                    <Label Text="Sign In" TextColor="{StaticResource Primary}" Style="{StaticResource TitleMedium}">
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding GoBackToLoginCommand}" />
-                        </Label.GestureRecognizers>
-                    </Label>
-                </HorizontalStackLayout>
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Full name" Style="{StaticResource TitleMedium}" />
+                <Border BackgroundColor="{StaticResource Surface}" Stroke="{StaticResource Border}" StrokeShape="RoundRectangle 14" StrokeThickness="1" Padding="14,2">
+                    <Entry Text="{Binding FullName}" Placeholder="Jane Doe" Style="{StaticResource InputEntry}" ReturnType="Next" />
+                </Border>
             </VerticalStackLayout>
 
-        </Grid>
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Email" Style="{StaticResource TitleMedium}" />
+                <Border BackgroundColor="{StaticResource Surface}" Stroke="{StaticResource Border}" StrokeShape="RoundRectangle 14" StrokeThickness="1" Padding="14,2">
+                    <Entry Text="{Binding Email}" Keyboard="Email" Placeholder="you@example.com" Style="{StaticResource InputEntry}" ReturnType="Next" />
+                </Border>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Password" Style="{StaticResource TitleMedium}" />
+                <Border BackgroundColor="{StaticResource Surface}" Stroke="{StaticResource Border}" StrokeShape="RoundRectangle 14" StrokeThickness="1" Padding="14,2">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Entry
+                            Grid.Column="0"
+                            Text="{Binding Password}"
+                            IsPassword="{Binding IsPasswordVisible, Converter={StaticResource BoolInverterConverter}}"
+                            Placeholder="At least 6 characters"
+                            Style="{StaticResource InputEntry}"
+                            ReturnType="Next" />
+                        <Button Grid.Column="1" Text="{Binding IsPasswordVisible, Converter={StaticResource EyeIconConverter}}" Command="{Binding TogglePasswordVisibilityCommand}" Style="{StaticResource IconButton}" />
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Confirm password" Style="{StaticResource TitleMedium}" />
+                <Border BackgroundColor="{StaticResource Surface}" Stroke="{StaticResource Border}" StrokeShape="RoundRectangle 14" StrokeThickness="1" Padding="14,2">
+                    <Entry
+                        Text="{Binding ConfirmPassword}"
+                        IsPassword="{Binding IsPasswordVisible, Converter={StaticResource BoolInverterConverter}}"
+                        Placeholder="Enter password again"
+                        Style="{StaticResource InputEntry}"
+                        ReturnType="Done"
+                        ReturnCommand="{Binding RegisterCommand}" />
+                </Border>
+            </VerticalStackLayout>
+
+            <Button Text="Create Account" Command="{Binding RegisterCommand}" Style="{StaticResource PrimaryButton}" IsEnabled="{Binding IsLoading, Converter={StaticResource BoolInverterConverter}}" />
+            <ActivityIndicator IsVisible="{Binding IsLoading}" IsRunning="{Binding IsLoading}" HorizontalOptions="Center" />
+        </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

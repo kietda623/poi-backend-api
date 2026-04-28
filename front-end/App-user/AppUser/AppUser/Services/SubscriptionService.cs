@@ -1,7 +1,7 @@
+using AppUser.Models;
 using System.Diagnostics;
 using System.Net.Http.Json;
 using System.Text.Json;
-using AppUser.Models;
 
 namespace AppUser.Services;
 
@@ -23,6 +23,7 @@ public class SubscriptionService
     public async Task<List<AppServicePackageDto>> GetUserPackagesAsync()
     {
         EnsureAuthenticated();
+
         try
         {
             ApplyAuthorizationHeader();
@@ -38,6 +39,7 @@ public class SubscriptionService
     public async Task<AppSubscriptionEnvelopeDto> GetMySubscriptionAsync()
     {
         EnsureAuthenticated();
+
         try
         {
             ApplyAuthorizationHeader();
@@ -54,6 +56,7 @@ public class SubscriptionService
     public async Task<List<AppCurrentSubscriptionDto>> GetHistoryAsync()
     {
         EnsureAuthenticated();
+
         try
         {
             ApplyAuthorizationHeader();
@@ -68,8 +71,8 @@ public class SubscriptionService
 
     public async Task<AppCheckoutSubscriptionResultDto?> CreateCheckoutAsync(int packageId, string billingCycle)
     {
-        EnsureLoggedIn();
         EnsureAuthenticated();
+
         try
         {
             ApplyAuthorizationHeader();
@@ -96,8 +99,8 @@ public class SubscriptionService
 
     public async Task<AppSubscriptionEnvelopeDto> SyncPaymentAsync(int id)
     {
-        EnsureLoggedIn();
         EnsureAuthenticated();
+
         try
         {
             ApplyAuthorizationHeader();
@@ -117,10 +120,23 @@ public class SubscriptionService
         }
     }
 
+    public async Task<AppSubscriptionEnvelopeDto?> TrySyncPaymentAsync(int id)
+    {
+        try
+        {
+            return await SyncPaymentAsync(id);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"TrySyncPaymentAsync error: {ex.Message}");
+            return null;
+        }
+    }
+
     public async Task<bool> CancelAsync(int id)
     {
-        EnsureLoggedIn();
         EnsureAuthenticated();
+
         try
         {
             ApplyAuthorizationHeader();
@@ -153,26 +169,17 @@ public class SubscriptionService
         }
     }
 
-    // Cho phép cả User Token và Guest Token (từ AuthService)
     private void EnsureAuthenticated()
     {
         if (string.IsNullOrWhiteSpace(_authService.Token))
         {
-            throw new InvalidOperationException("Bạn cần xác thực để sử dụng tính năng này.");
-        }
-    }
-
-    private void EnsureLoggedIn()
-    {
-        if (!_authService.IsLoggedIn)
-        {
-            throw new InvalidOperationException("Ban can dang nhap de dang ky hoac quan ly goi audio.");
+            throw new InvalidOperationException("Ban can xac thuc de su dung tinh nang nay.");
         }
     }
 
     private void ApplyAuthorizationHeader()
     {
-        var token = _authService.Token; // AuthService tự fallback sang Guest Token
+        var token = _authService.Token;
         _httpClient.DefaultRequestHeaders.Authorization = string.IsNullOrWhiteSpace(token)
             ? null
             : new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
@@ -183,13 +190,15 @@ public class SubscriptionService
         var raw = await response.Content.ReadAsStringAsync();
         if (string.IsNullOrWhiteSpace(raw))
         {
-            return "Khong the xu ly yeu cau dang ky goi.";
+            return "Unable to process package request.";
         }
 
         try
         {
             var payload = JsonSerializer.Deserialize<Dictionary<string, string>>(raw);
-            if (payload != null && payload.TryGetValue("message", out var message) && !string.IsNullOrWhiteSpace(message))
+            if (payload != null &&
+                payload.TryGetValue("message", out var message) &&
+                !string.IsNullOrWhiteSpace(message))
             {
                 return message;
             }
@@ -201,4 +210,3 @@ public class SubscriptionService
         return raw;
     }
 }
-

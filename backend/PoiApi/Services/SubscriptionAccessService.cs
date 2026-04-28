@@ -100,6 +100,12 @@ public class SubscriptionAccessService
         return sub?.ServicePackage.AllowTinderAccess == true;
     }
 
+    public async Task<bool> HasTinderAccessByDeviceAsync(string deviceId)
+    {
+        var sub = await GetActiveSubscriptionByDeviceAsync(deviceId, RoleConstants.User);
+        return sub?.ServicePackage.AllowTinderAccess == true;
+    }
+
     /// <summary>Check if user has Tour Plus (AI Tour Plan feature)</summary>
     public async Task<bool> HasAiPlanAccessAsync(int userId)
     {
@@ -107,10 +113,22 @@ public class SubscriptionAccessService
         return sub?.ServicePackage.AllowAiPlanAccess == true;
     }
 
+    public async Task<bool> HasAiPlanAccessByDeviceAsync(string deviceId)
+    {
+        var sub = await GetActiveSubscriptionByDeviceAsync(deviceId, RoleConstants.User);
+        return sub?.ServicePackage.AllowAiPlanAccess == true;
+    }
+
     /// <summary>Check if user has Tour Plus (Chatbot feature)</summary>
     public async Task<bool> HasChatbotAccessAsync(int userId)
     {
         var sub = await GetActiveSubscriptionAsync(userId, RoleConstants.User);
+        return sub?.ServicePackage.AllowChatbotAccess == true;
+    }
+
+    public async Task<bool> HasChatbotAccessByDeviceAsync(string deviceId)
+    {
+        var sub = await GetActiveSubscriptionByDeviceAsync(deviceId, RoleConstants.User);
         return sub?.ServicePackage.AllowChatbotAccess == true;
     }
 

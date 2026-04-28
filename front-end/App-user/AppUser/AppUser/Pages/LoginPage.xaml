@@ -6,181 +6,172 @@
     xmlns:vm="clr-namespace:AppUser.ViewModels"
     x:DataType="vm:LoginViewModel"
     Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False"
     BackgroundColor="{StaticResource Background}">
 
     <ScrollView>
-        <Grid RowDefinitions="Auto,*,Auto" MinimumHeightRequest="600">
+        <VerticalStackLayout Spacing="0">
 
-            <!-- ── TOP DECORATIVE AREA ── -->
-            <Grid Grid.Row="0" HeightRequest="300">
-                <Grid.Background>
-                    <RadialGradientBrush Center="0.5,0.4" Radius="1.2">
-                        <GradientStop Color="{StaticResource PrimaryLight}" Offset="0.0" />
-                        <GradientStop Color="{StaticResource Primary}" Offset="0.6" />
+            <!-- ── HEADER with Logo ── -->
+            <Border StrokeThickness="0" Margin="0,-1,0,0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="0,0,40,40" />
+                </Border.StrokeShape>
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="{StaticResource Primary}" Offset="0.0" />
                         <GradientStop Color="{StaticResource PrimaryDark}" Offset="1.0" />
-                    </RadialGradientBrush>
-                </Grid.Background>
-
-                <!-- Decorative elements with Lamination -->
-                <Ellipse Fill="{StaticResource LaminationGradient}" 
-                         WidthRequest="400" HeightRequest="400"
-                         HorizontalOptions="Center" VerticalOptions="Center"
-                         Margin="0,-150,0,0"/>
-
-                <!-- Logo & Title -->
-                <VerticalStackLayout
-                    HorizontalOptions="Center" VerticalOptions="Center"
-                    Spacing="16" Padding="0,20,0,0">
-
-                    <!-- Food Icon (Vector) -->
-                    <Border BackgroundColor="White"
-                            StrokeShape="RoundRectangle 24"
-                            WidthRequest="90" HeightRequest="90"
+                    </LinearGradientBrush>
+                </Border.Background>
+                <VerticalStackLayout Padding="24,56,24,36" Spacing="10" HorizontalOptions="Center">
+                    <Border StrokeShape="RoundRectangle 28"
                             StrokeThickness="0"
+                            BackgroundColor="#20FFFFFF"
+                            WidthRequest="96" HeightRequest="96"
                             HorizontalOptions="Center">
-                        <Border.Shadow>
-                            <Shadow Brush="Black" Offset="0,10" Radius="20" Opacity="0.1" />
-                        </Border.Shadow>
-                        <Label Text="🍔" 
-                               FontFamily="{x:Null}"
-                               FontSize="54"
-                               TextColor="{StaticResource Primary}"
+                        <Image Source="foodtour_logo.png"
+                               WidthRequest="68" HeightRequest="68"
+                               Aspect="AspectFit"
                                HorizontalOptions="Center"
                                VerticalOptions="Center"/>
                     </Border>
-
-                    <Label Text="FoodTour POI"
-                           Style="{StaticResource HeadlineMedium}"
+                    <Label Text="FoodTour"
+                           FontSize="26"
+                           FontFamily="{x:Null}"
                            TextColor="White"
-                           HorizontalOptions="Center"
-                           FontSize="28"/>
-
-                    <Label Text="Discover local cuisine"
-                           Style="{StaticResource BodyMedium}"
-                           TextColor="#D0FFFFFF"
-                           HorizontalOptions="Center"
-                           FontFamily="BeVietnamProMedium"/>
-                </VerticalStackLayout>
-            </Grid>
-
-            <!-- ── LOGIN FORM CARD ── -->
-            <Border Grid.Row="1"
-                    BackgroundColor="{StaticResource Surface}"
-                    StrokeShape="RoundRectangle 32,32,0,0"
-                    StrokeThickness="0"
-                    Margin="0,-32,0,0"
-                    Padding="32,40,32,20">
-
-                <VerticalStackLayout Spacing="0">
-
-                    <Label Text="Welcome back"
-                           Style="{StaticResource HeadlineSmall}"
-                           Margin="0,0,0,6"/>
-
-                    <Label Text="Sign in to start your journey"
-                           Style="{StaticResource BodyMedium}"
-                           TextColor="{StaticResource TextSecondary}"
-                           Margin="0,0,0,32"/>
-
-                    <!-- Error Banner -->
-                    <Border BackgroundColor="#FFF1F2"
-                            StrokeShape="RoundRectangle 14"
-                            StrokeThickness="0"
-                            Padding="16,12"
-                            Margin="0,0,0,24"
-                            IsVisible="{Binding HasError}">
-                        <HorizontalStackLayout Spacing="10">
-                            <Label Text="⚠️" FontFamily="{x:Null}" FontSize="16" 
-                                   TextColor="{StaticResource Error}" VerticalOptions="Center"/>
-                            <Label Text="{Binding ErrorMessage}"
-                                   Style="{StaticResource BodySmall}"
-                                   TextColor="{StaticResource Error}"
-                                   VerticalOptions="Center"
-                                   FontFamily="BeVietnamProMedium"/>
-                        </HorizontalStackLayout>
-                    </Border>
-
-                    <!-- Email Field -->
-                    <Label Text="Email" Style="{StaticResource TitleMedium}" Margin="0,0,0,8"/>
-                    <Border BackgroundColor="{StaticResource SurfaceVariant}"
-                            StrokeShape="RoundRectangle 16"
-                            StrokeThickness="0"
-                            Padding="18,2"
-                            Margin="0,0,0,20">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Entry Grid.Column="0"
-                                   x:Name="EmailEntry"
-                                   Style="{StaticResource InputEntry}"
-                                   Placeholder="example@mail.com"
-                                   Text="{Binding Email}"
-                                   Keyboard="Email"
-                                   ReturnType="Next"/>
-                            <Label Grid.Column="1" Text="{StaticResource IconEmail}" 
-                                   FontFamily="{x:Null}" FontSize="18"
-                                   TextColor="{StaticResource TextHint}"
-                                   VerticalOptions="Center"/>
-                        </Grid>
-                    </Border>
-
-                    <!-- Password Field -->
-                    <Label Text="Password" Style="{StaticResource TitleMedium}" Margin="0,0,0,8"/>
-                    <Border BackgroundColor="{StaticResource SurfaceVariant}"
-                            StrokeShape="RoundRectangle 16"
-                            StrokeThickness="0"
-                            Padding="18,2"
-                            Margin="0,0,0,12">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Entry Grid.Column="0"
-                                   Style="{StaticResource InputEntry}"
-                                   Placeholder="••••••••"
-                                   Text="{Binding Password}"
-                                   IsPassword="{Binding IsPasswordVisible, Converter={StaticResource BoolInverterConverter}}"
-                                   ReturnType="Done"
-                                   ReturnCommand="{Binding LoginCommand}"/>
-                            <Button Grid.Column="1"
-                                    Text="{Binding IsPasswordVisible, Converter={StaticResource EyeIconConverter}}" 
-                                    Command="{Binding TogglePasswordVisibilityCommand}"
-                                    Style="{StaticResource IconButton}"
-                                    TextColor="{StaticResource TextHint}"
-                                    FontSize="18"/>
-                        </Grid>
-                    </Border>
-
-                    <!-- Login Button -->
-                    <Button Text="Sign In"
-                            Command="{Binding LoginCommand}"
-                            Style="{StaticResource PrimaryButton}"
-                            IsEnabled="{Binding IsLoading, Converter={StaticResource BoolInverterConverter}}"
-                            HorizontalOptions="Fill"/>
-
-                    <!-- Loading Indicator -->
-                    <ActivityIndicator IsRunning="{Binding IsLoading}"
-                                       IsVisible="{Binding IsLoading}"
-                                       HorizontalOptions="Center"
-                                       Margin="0,16,0,0"/>
-
+                           HorizontalOptions="Center"/>
+                    <Label Text="Audio Guide for Food Lovers"
+                           FontSize="13"
+                           FontFamily="{x:Null}"
+                           TextColor="#CCFFFFFF"
+                           HorizontalOptions="Center"/>
                 </VerticalStackLayout>
             </Border>
 
-            <!-- ── FOOTER ── -->
-            <VerticalStackLayout Grid.Row="2"
-                                 Padding="28,12"
-                                 BackgroundColor="{StaticResource Surface}">
-                
-                <HorizontalStackLayout HorizontalOptions="Center" Spacing="4" Margin="0,0,0,16">
-                    <Label Text="Don't have an account?" Style="{StaticResource BodyMedium}" />
-                    <Label Text="Sign Up" TextColor="{StaticResource Primary}" Style="{StaticResource TitleMedium}">
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding NavigateToRegisterCommand}" />
-                        </Label.GestureRecognizers>
-                    </Label>
-                </HorizontalStackLayout>
+            <!-- ── LOGIN FORM ── -->
+            <VerticalStackLayout Padding="24,28,24,8" Spacing="18">
 
-                <Label Text="© 2026 FoodTour POI · Explore culinary delights"
-                       Style="{StaticResource LabelCaption}"
-                       HorizontalOptions="Center"/>
+                <Label Text="Sign in to your account"
+                       FontSize="20"
+                       FontFamily="{x:Null}"
+                       TextColor="{StaticResource TextPrimary}"/>
+
+                <!-- Error -->
+                <Border IsVisible="{Binding HasError}" BackgroundColor="#FEF2F2" Stroke="{StaticResource Error}" StrokeShape="RoundRectangle 12" StrokeThickness="1" Padding="12,10">
+                    <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource Error}" Style="{StaticResource BodySmall}" />
+                </Border>
+
+                <!-- Email -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Email" Style="{StaticResource TitleMedium}" />
+                    <Border BackgroundColor="{StaticResource Surface}" Stroke="{StaticResource Border}" StrokeShape="RoundRectangle 14" StrokeThickness="1" Padding="14,2">
+                        <Entry
+                            x:Name="EmailEntry"
+                            Text="{Binding Email}"
+                            Keyboard="Email"
+                            Placeholder="you@example.com"
+                            Style="{StaticResource InputEntry}"
+                            ReturnType="Next" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Password -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Password" Style="{StaticResource TitleMedium}" />
+                    <Border BackgroundColor="{StaticResource Surface}" Stroke="{StaticResource Border}" StrokeShape="RoundRectangle 14" StrokeThickness="1" Padding="14,2">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Entry
+                                Grid.Column="0"
+                                Text="{Binding Password}"
+                                Placeholder="Enter your password"
+                                Style="{StaticResource InputEntry}"
+                                IsPassword="{Binding IsPasswordVisible, Converter={StaticResource BoolInverterConverter}}"
+                                ReturnType="Done"
+                                ReturnCommand="{Binding LoginCommand}" />
+                            <Button
+                                Grid.Column="1"
+                                Text="{Binding IsPasswordVisible, Converter={StaticResource EyeIconConverter}}"
+                                Command="{Binding TogglePasswordVisibilityCommand}"
+                                Style="{StaticResource IconButton}" />
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- ✅ BUTTON 1: Sign In -->
+                <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" Margin="0,4,0,0">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="{StaticResource Primary}" Offset="0.0" />
+                            <GradientStop Color="{StaticResource PrimaryDark}" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.Shadow>
+                        <Shadow Brush="{StaticResource Primary}" Offset="0,6" Radius="14" Opacity="0.35"/>
+                    </Border.Shadow>
+                    <Button
+                        Text="Sign In"
+                        Command="{Binding LoginCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="White"
+                        FontSize="16"
+                        FontFamily="{x:Null}"
+                        HeightRequest="52"
+                        IsEnabled="{Binding IsLoading, Converter={StaticResource BoolInverterConverter}}" />
+                </Border>
+
+                <ActivityIndicator IsVisible="{Binding IsLoading}" IsRunning="{Binding IsLoading}" HorizontalOptions="Center" />
             </VerticalStackLayout>
 
-        </Grid>
+            <!-- ── DIVIDER ── -->
+            <Grid ColumnDefinitions="*,Auto,*" Padding="24,8,24,8">
+                <BoxView Grid.Column="0" HeightRequest="1" Color="{StaticResource Border}" VerticalOptions="Center"/>
+                <Label Grid.Column="1" Text="  or  " FontFamily="{x:Null}" FontSize="13" TextColor="{StaticResource TextHint}" VerticalOptions="Center"/>
+                <BoxView Grid.Column="2" HeightRequest="1" Color="{StaticResource Border}" VerticalOptions="Center"/>
+            </Grid>
+
+            <!-- ── ALTERNATIVE OPTIONS ── -->
+            <VerticalStackLayout Padding="24,8,24,24" Spacing="14">
+
+                <!-- ✅ BUTTON 2: Sign Up -->
+                <Border StrokeThickness="1.5"
+                        Stroke="{StaticResource Primary}"
+                        StrokeShape="RoundRectangle 16"
+                        BackgroundColor="Transparent">
+                    <Button
+                        Text="Create an Account"
+                        Command="{Binding NavigateToRegisterCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource Primary}"
+                        FontSize="16"
+                        FontFamily="{x:Null}"
+                        HeightRequest="52"
+                        IsEnabled="{Binding IsLoading, Converter={StaticResource BoolInverterConverter}}" />
+                </Border>
+
+                <!-- ✅ BUTTON 3: Continue as Guest -->
+                <Border StrokeThickness="1"
+                        Stroke="{StaticResource Border}"
+                        StrokeShape="RoundRectangle 16"
+                        BackgroundColor="{StaticResource Surface}">
+                    <Button
+                        Text="Continue as Guest"
+                        Command="{Binding ContinueAsGuestCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource TextSecondary}"
+                        FontSize="15"
+                        FontFamily="{x:Null}"
+                        HeightRequest="52"
+                        IsEnabled="{Binding IsLoading, Converter={StaticResource BoolInverterConverter}}" />
+                </Border>
+
+                <Label Text="Guest users can explore and purchase daily audio packages without an account."
+                       FontSize="12"
+                       FontFamily="{x:Null}"
+                       TextColor="{StaticResource TextHint}"
+                       HorizontalTextAlignment="Center"
+                       HorizontalOptions="Center"
+                       Margin="0,-4,0,0"/>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

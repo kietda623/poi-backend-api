@@ -30,7 +30,7 @@
             <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="24,0,16,0" HeightRequest="80">
                 <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
                     <Label Text="🎨" FontSize="28" VerticalOptions="Center"/>
-                    <Label Text="Lịch trình của bạn" 
+                    <Label Text="Your plan" 
                            FontAttributes="Bold" 
                            FontSize="20" 
                            TextColor="White" 
@@ -60,11 +60,11 @@
             <!-- Footer -->
             <VerticalStackLayout Grid.Row="2" Padding="24,0,24,24" Spacing="12">
                 <BoxView HeightRequest="1" Color="{StaticResource Border}" Margin="0,0,0,12"/>
-                <Button Text="Lưu &amp; Chia sẻ" 
+                <Button Text="Save &amp; Share" 
                         Style="{StaticResource PrimaryButton}" 
                         HeightRequest="52" 
                         CornerRadius="16"/>
-                <Button Text="Đóng" 
+                <Button Text="Close" 
                         Clicked="OnCloseClicked"
                         Style="{StaticResource OutlineButton}" 
                         HeightRequest="50" 

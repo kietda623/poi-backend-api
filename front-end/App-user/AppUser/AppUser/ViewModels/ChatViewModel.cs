@@ -69,17 +69,14 @@ public partial class ChatViewModel : ObservableObject
         try
         {
             var info = await _aiService.GetSubscriptionInfoAsync();
-            if (info == null || !info.AllowChatbot)
-            {
-                IsAccessDenied = true;
-                return;
-            }
-
+            // Guest and logged-in users are both allowed to use chatbot now.
+            // Keep the info call for future telemetry/flags, but never hard-block here.
             IsAccessDenied = false;
         }
         catch (Exception)
         {
-            IsAccessDenied = true;
+            // Fail open by policy: chatbot remains available for guest/user.
+            IsAccessDenied = false;
         }
         finally
         {

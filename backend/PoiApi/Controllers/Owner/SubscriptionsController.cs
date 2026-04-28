@@ -239,23 +239,38 @@ namespace PoiApi.Controllers.Owner
                 return NotFound(new { message = "Subscription not found." });
             }
 
+            if (string.Equals(sub.Status, SubscriptionConstants.Active, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(sub.PaymentStatus, SubscriptionConstants.PaymentPaid, StringComparison.OrdinalIgnoreCase))
+            {
+                await MarkExpiredSubscriptionsAsync(userId);
+                return Ok(await BuildCurrentSubscriptionEnvelopeAsync(userId));
+            }
+
             if (!string.Equals(sub.PaymentProvider, "PayOS", StringComparison.OrdinalIgnoreCase))
             {
                 return BadRequest(new { message = "Only PayOS subscriptions can be synced." });
             }
 
-            var paymentReference = !string.IsNullOrWhiteSpace(sub.PaymentLinkId)
-                ? sub.PaymentLinkId
-                : sub.PaymentOrderCode?.ToString();
+            var paymentLinkId = string.IsNullOrWhiteSpace(sub.PaymentLinkId)
+                ? null
+                : sub.PaymentLinkId.Trim();
+            var paymentOrderCode = sub.PaymentOrderCode?.ToString();
 
-            if (string.IsNullOrWhiteSpace(paymentReference))
+            if (string.IsNullOrWhiteSpace(paymentLinkId) && string.IsNullOrWhiteSpace(paymentOrderCode))
             {
-                return BadRequest(new { message = "Subscription does not have a PayOS payment reference." });
+                await MarkExpiredSubscriptionsAsync(userId);
+                return Ok(await BuildCurrentSubscriptionEnvelopeAsync(userId));
             }
 
             try
             {
-                var paymentInfo = await _payOsService.GetPaymentLinkInfoAsync(paymentReference);
+                var paymentInfo = await _payOsService.TryGetPaymentLinkInfoAsync(paymentLinkId, paymentOrderCode);
+                if (paymentInfo == null)
+                {
+                    await MarkExpiredSubscriptionsAsync(userId);
+                    return Ok(await BuildCurrentSubscriptionEnvelopeAsync(userId));
+                }
+
                 if (!string.IsNullOrWhiteSpace(paymentInfo.Id))
                 {
                     sub.PaymentLinkId = paymentInfo.Id;
@@ -268,9 +283,9 @@ namespace PoiApi.Controllers.Owner
 
                 return Ok(await BuildCurrentSubscriptionEnvelopeAsync(userId));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(502, new { message = ex.Message });
+                return Ok(await BuildCurrentSubscriptionEnvelopeAsync(userId));
             }
         }
 
@@ -404,7 +419,8 @@ namespace PoiApi.Controllers.Owner
         private static long BuildOrderCode(int userId)
         {
             var seconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            return long.Parse($"{seconds}{userId % 1000:D3}");
+            var suffix = Math.Abs((long)userId % 1000L);
+            return checked(seconds * 1000L + suffix);
         }
 
         private static string TruncateDescription(string value)

@@ -112,16 +112,21 @@ namespace PoiApi.Data
                 .HasIndex(c => c.Slug)
                 .IsUnique();
 
-            // SwipedItem: unique constraint per user+shop, cascade delete
+            // SwipedItem supports both authenticated users and guest device sessions.
             modelBuilder.Entity<SwipedItem>()
                 .HasIndex(si => new { si.UserId, si.ShopId })
+                .IsUnique();
+
+            modelBuilder.Entity<SwipedItem>()
+                .HasIndex(si => new { si.DeviceId, si.ShopId })
                 .IsUnique();
 
             modelBuilder.Entity<SwipedItem>()
                 .HasOne(si => si.User)
                 .WithMany(u => u.SwipedItems)
                 .HasForeignKey(si => si.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<SwipedItem>()
                 .HasOne(si => si.Shop)

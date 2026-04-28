@@ -11,6 +11,8 @@
         <Setter Property="BackgroundColor" Value="{StaticResource Background}" />
     </Style>
 
+    <Thickness x:Key="PagePadding">20,16</Thickness>
+
     <!-- ===== SHELL STYLE ===== -->
     <Style TargetType="Shell" ApplyToDerivedTypes="True">
         <Setter Property="Shell.BackgroundColor" Value="{StaticResource Primary}" />
@@ -25,7 +27,7 @@
         <Setter Property="Shell.TabBarTitleColor" Value="{StaticResource Primary}" />
     </Style>
     
-    <!-- ===== ICON SYSTEM (FontAwesome) ===== -->
+    <!-- ===== ICON SYSTEM ===== -->
     <x:String x:Key="IconHome">🏠</x:String>
     <x:String x:Key="IconMapMarker">📍</x:String>
     <x:String x:Key="IconPlay">▶️</x:String>
@@ -91,60 +93,60 @@
         </Setter>
     </Style>
 
-    <!-- ===== LABEL STYLES (Be Vietnam Pro) ===== -->
+    <!-- ===== LABEL STYLES ===== -->
     <Style x:Key="HeadlineLarge" TargetType="Label">
-        <Setter Property="FontFamily" Value="BeVietnamProBold" />
+        <Setter Property="FontFamily" Value="{x:Null}" />
         <Setter Property="FontSize" Value="32" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
         <Setter Property="LineHeight" Value="1.2" />
     </Style>
 
     <Style x:Key="HeadlineMedium" TargetType="Label">
-        <Setter Property="FontFamily" Value="BeVietnamProBold" />
+        <Setter Property="FontFamily" Value="{x:Null}" />
         <Setter Property="FontSize" Value="26" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
     </Style>
 
     <Style x:Key="HeadlineSmall" TargetType="Label">
-        <Setter Property="FontFamily" Value="BeVietnamProSemiBold" />
+        <Setter Property="FontFamily" Value="{x:Null}" />
         <Setter Property="FontSize" Value="22" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
     </Style>
 
     <Style x:Key="TitleLarge" TargetType="Label">
-        <Setter Property="FontFamily" Value="BeVietnamProSemiBold" />
+        <Setter Property="FontFamily" Value="{x:Null}" />
         <Setter Property="FontSize" Value="18" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
     </Style>
 
     <Style x:Key="TitleMedium" TargetType="Label">
-        <Setter Property="FontFamily" Value="BeVietnamProSemiBold" />
+        <Setter Property="FontFamily" Value="{x:Null}" />
         <Setter Property="FontSize" Value="15" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
     </Style>
 
     <Style x:Key="BodyLarge" TargetType="Label">
-        <Setter Property="FontFamily" Value="BeVietnamPro" />
+        <Setter Property="FontFamily" Value="{x:Null}" />
         <Setter Property="FontSize" Value="16" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
         <Setter Property="LineHeight" Value="1.5" />
     </Style>
 
     <Style x:Key="BodyMedium" TargetType="Label">
-        <Setter Property="FontFamily" Value="BeVietnamPro" />
+        <Setter Property="FontFamily" Value="{x:Null}" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
         <Setter Property="LineHeight" Value="1.4" />
     </Style>
 
     <Style x:Key="BodySmall" TargetType="Label">
-        <Setter Property="FontFamily" Value="BeVietnamPro" />
+        <Setter Property="FontFamily" Value="{x:Null}" />
         <Setter Property="FontSize" Value="12" />
         <Setter Property="TextColor" Value="{StaticResource TextHint}" />
     </Style>
 
     <Style x:Key="LabelCaption" TargetType="Label">
-        <Setter Property="FontFamily" Value="BeVietnamProMedium" />
+        <Setter Property="FontFamily" Value="{x:Null}" />
         <Setter Property="FontSize" Value="11" />
         <Setter Property="TextColor" Value="{StaticResource TextHint}" />
         <Setter Property="CharacterSpacing" Value="0.5" />
@@ -152,7 +154,7 @@
 
     <!-- ===== DEFAULT LABEL ===== -->
     <Style TargetType="Label">
-        <Setter Property="FontFamily" Value="BeVietnamPro" />
+        <Setter Property="FontFamily" Value="{x:Null}" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
     </Style>
 
@@ -160,7 +162,7 @@
     <Style x:Key="PrimaryButton" TargetType="Button">
         <Setter Property="Background" Value="{StaticResource LushPrimaryGradient}" />
         <Setter Property="TextColor" Value="White" />
-        <Setter Property="FontFamily" Value="BeVietnamProBold" />
+        <Setter Property="FontFamily" Value="{x:Null}" />
         <Setter Property="FontSize" Value="16" />
         <Setter Property="CornerRadius" Value="18" />
         <Setter Property="HeightRequest" Value="56" />
@@ -170,12 +172,29 @@
                 <Shadow Brush="{StaticResource Primary}" Offset="0,8" Radius="15" Opacity="0.3" />
             </Setter.Value>
         </Setter>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup Name="CommonStates">
+                    <VisualState Name="Normal" />
+                    <VisualState Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.9" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.6" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
 
     <Style x:Key="SecondaryButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="White" />
         <Setter Property="TextColor" Value="{StaticResource Primary}" />
-        <Setter Property="FontFamily" Value="BeVietnamProSemiBold" />
+        <Setter Property="FontFamily" Value="{x:Null}" />
         <Setter Property="FontSize" Value="16" />
         <Setter Property="CornerRadius" Value="18" />
         <Setter Property="HeightRequest" Value="56" />
@@ -187,7 +206,7 @@
     <Style x:Key="OutlineButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="TextColor" Value="{StaticResource Primary}" />
-        <Setter Property="FontFamily" Value="BeVietnamProSemiBold" />
+        <Setter Property="FontFamily" Value="{x:Null}" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="CornerRadius" Value="12" />
         <Setter Property="HeightRequest" Value="45" />
@@ -209,7 +228,7 @@
 
     <!-- ===== ENTRY STYLES ===== -->
     <Style x:Key="InputEntry" TargetType="Entry">
-        <Setter Property="FontFamily" Value="BeVietnamPro" />
+        <Setter Property="FontFamily" Value="{x:Null}" />
         <Setter Property="FontSize" Value="15" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
         <Setter Property="PlaceholderColor" Value="{StaticResource TextHint}" />
@@ -249,7 +268,7 @@
 
     <!-- ===== SEARCH BAR ===== -->
     <Style TargetType="SearchBar">
-        <Setter Property="FontFamily" Value="BeVietnamPro" />
+        <Setter Property="FontFamily" Value="{x:Null}" />
         <Setter Property="PlaceholderColor" Value="{StaticResource TextHint}" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
         <Setter Property="BackgroundColor" Value="Transparent" />

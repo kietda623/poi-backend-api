@@ -121,7 +121,7 @@ namespace AppUser.Services
                             System.Diagnostics.Debug.WriteLine($"SignalR connect warning: {signalREx.Message}");
                         }
 
-                        return (true, "Dang nhap thanh cong");
+                        return (true, "Login successful.");
                     }
                 }
 
@@ -137,19 +137,19 @@ namespace AppUser.Services
                 {
                 }
 
-                return (false, "Email hoac mat khau khong dung.");
+                return (false, "Incorrect email or password.");
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Login error: {ex.Message}");
-                return (false, "Khong the ket noi den may chu.");
+                return (false, "Unable to connect to server.");
             }
         }
 
         public async Task<(bool Success, string? Message)> RefreshMeAsync()
         {
             await EnsureSessionLoadedAsync();
-            if (_token == null) return (false, "Chua dang nhap.");
+            if (_token == null) return (false, "Not signed in.");
 
             try
             {
@@ -157,11 +157,11 @@ namespace AppUser.Services
                 if (!response.IsSuccessStatusCode)
                 {
                     var msg = await response.Content.ReadAsStringAsync();
-                    return (false, !string.IsNullOrWhiteSpace(msg) ? msg : "Phien dang nhap khong hop le.");
+                    return (false, !string.IsNullOrWhiteSpace(msg) ? msg : "Session is invalid.");
                 }
 
                 var me = await response.Content.ReadFromJsonAsync<UserDto>();
-                if (me == null) return (false, "Du lieu nguoi dung khong hop le.");
+                if (me == null) return (false, "User data is invalid.");
 
                 _currentUser = me;
                 await PersistUserSessionAsync();
@@ -169,7 +169,7 @@ namespace AppUser.Services
             }
             catch
             {
-                return (false, "Khong the ket noi den may chu.");
+                return (false, "Unable to connect to server.");
             }
         }
 
@@ -188,16 +188,16 @@ namespace AppUser.Services
 
                 if (response.IsSuccessStatusCode)
                 {
-                    return (true, "Dang ky thanh cong.");
+                    return (true, "Registration successful.");
                 }
 
                 var errorMsg = await response.Content.ReadAsStringAsync();
-                return (false, !string.IsNullOrWhiteSpace(errorMsg) ? errorMsg : "Dang ky that bai.");
+                return (false, !string.IsNullOrWhiteSpace(errorMsg) ? errorMsg : "Registration failed.");
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Register error: {ex.Message}");
-                return (false, "Khong the ket noi den may chu.");
+                return (false, "Unable to connect to server.");
             }
         }
 
@@ -208,7 +208,7 @@ namespace AppUser.Services
             string? newPassword)
         {
             await EnsureSessionLoadedAsync();
-            if (_token == null) return (false, "Chua dang nhap.");
+            if (_token == null) return (false, "Not signed in.");
 
             try
             {
@@ -231,16 +231,16 @@ namespace AppUser.Services
 
                     await PersistUserSessionAsync();
 
-                    return (true, "Cap nhat ho so thanh cong!");
+                    return (true, "Profile updated successfully.");
                 }
 
                 var errorMsg = await response.Content.ReadAsStringAsync();
-                return (false, !string.IsNullOrWhiteSpace(errorMsg) ? errorMsg : "Cap nhat that bai.");
+                return (false, !string.IsNullOrWhiteSpace(errorMsg) ? errorMsg : "Profile update failed.");
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Update profile error: {ex.Message}");
-                return (false, "Khong the ket noi den may chu.");
+                return (false, "Unable to connect to server.");
             }
         }
 

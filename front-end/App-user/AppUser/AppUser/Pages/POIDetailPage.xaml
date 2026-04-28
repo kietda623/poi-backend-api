@@ -59,7 +59,7 @@
                                 Command="{Binding ToggleLanguageCommand}"
                                 BackgroundColor="Transparent"
                                 TextColor="White"
-                                FontFamily="BeVietnamProBold"
+                                FontFamily="{x:Null}"
                                 FontSize="13"
                                 Padding="0"/>
                     </Border>
@@ -73,7 +73,7 @@
                                TextColor="White"
                                FontSize="28"
                                LineBreakMode="WordWrap"
-                               FontFamily="BeVietnamProBold"/>
+                               FontFamily="{x:Null}"/>
                         <HorizontalStackLayout Spacing="8" Margin="0,6,0,0">
                             <Label Text="📍" FontSize="14" TextColor="White" Opacity="0.9"/>
                             <Label Text="{Binding POI.Location}"
@@ -81,7 +81,7 @@
                                    TextColor="#E2E8F0"
                                    LineBreakMode="TailTruncation"
                                    MaxLines="1"
-                                   FontFamily="BeVietnamPro"/>
+                                   FontFamily="{x:Null}"/>
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
                 </Grid>
@@ -110,17 +110,17 @@
                                            Style="{StaticResource TitleMedium}"
                                            TextColor="White"
                                            Opacity="0.8"
-                                           FontFamily="BeVietnamProMedium"/>
+                                           FontFamily="{x:Null}"/>
                                     <Label Text="{Binding CurrentAudioGuide.Title}"
                                            Style="{StaticResource TitleLarge}"
                                            TextColor="White"
                                            LineBreakMode="TailTruncation"
                                            MaxLines="1"
-                                           FontFamily="BeVietnamProBold"/>
+                                           FontFamily="{x:Null}"/>
                                     <Label Text="{Binding CurrentAudioGuide.DurationDisplay, StringFormat='⏱️ {0}'}"
                                            Style="{StaticResource LabelCaption}"
                                            TextColor="#B2FFFFFF"
-                                           FontFamily="BeVietnamPro"/>
+                                           FontFamily="{x:Null}"/>
                                 </VerticalStackLayout>
 
                                 <Button Grid.Column="1"
@@ -128,7 +128,7 @@
                                         Command="{Binding PlayAudioCommand}"
                                         BackgroundColor="White"
                                         TextColor="{StaticResource Primary}"
-                                        FontFamily="BeVietnamProBold"
+                                        FontFamily="{x:Null}"
                                         FontSize="14"
                                         CornerRadius="12"
                                         HeightRequest="44"
@@ -147,7 +147,7 @@
                                    Style="{StaticResource BodyMedium}"
                                    TextColor="{StaticResource TextHint}"
                                    HorizontalOptions="Center"
-                                   FontFamily="BeVietnamPro"/>
+                                   FontFamily="{x:Null}"/>
                         </Border>
 
                         <!-- ── DESCRIPTION ── -->
@@ -155,11 +155,11 @@
                             <Label Text="{Binding IntroLabel}"
                                    Style="{StaticResource HeadlineSmall}"
                                    TextColor="{StaticResource Primary}"
-                                   FontFamily="BeVietnamProBold"/>
+                                   FontFamily="{x:Null}"/>
                             <Label Text="{Binding DisplayDescription}"
                                    Style="{StaticResource BodyLarge}"
                                    TextColor="{StaticResource TextPrimary}"
-                                   FontFamily="BeVietnamPro"/>
+                                   FontFamily="{x:Null}"/>
                         </VerticalStackLayout>
 
                         <!-- ── DIVIDER ── -->
@@ -170,7 +170,7 @@
                             <Label Text="{Binding MenuLabel, StringFormat='🍽️ {0}'}"
                                    Style="{StaticResource HeadlineSmall}"
                                    TextColor="{StaticResource Primary}"
-                                   FontFamily="BeVietnamProBold"/>
+                                   FontFamily="{x:Null}"/>
 
                             <!-- Menu Gallery (Fallback if structured menus not used or as additional images) -->
                             <CollectionView ItemsSource="{Binding MenuGalleryImages}"
@@ -205,7 +205,7 @@
                                                    Style="{StaticResource TitleLarge}"
                                                    TextColor="{StaticResource TextPrimary}"
                                                    FontSize="18"
-                                                   FontFamily="BeVietnamProBold"/>
+                                                   FontFamily="{x:Null}"/>
 
                                             <VerticalStackLayout
                                                 BindableLayout.ItemsSource="{Binding Items}"
@@ -231,20 +231,20 @@
                                                                            Style="{StaticResource TitleMedium}"
                                                                            TextColor="{StaticResource TextPrimary}"
                                                                            FontSize="16"
-                                                                           FontFamily="BeVietnamProBold"/>
+                                                                           FontFamily="{x:Null}"/>
                                                                     <Label Text="{Binding Description}"
                                                                            Style="{StaticResource BodySmall}"
                                                                            TextColor="{StaticResource TextSecondary}"
                                                                            LineBreakMode="TailTruncation"
                                                                            MaxLines="2"
                                                                            IsVisible="{Binding Description, Converter={StaticResource StringNotEmptyConverter}}"
-                                                                           FontFamily="BeVietnamPro"/>
+                                                                           FontFamily="{x:Null}"/>
                                                                     <Label Text="{Binding PriceDisplay}"
                                                                            Style="{StaticResource TitleLarge}"
                                                                            TextColor="{StaticResource Primary}"
                                                                            FontSize="17"
                                                                            Margin="0,4,0,0"
-                                                                           FontFamily="BeVietnamProBold"/>
+                                                                           FontFamily="{x:Null}"/>
                                                                 </VerticalStackLayout>
 
                                                                 <VerticalStackLayout Grid.Column="2"
@@ -259,7 +259,7 @@
                                                                                Style="{StaticResource LabelCaption}"
                                                                                TextColor="{StaticResource Success}"
                                                                                FontSize="11"
-                                                                               FontFamily="BeVietnamProBold"/>
+                                                                               FontFamily="{x:Null}"/>
                                                                     </Border>
                                                                 </VerticalStackLayout>
                                                             </Grid>
@@ -303,7 +303,7 @@
             </Border.GestureRecognizers>
             <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="12">
                 <Label Text="🎧" FontSize="26" TextColor="White" VerticalOptions="Center"/>
-                <Label Text="{Binding ListenNowLabel}" FontFamily="BeVietnamProBold" FontSize="17" TextColor="White" VerticalOptions="Center"/>
+                <Label Text="{Binding ListenNowLabel}" FontFamily="{x:Null}" FontSize="17" TextColor="White" VerticalOptions="Center"/>
             </HorizontalStackLayout>
         </Border>
     </Grid>

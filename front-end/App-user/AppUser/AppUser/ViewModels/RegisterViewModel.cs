@@ -42,19 +42,19 @@ namespace AppUser.ViewModels
         {
             if (string.IsNullOrWhiteSpace(FullName) || string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
             {
-                ShowError("Vui lòng điền đầy đủ các thông tin bắt buộc.");
+                ShowError("Please fill in all required fields.");
                 return;
             }
 
             if (Password != ConfirmPassword)
             {
-                ShowError("Mật khẩu xác nhận không khớp.");
+                ShowError("Password confirmation does not match.");
                 return;
             }
 
             if (Password.Length < 6)
             {
-                ShowError("Mật khẩu phải có ít nhất 6 ký tự.");
+                ShowError("Password must be at least 6 characters.");
                 return;
             }
 
@@ -68,8 +68,7 @@ namespace AppUser.ViewModels
 
                 if (success)
                 {
-                    // Đăng ký thành công, thông báo và về trang login
-                    await Shell.Current.DisplayAlert("Thành công", "Đăng ký tài khoản thành công! Vui lòng đăng nhập.", "OK");
+                    await Shell.Current.DisplayAlert("Success", "Your account has been created. Please sign in.", "OK");
                     await Shell.Current.GoToAsync("..");
                 }
                 else
@@ -79,7 +78,7 @@ namespace AppUser.ViewModels
             }
             catch (Exception ex)
             {
-                ShowError("Đã xảy ra lỗi kết nối. Vui lòng thử lại sau.");
+                ShowError("A connection error occurred. Please try again later.");
                 System.Diagnostics.Debug.WriteLine($"Register error: {ex.Message}");
             }
             finally
@@ -91,7 +90,7 @@ namespace AppUser.ViewModels
         [RelayCommand]
         private async Task GoBackToLoginAsync()
         {
-            await Shell.Current.GoToAsync("..");
+            await Shell.Current.GoToAsync("login");
         }
 
         [RelayCommand]

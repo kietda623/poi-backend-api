@@ -24,62 +24,62 @@ namespace AppUser.ViewModels
         private string currentLanguageDisplay = "🇬🇧 English";
 
         [ObservableProperty]
-        private string pageTitle = "👤 Hồ sơ của tôi";
+        private string pageTitle = "My Profile";
 
         [ObservableProperty]
-        private string editProfileText = "✏️ Chỉnh sửa hồ sơ";
+        private string editProfileText = "Edit profile";
 
         [ObservableProperty]
-        private string foodieBadgeText = "🧑‍🍳 THÁM TỬ ẨM THỰC";
+        private string foodieBadgeText = "FOOD EXPLORER";
 
         [ObservableProperty]
-        private string totalExploredLabel = "Điểm khám phá";
+        private string totalExploredLabel = "Places explored";
 
         [ObservableProperty]
-        private string currentLanguageLabel = "Ngôn ngữ hiện tại";
+        private string currentLanguageLabel = "Current language";
 
         [ObservableProperty]
-        private string settingsTitle = "⚙️ Cài đặt";
+        private string settingsTitle = "Settings";
 
         [ObservableProperty]
-        private string narrationLanguageTitle = "Ngôn ngữ thuyết minh";
+        private string narrationLanguageTitle = "Narration language";
 
         [ObservableProperty]
         private string audioPackageTitle = "Goi nghe thuyet minh";
 
         [ObservableProperty]
-        private string historyTitle = "📖 Lịch sử khám phá";
+        private string historyTitle = "Listening history";
 
         [ObservableProperty]
-        private string emptyHistoryTitle = "Chưa có hành trình nào";
+        private string emptyHistoryTitle = "No journeys yet";
 
         [ObservableProperty]
-        private string emptyHistoryMessage = "Hãy bắt đầu khám phá các điểm ẩm thực xung quanh bạn ngay!";
+        private string emptyHistoryMessage = "Start exploring food spots around you now.";
 
         [ObservableProperty]
-        private string logoutButtonText = "🚪  Đăng xuất khỏi ứng dụng";
+        private string logoutButtonText = "Log out";
 
         [ObservableProperty]
-        private string logoutTitle = "Đăng xuất";
+        private string logoutTitle = "Log out";
 
         [ObservableProperty]
-        private string logoutMessage = "Bạn có chắc chắn muốn đăng xuất không?";
+        private string logoutMessage = "Are you sure you want to log out?";
 
         [ObservableProperty]
-        private string logoutConfirmText = "Đăng xuất";
+        private string logoutConfirmText = "Log out";
 
         [ObservableProperty]
-        private string cancelText = "Hủy";
+        private string cancelText = "Cancel";
 
         // Guest mode: hiện nút đăng nhập thay vì thông tin profile
         [ObservableProperty]
         private bool isGuest = false;
 
         [ObservableProperty]
-        private string loginButtonText = "🔑  Đăng nhập / Đăng ký";
+        private string loginButtonText = "Sign In / Sign Up";
 
         [ObservableProperty]
-        private string guestMessage = "Bạn đang sử dụng ứng dụng với tư cách khách. Đăng nhập để lưu lịch sử và đồng bộ dữ liệu.";
+        private string guestMessage = "You are using the app as guest. You can use chatbot and packages now, or sign in to sync data across devices.";
 
         public ProfileViewModel(AuthService auth, AudioService audio)
         {
@@ -141,10 +141,10 @@ namespace AppUser.ViewModels
         {
             CurrentLanguageDisplay = _audioService.CurrentLanguage switch
             {
-                "vi" => "🇻🇳 Tiếng Việt",
+                "vi" => "🇻🇳 Vietnamese",
                 "en" => "🇬🇧 English",
                 "zh" => "🇨🇳 中文",
-                _ => "🇻🇳 Tiếng Việt"
+                _ => "🇬🇧 English"
             };
         }
 
@@ -153,18 +153,18 @@ namespace AppUser.ViewModels
             switch (_audioService.CurrentLanguage)
             {
                 case "en":
-                    PageTitle = "👤 My Profile";
-                    EditProfileText = "✏️ Edit profile";
-                    FoodieBadgeText = "🧑‍🍳 FOOD EXPLORER";
+                    PageTitle = "My Profile";
+                    EditProfileText = "Edit profile";
+                    FoodieBadgeText = "FOOD EXPLORER";
                     TotalExploredLabel = "Places explored";
                     CurrentLanguageLabel = "Current language";
-                    SettingsTitle = "⚙️ Settings";
+                    SettingsTitle = "Settings";
                     NarrationLanguageTitle = "Narration language";
                     AudioPackageTitle = "Audio packages";
-                    HistoryTitle = "📖 Listening history";
+                    HistoryTitle = "Listening history";
                     EmptyHistoryTitle = "No journeys yet";
                     EmptyHistoryMessage = "Start exploring food spots around you now!";
-                    LogoutButtonText = "🚪  Log out of the app";
+                    LogoutButtonText = "Log out";
                     LogoutTitle = "Log out";
                     LogoutMessage = "Are you sure you want to log out?";
                     LogoutConfirmText = "Log out";
@@ -189,22 +189,22 @@ namespace AppUser.ViewModels
                     CancelText = "取消";
                     break;
                 default:
-                    PageTitle = "👤 Hồ sơ của tôi";
-                    EditProfileText = "✏️ Chỉnh sửa hồ sơ";
-                    FoodieBadgeText = "🧑‍🍳 THÁM TỬ ẨM THỰC";
-                    TotalExploredLabel = "Điểm khám phá";
-                    CurrentLanguageLabel = "Ngôn ngữ hiện tại";
-                    SettingsTitle = "⚙️ Cài đặt";
-                    NarrationLanguageTitle = "Ngôn ngữ thuyết minh";
+                    PageTitle = "My Profile";
+                    EditProfileText = "Edit profile";
+                    FoodieBadgeText = "FOOD EXPLORER";
+                    TotalExploredLabel = "Places explored";
+                    CurrentLanguageLabel = "Current language";
+                    SettingsTitle = "Settings";
+                    NarrationLanguageTitle = "Narration language";
                     AudioPackageTitle = "Goi nghe thuyet minh";
-                    HistoryTitle = "📖 Lịch sử khám phá";
-                    EmptyHistoryTitle = "Chưa có hành trình nào";
-                    EmptyHistoryMessage = "Hãy bắt đầu khám phá các điểm ẩm thực xung quanh bạn ngay!";
-                    LogoutButtonText = "🚪  Đăng xuất khỏi ứng dụng";
-                    LogoutTitle = "Đăng xuất";
-                    LogoutMessage = "Bạn có chắc chắn muốn đăng xuất không?";
-                    LogoutConfirmText = "Đăng xuất";
-                    CancelText = "Hủy";
+                    HistoryTitle = "Listening history";
+                    EmptyHistoryTitle = "No journeys yet";
+                    EmptyHistoryMessage = "Start exploring food spots around you now.";
+                    LogoutButtonText = "Log out";
+                    LogoutTitle = "Log out";
+                    LogoutMessage = "Are you sure you want to log out?";
+                    LogoutConfirmText = "Log out";
+                    CancelText = "Cancel";
                     break;
             }
         }
@@ -244,23 +244,23 @@ namespace AppUser.ViewModels
         private async Task ChangeLanguageAsync()
         {
             // Show ActionSheet (Dropdown-like menu from bottom)
-            string[] languages = { "🇻🇳 Tiếng Việt", "🇬🇧 English", "🇨🇳 中文" };
+            string[] languages = { "🇻🇳 Vietnamese", "🇬🇧 English", "🇨🇳 中文" };
             string title = _audioService.CurrentLanguage switch
             {
                 "en" => "Select Language",
                 "zh" => "选择语言",
-                _ => "Chọn ngôn ngữ"
+                _ => "Select Language"
             };
             string cancel = _audioService.CurrentLanguage switch
             {
                 "en" => "Cancel",
                 "zh" => "取消",
-                _ => "Hủy"
+                _ => "Cancel"
             };
 
             var action = await Shell.Current.DisplayActionSheet(title, cancel, null, languages);
 
-            if (action == "🇻🇳 Tiếng Việt")
+            if (action == "🇻🇳 Vietnamese")
             {
                 _audioService.SetLanguage("vi");
             }

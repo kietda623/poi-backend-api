@@ -34,21 +34,21 @@
                 <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center">
                     <Border Style="{StaticResource StepIndicator}" BackgroundColor="White">
                         <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                            <Label Text="1" FontFamily="BeVietnamProBold" TextColor="{StaticResource Primary}" VerticalOptions="Center"/>
+                            <Label Text="1" FontFamily="{x:Null}" TextColor="{StaticResource Primary}" VerticalOptions="Center"/>
                             <Label Text="{Binding Step1Label}" Style="{StaticResource LabelCaption}" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center"/>
                         </HorizontalStackLayout>
                     </Border>
                     <Label Text="➔" TextColor="White" Opacity="0.5"/>
                     <Border Style="{StaticResource StepIndicator}" Opacity="0.7">
                         <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                            <Label Text="2" FontFamily="BeVietnamProBold" TextColor="{StaticResource TextHint}" VerticalOptions="Center"/>
+                            <Label Text="2" FontFamily="{x:Null}" TextColor="{StaticResource TextHint}" VerticalOptions="Center"/>
                             <Label Text="{Binding Step2Label}" Style="{StaticResource LabelCaption}" VerticalOptions="Center"/>
                         </HorizontalStackLayout>
                     </Border>
                     <Label Text="➔" TextColor="White" Opacity="0.5"/>
                     <Border Style="{StaticResource StepIndicator}" Opacity="0.7">
                         <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                            <Label Text="3" FontFamily="BeVietnamProBold" TextColor="{StaticResource TextHint}" VerticalOptions="Center"/>
+                            <Label Text="3" FontFamily="{x:Null}" TextColor="{StaticResource TextHint}" VerticalOptions="Center"/>
                             <Label Text="{Binding Step3Label}" Style="{StaticResource LabelCaption}" VerticalOptions="Center"/>
                         </HorizontalStackLayout>
                     </Border>
@@ -106,12 +106,12 @@
                                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TourPlanViewModel}}, Path=SwipeLeftCommand}"
                                                                     CommandParameter="{Binding .}"
                                                                     BackgroundColor="#FFF1F2" TextColor="{StaticResource Error}" 
-                                                                    FontFamily="BeVietnamProSemiBold" FontSize="14" HeightRequest="44" CornerRadius="12"/>
+                                                                    FontFamily="{x:Null}" FontSize="14" HeightRequest="44" CornerRadius="12"/>
                                                             <Button Grid.Column="1" Text="{Binding Source={RelativeSource AncestorType={x:Type vm:TourPlanViewModel}}, Path=LikeText}" 
                                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TourPlanViewModel}}, Path=SwipeRightCommand}"
                                                                     CommandParameter="{Binding .}"
                                                                     BackgroundColor="#F0FDF4" TextColor="{StaticResource Success}"
-                                                                    FontFamily="BeVietnamProSemiBold" FontSize="14" HeightRequest="44" CornerRadius="12"/>
+                                                                    FontFamily="{x:Null}" FontSize="14" HeightRequest="44" CornerRadius="12"/>
                                                         </Grid>
                                                     </VerticalStackLayout>
                                                 </Grid>
@@ -137,7 +137,7 @@
                         <Border StrokeShape="RoundRectangle 16" StrokeThickness="1" Stroke="{StaticResource Border}" BackgroundColor="{StaticResource SurfaceVariant}" Padding="12">
                             <Editor Text="{Binding Preferences}" 
                                     Placeholder="{Binding PreferencesPlaceholder}"
-                                    FontFamily="BeVietnamPro" FontSize="14" HeightRequest="100" BackgroundColor="Transparent" />
+                                    FontFamily="{x:Null}" FontSize="14" HeightRequest="100" BackgroundColor="Transparent" />
                         </Border>
 
                         <Button Text="{Binding GenerateButtonText}" 

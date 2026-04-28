@@ -22,7 +22,132 @@ public static class DatabaseSchemaBootstrapper
         await EnsureColumnAsync(context, "Subscriptions", "RevenueRecipientShopId", "int NULL");
     }
 
+    public static async Task EnsureGuestFeatureSchemaAsync(AppDbContext context)
+    {
+        await EnsureSwipedItemsTableAsync(context);
+        await EnsureColumnAsync(context, "SwipedItems", "DeviceId", "varchar(255) NULL");
+        await EnsureNullableColumnAsync(context, "SwipedItems", "UserId", "int NULL");
+        await EnsureIndexAsync(context, "SwipedItems", "IX_SwipedItems_DeviceId_ShopId", "CREATE UNIQUE INDEX `IX_SwipedItems_DeviceId_ShopId` ON `SwipedItems` (`DeviceId`, `ShopId`);");
+    }
+
+    private static async Task EnsureSwipedItemsTableAsync(AppDbContext context)
+    {
+        if (await TableExistsAsync(context, "SwipedItems"))
+        {
+            return;
+        }
+
+        await context.Database.ExecuteSqlRawAsync(@"
+CREATE TABLE `SwipedItems` (
+    `Id` int NOT NULL AUTO_INCREMENT,
+    `UserId` int NULL,
+    `DeviceId` varchar(255) NULL,
+    `ShopId` int NOT NULL,
+    `IsLiked` tinyint(1) NOT NULL,
+    `SwipedAt` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    CONSTRAINT `PK_SwipedItems` PRIMARY KEY (`Id`)
+);");
+
+        await EnsureIndexAsync(context, "SwipedItems", "IX_SwipedItems_UserId_ShopId", "CREATE UNIQUE INDEX `IX_SwipedItems_UserId_ShopId` ON `SwipedItems` (`UserId`, `ShopId`);");
+        await EnsureIndexAsync(context, "SwipedItems", "IX_SwipedItems_DeviceId_ShopId", "CREATE UNIQUE INDEX `IX_SwipedItems_DeviceId_ShopId` ON `SwipedItems` (`DeviceId`, `ShopId`);");
+    }
+
     private static async Task EnsureColumnAsync(AppDbContext context, string tableName, string columnName, string definition)
+    {
+        if (await ColumnExistsAsync(context, tableName, columnName))
+        {
+            return;
+        }
+
+        await context.Database.ExecuteSqlRawAsync($"ALTER TABLE `{tableName}` ADD COLUMN `{columnName}` {definition};");
+    }
+
+    private static async Task EnsureNullableColumnAsync(AppDbContext context, string tableName, string columnName, string definition)
+    {
+        if (!await ColumnExistsAsync(context, tableName, columnName))
+        {
+            await context.Database.ExecuteSqlRawAsync($"ALTER TABLE `{tableName}` ADD COLUMN `{columnName}` {definition};");
+            return;
+        }
+
+        if (await IsColumnNullableAsync(context, tableName, columnName))
+        {
+            return;
+        }
+
+        await context.Database.ExecuteSqlRawAsync($"ALTER TABLE `{tableName}` MODIFY COLUMN `{columnName}` {definition};");
+    }
+
+    private static async Task EnsureIndexAsync(AppDbContext context, string tableName, string indexName, string createSql)
+    {
+        var conn = await EnsureOpenConnectionAsync(context);
+        await using var cmd = conn.CreateCommand();
+        cmd.CommandText = @"
+SELECT COUNT(*)
+FROM INFORMATION_SCHEMA.STATISTICS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND TABLE_NAME = @tableName
+  AND INDEX_NAME = @indexName;";
+
+        AddParameter(cmd, "@tableName", tableName);
+        AddParameter(cmd, "@indexName", indexName);
+
+        var exists = Convert.ToInt32(await cmd.ExecuteScalarAsync()) > 0;
+        if (!exists)
+        {
+            await context.Database.ExecuteSqlRawAsync(createSql);
+        }
+    }
+
+    private static async Task<bool> TableExistsAsync(AppDbContext context, string tableName)
+    {
+        var conn = await EnsureOpenConnectionAsync(context);
+        await using var cmd = conn.CreateCommand();
+        cmd.CommandText = @"
+SELECT COUNT(*)
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = DATABASE()
+  AND TABLE_NAME = @tableName;";
+
+        AddParameter(cmd, "@tableName", tableName);
+        return Convert.ToInt32(await cmd.ExecuteScalarAsync()) > 0;
+    }
+
+    private static async Task<bool> ColumnExistsAsync(AppDbContext context, string tableName, string columnName)
+    {
+        var conn = await EnsureOpenConnectionAsync(context);
+        await using var cmd = conn.CreateCommand();
+        cmd.CommandText = @"
+SELECT COUNT(*)
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND TABLE_NAME = @tableName
+  AND COLUMN_NAME = @columnName;";
+
+        AddParameter(cmd, "@tableName", tableName);
+        AddParameter(cmd, "@columnName", columnName);
+        return Convert.ToInt32(await cmd.ExecuteScalarAsync()) > 0;
+    }
+
+    private static async Task<bool> IsColumnNullableAsync(AppDbContext context, string tableName, string columnName)
+    {
+        var conn = await EnsureOpenConnectionAsync(context);
+        await using var cmd = conn.CreateCommand();
+        cmd.CommandText = @"
+SELECT IS_NULLABLE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND TABLE_NAME = @tableName
+  AND COLUMN_NAME = @columnName
+LIMIT 1;";
+
+        AddParameter(cmd, "@tableName", tableName);
+        AddParameter(cmd, "@columnName", columnName);
+        var value = Convert.ToString(await cmd.ExecuteScalarAsync());
+        return string.Equals(value, "YES", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static async Task<System.Data.Common.DbConnection> EnsureOpenConnectionAsync(AppDbContext context)
     {
         var conn = context.Database.GetDbConnection();
         if (conn.State != System.Data.ConnectionState.Open)
@@ -30,30 +155,14 @@ public static class DatabaseSchemaBootstrapper
             await conn.OpenAsync();
         }
 
-        await using var checkCmd = conn.CreateCommand();
-        checkCmd.CommandText = @"
-SELECT COUNT(*)
-FROM INFORMATION_SCHEMA.COLUMNS
-WHERE TABLE_SCHEMA = DATABASE()
-  AND TABLE_NAME = @tableName
-  AND COLUMN_NAME = @columnName;";
+        return conn;
+    }
 
-        var tableParam = checkCmd.CreateParameter();
-        tableParam.ParameterName = "@tableName";
-        tableParam.Value = tableName;
-        checkCmd.Parameters.Add(tableParam);
-
-        var columnParam = checkCmd.CreateParameter();
-        columnParam.ParameterName = "@columnName";
-        columnParam.Value = columnName;
-        checkCmd.Parameters.Add(columnParam);
-
-        var exists = Convert.ToInt32(await checkCmd.ExecuteScalarAsync()) > 0;
-        if (exists)
-        {
-            return;
-        }
-
-        await context.Database.ExecuteSqlRawAsync($"ALTER TABLE `{tableName}` ADD COLUMN `{columnName}` {definition};");
+    private static void AddParameter(System.Data.Common.DbCommand cmd, string name, object value)
+    {
+        var parameter = cmd.CreateParameter();
+        parameter.ParameterName = name;
+        parameter.Value = value;
+        cmd.Parameters.Add(parameter);
     }
 }

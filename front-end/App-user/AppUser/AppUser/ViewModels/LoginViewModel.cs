@@ -36,7 +36,7 @@ namespace AppUser.ViewModels
         {
             if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
             {
-                ErrorMessage = "Vui lòng nhập đầy đủ email và mật khẩu.";
+                ErrorMessage = "Please enter both email and password.";
                 HasError = true;
                 return;
             }
@@ -51,7 +51,6 @@ namespace AppUser.ViewModels
 
                 if (success)
                 {
-                    // Navigate to main app shell
                     await Shell.Current.GoToAsync("//home");
                 }
                 else
@@ -62,7 +61,7 @@ namespace AppUser.ViewModels
             }
             catch (Exception ex)
             {
-                ErrorMessage = "Đã xảy ra lỗi. Vui lòng thử lại.";
+                ErrorMessage = "Something went wrong. Please try again.";
                 HasError = true;
                 System.Diagnostics.Debug.WriteLine($"Login error: {ex.Message}");
             }
@@ -89,6 +88,29 @@ namespace AppUser.ViewModels
         private async Task NavigateToRegisterAsync()
         {
             await Shell.Current.GoToAsync("register");
+        }
+
+        [RelayCommand]
+        private async Task ContinueAsGuestAsync()
+        {
+            IsLoading = true;
+            HasError = false;
+
+            try
+            {
+                await _authService.InitGuestSessionAsync();
+                await Shell.Current.GoToAsync("//home");
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Unable to start guest session. Please try again.";
+                HasError = true;
+                System.Diagnostics.Debug.WriteLine($"Guest login error: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
     }
 }

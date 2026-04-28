@@ -25,10 +25,10 @@
             <VerticalStackLayout Padding="20,24,20,32" Spacing="16">
                 <!-- Title Header -->
                 <HorizontalStackLayout Spacing="8">
-                    <Label Text="Explore Cuisine" FontFamily="BeVietnamProBold" FontSize="24" TextColor="White" VerticalOptions="Center"/>
+                    <Label Text="Explore Cuisine" FontFamily="{x:Null}" FontSize="24" TextColor="White" VerticalOptions="Center"/>
                     <Label Text="🍽️" FontSize="22" VerticalOptions="Center"/>
                 </HorizontalStackLayout>
-                <Label Text="Discover unique flavors around you" FontFamily="BeVietnamPro" FontSize="14" TextColor="#FFE8D0" Margin="0,-8,0,0" />
+                <Label Text="Discover unique flavors around you" FontFamily="{x:Null}" FontSize="14" TextColor="#FFE8D0" Margin="0,-8,0,0" />
 
                 <!-- Search Bar -->
                 <Border BackgroundColor="#FFFFFF" StrokeShape="RoundRectangle 24" StrokeThickness="0" Padding="16,4" Margin="0,8,0,0">
@@ -96,20 +96,20 @@
                                         <Border Grid.Row="0" BackgroundColor="#50000000" StrokeShape="RoundRectangle 12" StrokeThickness="0" Padding="12,6" HorizontalOptions="Start" VerticalOptions="Start" Margin="16,16,0,0">
                                             <HorizontalStackLayout Spacing="6">
                                                 <Label Text="🎧" FontSize="14" VerticalOptions="Center"/>
-                                                <Label Text="Audio Guide" FontFamily="BeVietnamProMedium" FontSize="12" TextColor="White" VerticalOptions="Center"/>
+                                                <Label Text="Audio Guide" FontFamily="{x:Null}" FontSize="12" TextColor="White" VerticalOptions="Center"/>
                                             </HorizontalStackLayout>
                                         </Border>
 
                                         <!-- Distance/Location Overlay directly on Image -->
                                         <HorizontalStackLayout Grid.Row="0" Spacing="4" HorizontalOptions="Start" VerticalOptions="End" Margin="16,0,0,12">
                                             <Label Text="📍" FontSize="14" TextColor="White" VerticalOptions="Center"/>
-                                            <Label Text="{Binding Location}" FontFamily="BeVietnamProMedium" FontSize="13" TextColor="White" VerticalOptions="Center" LineBreakMode="TailTruncation" MaxLines="1"/>
+                                            <Label Text="{Binding Location}" FontFamily="{x:Null}" FontSize="13" TextColor="White" VerticalOptions="Center" LineBreakMode="TailTruncation" MaxLines="1"/>
                                         </HorizontalStackLayout>
 
                                         <!-- Info Component -->
                                         <VerticalStackLayout Grid.Row="1" Padding="20,16,20,20" Spacing="8">
-                                            <Label Text="{Binding Shop.Name}" FontFamily="BeVietnamProBold" FontSize="20" TextColor="{StaticResource TextPrimary}" LineBreakMode="TailTruncation" MaxLines="1"/>
-                                            <Label Text="{Binding Shop.Description}" FontFamily="BeVietnamPro" FontSize="14" TextColor="{StaticResource TextSecondary}" LineBreakMode="TailTruncation" MaxLines="2"/>
+                                            <Label Text="{Binding Shop.Name}" FontFamily="{x:Null}" FontSize="20" TextColor="{StaticResource TextPrimary}" LineBreakMode="TailTruncation" MaxLines="1"/>
+                                            <Label Text="{Binding Shop.Description}" FontFamily="{x:Null}" FontSize="14" TextColor="{StaticResource TextSecondary}" LineBreakMode="TailTruncation" MaxLines="2"/>
                                             
                                             <!-- Play Audio Button -->
                                             <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,0">
@@ -121,7 +121,7 @@
                                                     </Border.GestureRecognizers>
                                                     <HorizontalStackLayout Spacing="8">
                                                         <Label Text="▶" FontSize="14" TextColor="{StaticResource Primary}" VerticalOptions="Center"/>
-                                                        <Label Text="Listen Audio" FontFamily="BeVietnamProSemiBold" FontSize="14" TextColor="{StaticResource Primary}" VerticalOptions="Center"/>
+                                                        <Label Text="Listen Audio" FontFamily="{x:Null}" FontSize="14" TextColor="{StaticResource Primary}" VerticalOptions="Center"/>
                                                     </HorizontalStackLayout>
                                                 </Border>
 
@@ -185,13 +185,13 @@
                 <!-- When List View, Show "Map" -->
                 <HorizontalStackLayout Spacing="8" IsVisible="{Binding IsMapView, Converter={StaticResource BoolInverterConverter}}">
                     <Label Text="🗺️" TextColor="White" FontSize="18" VerticalOptions="Center"/>
-                    <Label Text="Map" TextColor="White" FontFamily="BeVietnamProBold" FontSize="15" VerticalOptions="Center"/>
+                    <Label Text="Map" TextColor="White" FontFamily="{x:Null}" FontSize="15" VerticalOptions="Center"/>
                 </HorizontalStackLayout>
                 
                 <!-- When Map View, Show "List" -->
                 <HorizontalStackLayout Spacing="8" IsVisible="{Binding IsMapView}">
                     <Label Text="📋" TextColor="White" FontSize="18" VerticalOptions="Center"/>
-                    <Label Text="List" TextColor="White" FontFamily="BeVietnamProBold" FontSize="15" VerticalOptions="Center"/>
+                    <Label Text="List" TextColor="White" FontFamily="{x:Null}" FontSize="15" VerticalOptions="Center"/>
                 </HorizontalStackLayout>
             </Border>
         </Grid>

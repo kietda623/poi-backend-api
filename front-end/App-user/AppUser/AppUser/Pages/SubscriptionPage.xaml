@@ -3,8 +3,8 @@
     x:Class="AppUser.Pages.SubscriptionPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:vm="clr-namespace:AppUser.ViewModels"
     xmlns:model="clr-namespace:AppUser.Models"
+    xmlns:vm="clr-namespace:AppUser.ViewModels"
     x:Name="PageRoot"
     x:DataType="vm:SubscriptionViewModel"
     Title="{Binding Title}"
@@ -13,151 +13,168 @@
     <Grid>
         <ScrollView>
             <VerticalStackLayout Padding="20" Spacing="16">
-                <Label Text="{Binding PageHeading}"
-                       FontFamily="BeVietnamProBold"
-                       FontSize="24"
-                       TextColor="{StaticResource TextPrimary}" />
+                <Label
+                    FontFamily="{x:Null}"
+                    FontSize="24"
+                    Text="{Binding PageHeading}"
+                    TextColor="{StaticResource TextPrimary}" />
 
-                <Border StrokeThickness="0"
-                        BackgroundColor="#EEF2FF"
-                        Padding="14"
-                        StrokeShape="RoundRectangle 18"
-                        IsVisible="{Binding StatusMessage, Converter={StaticResource StringNotEmptyConverter}}">
-                    <Label Text="{Binding StatusMessage}"
-                           TextColor="{StaticResource Primary}"
-                           FontFamily="BeVietnamPro" />
+                <Border
+                    BackgroundColor="#EEF2FF"
+                    IsVisible="{Binding StatusMessage, Converter={StaticResource StringNotEmptyConverter}}"
+                    Padding="14"
+                    StrokeShape="RoundRectangle 18"
+                    StrokeThickness="0">
+                    <Label
+                        FontFamily="{x:Null}"
+                        Text="{Binding StatusMessage}"
+                        TextColor="{StaticResource Primary}" />
                 </Border>
 
-                <Border StrokeThickness="0"
-                        BackgroundColor="{StaticResource Surface}"
-                        Padding="16"
-                        StrokeShape="RoundRectangle 18">
+                <Border
+                    BackgroundColor="{StaticResource Surface}"
+                    Padding="16"
+                    StrokeShape="RoundRectangle 18"
+                    StrokeThickness="0">
                     <VerticalStackLayout Spacing="8">
-                        <Label Text="{Binding CurrentPackageHeading}"
-                               FontFamily="BeVietnamProBold"
-                               FontSize="18"
-                               TextColor="{StaticResource TextPrimary}" />
+                        <Label
+                            FontFamily="{x:Null}"
+                            FontSize="18"
+                            Text="{Binding CurrentPackageHeading}"
+                            TextColor="{StaticResource TextPrimary}" />
 
-                        <VerticalStackLayout Spacing="8"
-                                             IsVisible="{Binding Current.HasSubscription}">
-                            <Label Text="{Binding Current.Subscription.PackageName}"
-                                   FontFamily="BeVietnamProSemiBold"
-                                   FontSize="17"
-                                   TextColor="{StaticResource TextPrimary}" />
-                            <Label Text="{Binding CurrentStatusDisplay}"
-                                   TextColor="{StaticResource Primary}"
-                                   FontFamily="BeVietnamPro" />
-                            <Label Text="{Binding CurrentExpiryDisplay}"
-                                   TextColor="{StaticResource TextSecondary}"
-                                   FontFamily="BeVietnamPro" />
-                            <Grid ColumnDefinitions="*,*"
-                                  ColumnSpacing="10"
-                                  RowDefinitions="Auto,Auto"
-                                  RowSpacing="10">
-                                <Button Grid.ColumnSpan="2"
-                                        Text="{Binding ContinuePaymentText}"
-                                        Style="{StaticResource PrimaryButton}"
-                                        Command="{Binding ContinuePaymentCommand}"
-                                        IsVisible="{Binding Current.Subscription.CheckoutUrl, Converter={StaticResource StringNotEmptyConverter}}"
-                                        FontFamily="BeVietnamProSemiBold" />
-                                <Button Grid.Row="1"
-                                        Text="{Binding PaymentCompletedText}"
-                                        Style="{StaticResource SecondaryButton}"
-                                        Command="{Binding SyncPaymentCommand}"
-                                        FontFamily="BeVietnamProSemiBold" />
-                                <Button Grid.Row="1"
-                                        Grid.Column="1"
-                                        Text="{Binding CancelPackageText}"
-                                        Style="{StaticResource SecondaryButton}"
-                                        Command="{Binding CancelCurrentCommand}"
-                                        FontFamily="BeVietnamProSemiBold" />
-                            </Grid>
+                        <VerticalStackLayout
+                            IsVisible="{Binding Current.HasSubscription}"
+                            Spacing="8">
+                            <Label
+                                FontFamily="{x:Null}"
+                                FontSize="17"
+                                Text="{Binding Current.Subscription.PackageName}"
+                                TextColor="{StaticResource TextPrimary}" />
+                            <Label
+                                FontFamily="{x:Null}"
+                                Text="{Binding CurrentStatusDisplay}"
+                                TextColor="{StaticResource Primary}" />
+                            <Label
+                                FontFamily="{x:Null}"
+                                Text="{Binding CurrentExpiryDisplay}"
+                                TextColor="{StaticResource TextSecondary}" />
+
+                            <ActivityIndicator
+                                Color="{StaticResource Primary}"
+                                IsRunning="{Binding IsPaymentChecking}"
+                                IsVisible="{Binding IsPaymentChecking}"
+                                HorizontalOptions="Start" />
+
+                            <Label
+                                FontFamily="{x:Null}"
+                                IsVisible="{Binding IsPaymentChecking}"
+                                Text="{Binding PaymentCheckingMessage}"
+                                TextColor="{StaticResource TextSecondary}" />
+
+                            <Button
+                                Command="{Binding ContinuePaymentCommand}"
+                                FontFamily="{x:Null}"
+                                IsVisible="{Binding Current.Subscription.CheckoutUrl, Converter={StaticResource StringNotEmptyConverter}}"
+                                Style="{StaticResource PrimaryButton}"
+                                Text="{Binding ContinuePaymentText}" />
+
+                            <Button
+                                Command="{Binding CancelCurrentCommand}"
+                                FontFamily="{x:Null}"
+                                Style="{StaticResource SecondaryButton}"
+                                Text="{Binding CancelPackageText}" />
                         </VerticalStackLayout>
 
-                        <VerticalStackLayout Spacing="8"
-                                             IsVisible="{Binding Current.HasSubscription, Converter={StaticResource BoolInverterConverter}}">
-                            <Label Text="{Binding NoActivePackageText}"
-                                   TextColor="{StaticResource TextSecondary}"
-                                   FontFamily="BeVietnamPro" />
-                            <Button Text="{Binding ReloadText}"
-                                    Style="{StaticResource SecondaryButton}"
-                                    Command="{Binding ReloadCommand}"
-                                    FontFamily="BeVietnamProSemiBold" />
+                        <VerticalStackLayout
+                            IsVisible="{Binding Current.HasSubscription, Converter={StaticResource BoolInverterConverter}}"
+                            Spacing="8">
+                            <Label
+                                FontFamily="{x:Null}"
+                                Text="{Binding NoActivePackageText}"
+                                TextColor="{StaticResource TextSecondary}" />
+                            <Button
+                                Command="{Binding ReloadCommand}"
+                                FontFamily="{x:Null}"
+                                Style="{StaticResource SecondaryButton}"
+                                Text="{Binding ReloadText}" />
                         </VerticalStackLayout>
                     </VerticalStackLayout>
                 </Border>
 
-                <Label Text="{Binding ChoosePackageHeading}"
-                       FontFamily="BeVietnamProBold"
-                       FontSize="18"
-                       TextColor="{StaticResource TextPrimary}" />
+                <Label
+                    FontFamily="{x:Null}"
+                    FontSize="18"
+                    Text="{Binding ChoosePackageHeading}"
+                    TextColor="{StaticResource TextPrimary}" />
 
-                <Label Text="{Binding EmptyPackagesText}"
-                       TextColor="{StaticResource TextSecondary}"
-                       IsVisible="{Binding Packages.Count, Converter={StaticResource IntIsZeroConverter}}"
-                       FontFamily="BeVietnamPro" />
+                <Label
+                    FontFamily="{x:Null}"
+                    IsVisible="{Binding Packages.Count, Converter={StaticResource IntIsZeroConverter}}"
+                    Text="{Binding EmptyPackagesText}"
+                    TextColor="{StaticResource TextSecondary}" />
 
-                <VerticalStackLayout Spacing="14"
-                                     BindableLayout.ItemsSource="{Binding Packages}">
+                <VerticalStackLayout
+                    BindableLayout.ItemsSource="{Binding Packages}"
+                    Spacing="14">
                     <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="model:AppServicePackageDto">
-                            <Border StrokeThickness="0"
-                                    BackgroundColor="{StaticResource Surface}"
-                                    Padding="16"
-                                    StrokeShape="RoundRectangle 18">
+                            <Border
+                                BackgroundColor="{StaticResource Surface}"
+                                Padding="16"
+                                StrokeShape="RoundRectangle 18"
+                                StrokeThickness="0">
                                 <VerticalStackLayout Spacing="12">
                                     <HorizontalStackLayout Spacing="8">
-                                        <Label Text="{Binding Name}"
-                                               FontFamily="BeVietnamProBold"
-                                               FontSize="18"
-                                               TextColor="{StaticResource TextPrimary}" />
-                                        <Border BackgroundColor="{StaticResource Primary}"
-                                                StrokeThickness="0"
-                                                Padding="10,4"
-                                                StrokeShape="RoundRectangle 999"
-                                                IsVisible="{Binding Tier, Converter={StaticResource StringContainsConverter}, ConverterParameter='Tour', Converter={StaticResource BoolInverterConverter}}">
-                                            <Label Text="{Binding Tier}"
-                                                   FontSize="12"
-                                                   TextColor="White"
-                                                   FontFamily="BeVietnamPro" />
-                                        </Border>
+                                        <Label
+                                            FontFamily="{x:Null}"
+                                            FontSize="18"
+                                            Text="{Binding Name}"
+                                            TextColor="{StaticResource TextPrimary}" />
                                     </HorizontalStackLayout>
 
-                                    <Label Text="{Binding Description}"
-                                           TextColor="{StaticResource TextSecondary}"
-                                           FontFamily="BeVietnamPro" />
+                                    <Label
+                                        FontFamily="{x:Null}"
+                                        Text="{Binding Description}"
+                                        TextColor="{StaticResource TextSecondary}" />
 
-                                    <Border BackgroundColor="#F8FAFC"
-                                            Padding="12"
-                                            Stroke="{StaticResource Border}"
-                                            StrokeShape="RoundRectangle 14">
+                                    <Border
+                                        BackgroundColor="#F8FAFC"
+                                        Padding="12"
+                                        Stroke="{StaticResource Border}"
+                                        StrokeShape="RoundRectangle 14">
                                         <VerticalStackLayout Spacing="4">
-                                            <Label Text="{Binding DisplayLabel}"
-                                                   FontFamily="BeVietnamProSemiBold"
-                                                   TextColor="{StaticResource TextSecondary}" />
-                                            <Label Text="{Binding DisplayPrice, StringFormat='{0:N0} đ'}"
-                                                   FontFamily="BeVietnamProBold"
-                                                   FontSize="18"
-                                                   TextColor="{StaticResource TextPrimary}" />
+                                            <Label
+                                                FontFamily="{x:Null}"
+                                                Text="{Binding DisplayLabel}"
+                                                TextColor="{StaticResource TextSecondary}" />
+                                            <Label
+                                                FontFamily="{x:Null}"
+                                                FontSize="18"
+                                                Text="{Binding DisplayPrice, StringFormat='VND {0:N0}'}"
+                                                TextColor="{StaticResource TextPrimary}" />
                                         </VerticalStackLayout>
                                     </Border>
 
-                                    <VerticalStackLayout Spacing="6"
-                                                         BindableLayout.ItemsSource="{Binding Features}">
+                                    <VerticalStackLayout
+                                        BindableLayout.ItemsSource="{Binding Features}"
+                                        Spacing="6">
                                         <BindableLayout.ItemTemplate>
                                             <DataTemplate x:DataType="x:String">
-                                                <Label Text="{Binding ., StringFormat='• {0}'}"
-                                                       TextColor="{StaticResource TextSecondary}"
-                                                       FontFamily="BeVietnamPro" />
+                                                <Label
+                                                    FontFamily="{x:Null}"
+                                                    Text="{Binding ., StringFormat='- {0}'}"
+                                                    TextColor="{StaticResource TextSecondary}" />
                                             </DataTemplate>
                                         </BindableLayout.ItemTemplate>
                                     </VerticalStackLayout>
 
-                                    <Button Text="{Binding DisplayLabel, StringFormat='Đăng ký {0}'}"
-                                            Style="{StaticResource PrimaryButton}"
-                                            Command="{Binding Source={x:Reference PageRoot}, Path=BindingContext.SubscribeMonthlyCommand}"
-                                            CommandParameter="{Binding .}"
-                                            FontFamily="BeVietnamProSemiBold" />
+                                    <Button
+                                        Command="{Binding Source={x:Reference PageRoot}, Path=BindingContext.SubscribeMonthlyCommand}"
+                                        CommandParameter="{Binding .}"
+                                        FontFamily="{x:Null}"
+                                        Style="{StaticResource PrimaryButton}"
+                                        Text="{Binding DisplayLabel, StringFormat='Subscribe {0}'}" />
                                 </VerticalStackLayout>
                             </Border>
                         </DataTemplate>
@@ -166,49 +183,68 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <Grid IsVisible="{Binding IsQrVisible}"
-              BackgroundColor="#990F172A"
-              InputTransparent="False"
-              Padding="24"
-              ZIndex="10">
-            <Border BackgroundColor="White"
-                    Padding="20"
-                    StrokeThickness="0"
-                    StrokeShape="RoundRectangle 24"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center"
-                    MaximumWidthRequest="420">
-                <VerticalStackLayout Spacing="16">
-                    <Label Text="{Binding QrDialogTitle}"
-                           FontFamily="BeVietnamProBold"
-                           FontSize="22"
-                           HorizontalTextAlignment="Center"
-                           TextColor="{StaticResource TextPrimary}" />
-                    <Label Text="{Binding PendingCheckoutTitle}"
-                           HorizontalTextAlignment="Center"
-                           TextColor="{StaticResource TextSecondary}" />
-                    <Image Source="{Binding QrImageUrl}"
-                           HeightRequest="280"
-                           WidthRequest="280"
-                           HorizontalOptions="Center" />
-                    <Label Text="{Binding QrDialogHint}"
-                           HorizontalTextAlignment="Center"
-                           TextColor="{StaticResource TextSecondary}" />
-                    <Button Text="{Binding OpenPayOsText}"
-                            Style="{StaticResource PrimaryButton}"
-                            Command="{Binding ContinuePaymentCommand}" />
-                    <Grid ColumnDefinitions="*,*"
-                          ColumnSpacing="10">
-                        <Button Grid.Column="0"
-                                Text="{Binding PaymentCompletedText}"
-                                Style="{StaticResource SecondaryButton}"
-                                Command="{Binding SyncPaymentCommand}" />
-                        <Button Grid.Column="1"
-                                Text="{Binding CloseQrText}"
-                                Style="{StaticResource SecondaryButton}"
-                                Command="{Binding CloseQrCommand}" />
-                    </Grid>
-                </VerticalStackLayout>
+        <Grid
+            BackgroundColor="#990F172A"
+            InputTransparent="False"
+            IsVisible="{Binding IsQrVisible}"
+            Padding="12"
+            ZIndex="10">
+            <Border
+                BackgroundColor="White"
+                HorizontalOptions="Center"
+                MaximumHeightRequest="{Binding QrDialogMaxHeight}"
+                Padding="16"
+                StrokeShape="RoundRectangle 24"
+                StrokeThickness="0"
+                VerticalOptions="Center"
+                WidthRequest="{Binding QrDialogWidth}">
+                <ScrollView>
+                    <VerticalStackLayout Spacing="14">
+                        <Label
+                            FontFamily="{x:Null}"
+                            FontSize="20"
+                            HorizontalTextAlignment="Center"
+                            Text="{Binding QrDialogTitle}"
+                            TextColor="{StaticResource TextPrimary}" />
+
+                        <Label
+                            HorizontalTextAlignment="Center"
+                            LineBreakMode="WordWrap"
+                            Text="{Binding PendingCheckoutTitle}"
+                            TextColor="{StaticResource TextSecondary}" />
+
+                        <Image
+                            HeightRequest="{Binding QrImageSize}"
+                            HorizontalOptions="Center"
+                            IsVisible="{Binding ShowQrImage}"
+                            Source="{Binding QrImageUrl}"
+                            WidthRequest="{Binding QrImageSize}" />
+
+                        <Label
+                            HorizontalTextAlignment="Center"
+                            LineBreakMode="WordWrap"
+                            Text="{Binding QrDialogHint}"
+                            TextColor="{StaticResource TextSecondary}" />
+
+                        <ActivityIndicator
+                            Color="{StaticResource Primary}"
+                            HorizontalOptions="Center"
+                            IsRunning="{Binding IsPaymentChecking}"
+                            IsVisible="{Binding IsPaymentChecking}" />
+
+                        <Label
+                            HorizontalTextAlignment="Center"
+                            IsVisible="{Binding IsPaymentChecking}"
+                            LineBreakMode="WordWrap"
+                            Text="{Binding PaymentCheckingMessage}"
+                            TextColor="{StaticResource TextSecondary}" />
+
+                        <Button
+                            Command="{Binding CloseQrCommand}"
+                            Style="{StaticResource SecondaryButton}"
+                            Text="{Binding CloseQrText}" />
+                    </VerticalStackLayout>
+                </ScrollView>
             </Border>
         </Grid>
     </Grid>

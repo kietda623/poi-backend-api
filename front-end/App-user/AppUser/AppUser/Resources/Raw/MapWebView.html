@@ -14,10 +14,49 @@
     <style>
         body { margin: 0; padding: 0; overflow: hidden; background-color: #f8f9fa; }
         #map { width: 100vw; height: 100vh; }
+
+        /* Floating "My Location" button */
+        #btn-my-location {
+            position: fixed;
+            bottom: 100px;
+            right: 16px;
+            z-index: 1000;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            transition: transform 0.15s ease;
+        }
+        #btn-my-location:active {
+            transform: scale(0.9);
+        }
+
+        /* Pulsing user location dot */
+        .user-pulse {
+            width: 18px; height: 18px;
+            background: #4285F4;
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 0 rgba(66,133,244,0.5);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(66,133,244,0.5); }
+            70% { box-shadow: 0 0 0 16px rgba(66,133,244,0); }
+            100% { box-shadow: 0 0 0 0 rgba(66,133,244,0); }
+        }
     </style>
 </head>
 <body>
     <div id="map"></div>
+    <button id="btn-my-location" onclick="centerOnUser()" title="My Location">📍</button>
     <script>
         var map = L.map('map').setView([10.7744, 106.7015], 13);
         
@@ -27,17 +66,10 @@
         }).addTo(map);
 
         var markers = [];
-        var heatLayer = null; // Biến lưu trữ lớp Heatmap
+        var heatLayer = null;
         var userMarker = null;
-
-        var userIcon = L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowSize: [41, 41]
-        });
+        var userLat = null;
+        var userLng = null;
 
         var poiIcon = L.icon({
             iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
@@ -48,20 +80,25 @@
             shadowSize: [41, 41]
         });
 
-        // Hàm này sẽ dùng WebView.Eval() để gọi từ C#
+        // Custom pulsing dot icon for user location
+        var userDivIcon = L.divIcon({
+            className: '',
+            html: '<div class="user-pulse"></div>',
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+        });
+
         function updatePOIs(jsonString) {
-            // Xoá markers cũ
             markers.forEach(function(m) { map.removeLayer(m); });
             markers = [];
 
-            // Xoá heatlayer cũ nếu có
             if (heatLayer) {
                 map.removeLayer(heatLayer);
             }
 
             var data = JSON.parse(jsonString);
             var bounds = [];
-            var heatPoints = []; // Mảng chứa vị trí cường độ cho Heatmap
+            var heatPoints = [];
 
             data.forEach(function(poi) {
                 if(poi.Lat && poi.Lng) {
@@ -74,25 +111,20 @@
                                     '</button>' +
                                     '</div>';
 
-                    // Thêm Marker thông thường
                     var m = L.marker([poi.Lat, poi.Lng], {icon: poiIcon})
                         .addTo(map)
                         .bindPopup(popupHtml);
                     
                     markers.push(m);
                     bounds.push([poi.Lat, poi.Lng]);
-                    
-                    // Thêm 1 vị trí POI vào danh sách render Heat Map
-                    // Mặc định scale là 1
                     heatPoints.push([poi.Lat, poi.Lng, 1.0]); 
                 }
             });
 
-            // Tiến hành dán Heat layer vào bản đồ
             if (heatPoints.length > 0) {
                 heatLayer = L.heatLayer(heatPoints, {
-                    radius: 35, // Độ rộng khu vực toả nhiêt
-                    blur: 20, // Độ làm mờ biên
+                    radius: 35,
+                    blur: 20,
                     maxZoom: 16,
                     max: 1.0, 
                     gradient: {
@@ -103,20 +135,32 @@
                 }).addTo(map);
             }
 
-            // Autofit vùng nhìn camera
             if(bounds.length > 0) {
                 map.fitBounds(bounds, { padding: [30, 30] });
             }
         }
 
         function updateUserLocation(lat, lng) {
+            userLat = lat;
+            userLng = lng;
             if(userMarker) {
                 map.removeLayer(userMarker);
             }
-            userMarker = L.marker([lat, lng], {icon: userIcon, zIndexOffset: 1000})
+            userMarker = L.marker([lat, lng], {icon: userDivIcon, zIndexOffset: 1000})
                 .addTo(map)
-                .bindPopup('<b style="font-family:sans-serif;">Vị trí của bạn</b>');
+                .bindPopup('<b style="font-family:sans-serif;">Your location</b>');
+        }
+
+        // Center map on user's current location with smooth animation
+        function centerOnUser() {
+            if (userLat !== null && userLng !== null) {
+                map.flyTo([userLat, userLng], 16, { duration: 0.8 });
+                if (userMarker) {
+                    userMarker.openPopup();
+                }
+            }
         }
     </script>
 </body>
 </html>
+

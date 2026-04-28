@@ -93,6 +93,7 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await context.Database.MigrateAsync();
     await DatabaseSchemaBootstrapper.EnsureServicePackageSchemaAsync(context);
+    await DatabaseSchemaBootstrapper.EnsureGuestFeatureSchemaAsync(context);
     if (!context.Roles.Any(r => r.Name == "ADMIN"))
         context.Roles.Add(new Role { Name = "ADMIN" });
     if (!context.Roles.Any(r => r.Name == "OWNER"))
